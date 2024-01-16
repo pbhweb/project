@@ -1,5 +1,9 @@
+
+
+
 <!DOCTYPE html>
 <html lang="ar">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,35 +11,67 @@
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
-    body {
+     body {
       background-image: url('library.jpg');
       background-size: cover;
-      background-position: center top;  /* Adjust the positioning */
+      background-position: center top;
+      background-repeat: no-repeat;
       direction: rtl;
     }
-    #research-center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 72px;
-      color: white;
-      animation: moveText 2s infinite alternate;
+
+    .search-container {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 20px;
     }
-    @keyframes moveText {
-      0% {
-        transform: translate(-50%, -50%);
-      }
-      100% {
-        transform: translate(-50%, -40%);
-      }
+
+    .search-input {
+      background-color: transparent;
+      border: none;
+      border-bottom: 2px solid #999;
+      color: #fff;
+      padding: 5px;
+      font-size: 16px;
+      width: 200px;
+      outline: none;
+      text-align: right;
+      direction: rtl;
+      margin-right: 10px;
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .search-button {
+      background-color: #c0c0c0;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
     }
   </style>
+  <script>
+    // Disable right-click context menu
+    document.addEventListener('contextmenu', function(event) {
+      event.preventDefault();
+    });
+
+    // Disable text selection
+    document.addEventListener('selectstart', function(event) {
+      event.preventDefault();
+    });
+  </script>
 </head>
+
+
+
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#"></a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" 
+      aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
@@ -76,24 +112,35 @@
     </div>
 
     <div class="container mt-5">
-        <table id="data-table" class="table table-striped">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Mobile</th>
-              <th>Subject</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    
-      <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-      <script src="script.js"></script>
-      <script>
-        // Initialize Firebase
+      <form class="form-inline">
+        <div class="search-container">
+          <input class="form-control mr-sm-2 search-input" type="text" id="search-input" placeholder="بحث بالمادة" oninput="searchBySubject()">
+          <button class="btn btn-primary my-2 my-sm-0 search-button" type="button" onclick="searchBySubject()">بحث</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="container mt-5">
+      <table id="data-table" class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Subject</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Import required libraries -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
       authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
@@ -103,36 +150,81 @@
       messagingSenderId: "103778555109",
       appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
     };
-    
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-    
+
     // Create a reference to the database
     const database = firebase.database();
-    
-    // Fetch the data from the database
-    const fetchData = () => {
-      const tableRef = document.getElementById('data-table').getElementsByTagName('tbody')[0];
-      database.ref('students').on('value', (snapshot) => {
-        tableRef.innerHTML = "";
-        snapshot.forEach((childSnapshot) => {
-          const childData = childSnapshot.val();
-          const row = tableRef.insertRow();
-          row.insertCell().innerHTML = childData.id;
-          row.insertCell().innerHTML = childData.name;
-          row.insertCell().innerHTML = childData.mobile;
-          row.insertCell().innerHTML = childData.subject;
-        });
-      });
-    };
-    
-    fetchData();
-      </script>
-  </div>
+const tableRef = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+const searchInput = document.getElementById('search-input');
+const fetchData = () => {
+  database.ref('students').on('value', (snapshot) => {
+    // Clear table rows
+    while (tableRef.hasChildNodes()) {
+      tableRef.removeChild(tableRef.firstChild);
+    }
 
-  <!-- Bootstrap JS and jQuery -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    snapshot.forEach((childSnapshot) => {
+      // Get student data
+      const studentData = childSnapshot.val();
+      const studentId = studentData.id;
+      const studentSubject = studentData.subject;
+      const studentDate = studentData.datetime;
+
+      // Partially hide studentId value
+      const displayedId = "*".repeat(Math.floor(studentId.toString().length / 2)) + studentId.toString().slice(Math.floor(studentId.toString().length / 2));
+
+      // Create table row
+      const row = document.createElement('tr');
+
+      // Add data cells to the row
+      const idCell = document.createElement('td');
+      idCell.classList.add('id-column');
+      const span = document.createElement('span');
+      span.textContent = displayedId;
+      idCell.appendChild(span);
+      row.appendChild(idCell);
+
+      const subjectCell = document.createElement('td');
+      subjectCell.textContent = studentSubject;
+      row.appendChild(subjectCell);
+
+      const dateCell = document.createElement('td');
+      dateCell.textContent = studentDate;
+      row.appendChild(dateCell);
+
+      // Add the row to the table body
+      tableRef.appendChild(row);
+    });
+  });
+};
+
+// Call fetchData initially
+fetchData();
+
+// Refresh data every minute
+setInterval(fetchData, 60000);
+
+// Search by Subject
+const searchBySubject = () => {
+  const searchValue = searchInput.value.toLowerCase();
+  const rows = tableRef.getElementsByTagName('tr');
+
+  for (let i = 1; i < rows.length; i++) {
+    const subjectCell = rows[i].getElementsByTagName('td')[1];
+    const subject = subjectCell.textContent.toLowerCase();
+
+    if (subject.includes(searchValue)) {
+      rows[i].style.display = '';
+    } else {
+      rows[i].style.display = 'none';
+    }
+  }
+};
+
+// Add input event listener to trigger search on input change
+searchInput.addEventListener('input', searchBySubject);
+</script>
 </body>
+
 </html>
-
-
