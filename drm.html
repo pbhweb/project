@@ -126,7 +126,7 @@
           <tr>
             <th>ID</th>
             <th>Subject</th>
-            <th>Date</th>
+            <th>Datetime</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -159,14 +159,25 @@ const tableRef = document.getElementById('data-table').getElementsByTagName('tbo
 const searchInput = document.getElementById('search-input');
 const fetchData = () => {
   database.ref('students').on('value', (snapshot) => {
+    const searchData = [];
+    snapshot.forEach((childSnapshot) => {
+      searchData.push(childSnapshot.val());
+    });
+
+    // Filter data based on search input
+    const searchValue = searchInput.value.toLowerCase();
+    const filteredData = searchData.filter((studentData) => {
+      const studentSubject = studentData.subject.toLowerCase();
+      return studentSubject.includes(searchValue);
+    });
+
     // Clear table rows
     while (tableRef.hasChildNodes()) {
       tableRef.removeChild(tableRef.firstChild);
     }
 
-    snapshot.forEach((childSnapshot) => {
-      // Get student data
-      const studentData = childSnapshot.val();
+    // Render filtered data
+    filteredData.forEach((studentData) => {
       const studentId = studentData.id;
       const studentSubject = studentData.subject;
       const studentDate = studentData.datetime;
@@ -207,19 +218,7 @@ setInterval(fetchData, 60000);
 
 // Search by Subject
 const searchBySubject = () => {
-  const searchValue = searchInput.value.toLowerCase();
-  const rows = tableRef.getElementsByTagName('tr');
-
-  for (let i = 1; i < rows.length; i++) {
-    const subjectCell = rows[i].getElementsByTagName('td')[1];
-    const subject = subjectCell.textContent.toLowerCase();
-
-    if (subject.includes(searchValue)) {
-      rows[i].style.display = '';
-    } else {
-      rows[i].style.display = 'none';
-    }
-  }
+  fetchData();
 };
 
 // Add input event listener to trigger search on input change
