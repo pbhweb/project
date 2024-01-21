@@ -6,18 +6,7 @@
   <title>Desktop</title>
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.css" />
 
-  <script src="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
-
-  <script src="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.js"></script>
-  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.css" />
-  
-
-  
   <style>
     body {
       background-image: url('library.jpg');
@@ -43,7 +32,7 @@
       }
     }
   </style>
- 
+
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark" oncontextmenu="return false"> 
@@ -91,58 +80,37 @@
     <div class="row">
       <div class="col-sm-12">
         <h1 style="margin-top: 200px;"  id="research-center" class="text-center">Research Center</h1>
+        <button onclick="connectWithAuth0()" class="btn btn-primary">Login with Auth0</button>
       </div>
     </div>
   </div>
-
-  <!-- Sign Up Form -->
-  <div id="firebaseui-auth-container"></div>
-
-  <!-- Initialize Firebase -->
-  <script>
-    // Your Firebase configuration
-    var  firebaseConfig = {
-        apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
-        authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
-        databaseURL: "https://notify-666e5-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "notify-666e5",
-        storageBucket: "notify-666e5.appspot.com",
-        messagingSenderId: "103778555109",
-        appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
-    };
   
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-  
-    // Authenticatation state change listener
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        // User is signed in, do something with the signed-in user
-        console.log("User is signed in:", user);
-        alert("User is signed in: " + user.email);
-        // Redirect the user to the desired page
-        window.location.href = "https://pbhweb.github.io/project/desktop.html";
-      } else {
-        // User is signed out, display the sign-in options
-        var ui = new firebaseui.auth.AuthUI(firebase.auth());
-        ui.start('#firebaseui-auth-container', {
-          signInOptions: [
-            firebase.auth.GoogleAuthProvider.PROVIDER_ID
-          ],
-          callbacks: {
-            signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-              return false;
-            }
-          }
-        });
-      }
-    });
+  <!-- Auth0 Lock -->
+  <script src="https://cdn.auth0.com/js/lock/11.14/lock.min.js"></script>
+  <script type="text/javascript">
+   // Auth0 configuration
+   var lock = new Auth0Lock('hkAyerndC0nVLhFkjPbhW2px2WPOsvWo', 'dev-76752jxuwjiwb7gc.us.auth0.com', {
+     auth: {
+       redirectUrl: 'https://pbhweb.github.io/project/arabic.html',
+       responseType: '_uBYCnTy4hG3M_HM7UCt0fXfTE7N71gyhmtNyKQKmn9w5e7QxIT1P9zQ0JeG7ycs'
+     }
+   });
+
+   // On button click, open the Auth0 login modal
+   function connectWithAuth0() {
+     lock.show();
+   }
+
+   // Handle the authentication result
+   lock.on('authenticated', function (authResult) {
+     // Retrieve the access token and ID token from the authResult
+     var accessToken = authResult.accessToken;
+     var idToken = authResult.idToken;
+
+     // Use the tokens or call a server-side endpoint for validation/storage
+     console.log('Access Token:', accessToken);console.log('ID Token:', idToken);
+     alert('Authenticated with Auth0');
+   });
   </script>
-  <!-- Bootstrap JS and jQuery -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
- 
-
 </body>
 </html>
