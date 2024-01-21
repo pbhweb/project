@@ -4,20 +4,8 @@
       "rewrites": [
         {
           "source": "**",
-          "destination": "/index.html"
+          "destination": "/project/desktop.html"
         }
-      ],
-      "redirects": [
-        {
-          "source": "/__/auth/handler",
-          "destination": "/project/desktop.html",
-          "type": 301
-        }
-      ],
-      "ignore": [
-        "firebase.json",
-        "*/.",
-        "*/node_modules/*"
       ]
     }
   }
