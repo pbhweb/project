@@ -6,6 +6,11 @@
   <title>Desktop</title>
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.js"></script>
+  
   <style>
     body {
       background-image: url('library.jpg');
@@ -31,20 +36,10 @@
       }
     }
   </style>
-  <script>
-    // Disable right-click context menu
-    document.addEventListener('contextmenu', function(event) {
-      event.preventDefault();
-    });
-
-    // Disable text selection
-    document.addEventListener('selectstart', function(event) {
-      event.preventDefault();
-    });
-  </script>
+ 
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" oncontextmenu="return false"> 
     <a class="navbar-brand" href="#"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -55,7 +50,7 @@
           <a class="nav-link" href="#">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Library</a>
+          <a class="nav-link" href="library.html">Library</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#">Archive</a>
@@ -73,6 +68,12 @@
           <a class="nav-link" href="#">Lab</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="outstandate.html">Subscriptions</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Follow up</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="arabic.html">العربية</a>
         </li>
       </ul>
@@ -82,13 +83,45 @@
   <div class="container mt-5">
     <div class="row">
       <div class="col-sm-12">
-        <h1 id="research-center" class="text-center">Research Center</h1>
+        <h1 style="margin-top: 200px;"  id="research-center" class="text-center">Research Center</h1>
       </div>
     </div>
   </div>
 
+  <div id="google-sign-in"></div>
+
+  <!-- Initialize Firebase -->
+  <script>
+    var  firebaseConfig = {
+      apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
+      authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
+      databaseURL: "https://notify-666e5-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "notify-666e5",
+      storageBucket: "notify-666e5.appspot.com",
+      messagingSenderId: "103778555109",
+      appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in, do something with the signed-in user
+      } else {
+        // User is signed out, display the sign-in button
+        var ui = new firebaseui.auth.AuthUI(firebase.auth());
+        ui.start('#google-sign-in', {signInOptions: [
+            firebase.auth.GoogleAuthProvider.PROVIDER_ID
+          ]
+        });
+      }
+    });
+  </script>
+
   <!-- Bootstrap JS and jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+ 
+
 </body>
 </html>
