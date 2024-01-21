@@ -6,7 +6,7 @@
   <title>Desktop</title>
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
+  
   <style>
     body {
       background-image: url('library.jpg');
@@ -14,6 +14,7 @@
       background-position: center top;  /* Adjust the positioning */
       direction: rtl;
     }
+  
     #research-center {
       position: absolute;
       top: 50%;
@@ -23,6 +24,7 @@
       color: white;
       animation: moveText 2s infinite alternate;
     }
+  
     @keyframes moveText {
       0% {
         transform: translate(-50%, -50%);
@@ -32,12 +34,19 @@
       }
     }
   </style>
-
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark" oncontextmenu="return false"> 
     <a class="navbar-brand" href="#"></a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
@@ -79,38 +88,46 @@
   <div class="container mt-5">
     <div class="row">
       <div class="col-sm-12">
-        <h1 style="margin-top: 200px;"  id="research-center" class="text-center">Research Center</h1>
+        <h1 style="margin-top: 200px;" id="research-center" class="text-center">Research Center</h1>
         <button onclick="connectWithAuth0()" class="btn btn-primary">Login with Auth0</button>
       </div>
     </div>
   </div>
-  
+
   <!-- Auth0 Lock -->
   <script src="https://cdn.auth0.com/js/lock/11.14/lock.min.js"></script>
   <script type="text/javascript">
-   // Auth0 configuration
-   var lock = new Auth0Lock('hkAyerndC0nVLhFkjPbhW2px2WPOsvWo', 'dev-76752jxuwjiwb7gc.us.auth0.com', {
-     auth: {
-       redirectUrl: 'https://pbhweb.github.io/project/arabic.html',
-       responseType: '_uBYCnTy4hG3M_HM7UCt0fXfTE7N71gyhmtNyKQKmn9w5e7QxIT1P9zQ0JeG7ycs'
-     }
-   });
-
-   // On button click, open the Auth0 login modal
-   function connectWithAuth0() {
-     lock.show();
-   }
-
-   // Handle the authentication result
-   lock.on('authenticated', function (authResult) {
-     // Retrieve the access token and ID token from the authResult
-     var accessToken = authResult.accessToken;
-     var idToken = authResult.idToken;
-
-     // Use the tokens or call a server-side endpoint for validation/storage
-     console.log('Access Token:', accessToken);console.log('ID Token:', idToken);
-     alert('Authenticated with Auth0');
-   });
+    // Auth0 configuration
+    var lock = new Auth0Lock(
+      'hkAyerndC0nVLhFkjPbhW2px2WPOsvWo',
+      'dev-76752jxuwjiwb7gc.us.auth0.com',
+      {
+        auth: {
+          redirectUrl: 'https://pbhweb.github.io/project/arabic.html',
+          responseType: 'token',
+          params: {
+            max_age: 36000
+          }
+        }
+      }
+    );
+  
+    // On button click, open the Auth0 login modal
+    function connectWithAuth0() {
+      lock.show();
+    }
+  
+    // Handle the authentication result
+    lock.on('authenticated', function(authResult) {
+      // Retrieve the access token and ID token from the authResult
+      var accessToken = authResult.accessToken;
+      var idToken = authResult.idToken;
+  
+      // Use the tokens or call a server-side endpoint for validation/storage
+      console.log('Access Token:', accessToken);
+      console.log('ID Token:', idToken);
+      alert('Authenticated with Auth0');
+    });
   </script>
 </body>
 </html>
