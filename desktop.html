@@ -8,9 +8,11 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.css" />
   <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  
 
   
   <style>
@@ -94,29 +96,61 @@
 
   <!-- Initialize Firebase -->
   <script>
+
     var  firebaseConfig = {
-      apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
-      authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
-      databaseURL: "https://notify-666e5-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "notify-666e5",
-      storageBucket: "notify-666e5.appspot.com",
-      messagingSenderId: "103778555109",
-      appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
+        apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
+        authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
+        databaseURL: "https://notify-666e5-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "notify-666e5",
+        storageBucket: "notify-666e5.appspot.com",
+        messagingSenderId: "103778555109",
+        appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
     };
     firebase.initializeApp(firebaseConfig);
-
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        // User is signed in, do something with the signed-in user
-      } else {
-        // User is signed out, display the sign-in button
-        var ui = new firebaseui.auth.AuthUI(firebase.auth());
-        ui.start('#google-sign-in', {signInOptions: [
-            firebase.auth.GoogleAuthProvider.PROVIDER_ID
-          ]
+  
+    // Sign up function using email and password
+    function signUp() {
+      var email = document.getElementById("signup-email").value;
+      var password = document.getElementById("signup-password").value;
+  
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(function(userCredential) {
+          // Sign up successful
+          var user = userCredential.user;
+          console.log("Sign up successful:", user);
+        })
+        .catch(function(error) {
+          // Handle sign up errors
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          console.log("Sign up error:", errorCode, errorMessage);
         });
-      }
-    });
+    }
+  
+    // Login function using email and password
+    function login() {
+      var email = document.getElementById("login-email").value;
+      var password = document.getElementById("login-password").value;
+  
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(function(userCredential) {
+          // Login successful
+          var user = userCredential.user;
+          console.log("Login successful:", user);
+        })
+        .catch(function(error) {
+          // Handle login errors
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          console.log("Login error:", errorCode, errorMessage);
+        });
+    }
+  
+    // Initiate sign up
+    document.getElementById("signup-btn").addEventListener("click", signUp);
+  
+    // Initiate login
+    document.getElementById("login-btn").addEventListener("click", login);
   </script>
 
   <!-- Bootstrap JS and jQuery -->
