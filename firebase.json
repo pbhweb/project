@@ -3,8 +3,8 @@
     "public": "public",
     "rewrites": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/__/*",
+        "destination": "/project/"
       }
     ],
     "ignore": [
@@ -38,8 +38,8 @@
         "function": "app"
       },
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/__/*",
+        "destination": "/desktop.html"
       }
     ]
   }
