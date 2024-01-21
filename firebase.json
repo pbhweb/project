@@ -1,43 +1,27 @@
 {
     "hosting": {
       "public": "public",
-      "rewrites": [
+      "ignore": [
+        "firebase.json",
+        "*/.",
+        "*/node_modules/*"
+      ],
+      "redirects": [
         {
           "source": "/__/auth/handler",
-          "destination": "/__/auth/handler",
-          "type": 301
-        },
+          "type": 302,
+          "destination": "/auth/handler"
+        }
+      ],
+      "rewrites": [
         {
           "source": "/auth/**",
           "function": "app"
         },
         {
-          "source": "/__/**",
-          "destination": "/desktop.html"
-        },
-        {
           "source": "**",
           "destination": "/index.html"
         }
-      ],
-      "ignore": [
-        "firebase.json",
-        "*/.",
-        "/node_modules/"
-      ],
-      "cleanUrls": true,
-      "trailingSlash": false,
-      "headers": [
-        {
-          "source": "/__/**",
-          "headers": [
-            {
-              "key": "Cache-Control",
-              "value": "no-cache"
-            }
-          ]
-        }
-      ],
-      "redirects": []
+      ]
     }
   }
