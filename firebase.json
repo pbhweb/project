@@ -1,46 +1,43 @@
 {
-  "hosting": {
-    "public": "public",
-    "rewrites": [
-      {
-        "source": "/__/*",
-        "destination": "/project/"
-      }
-    ],
-    "ignore": [
-      "firebase.json",
-      "*/.",
-      "*/node_modules/*"
-    ],
-    "cleanUrls": true,
-    "trailingSlash": false,
-    "headers": [
-      {
-        "source": "/__/**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache"
-          }
-        ]
-      }
-    ],
-    "redirects": [
-      {
-        "source": "/__/auth/handler",
-        "type": 301,
-        "destination": "/__/auth/handler"
-      }
-    ],
-    "rewrites": [
-      {
-        "source": "/auth/**",
-        "function": "app"
-      },
-      {
-        "source": "/__/*",
-        "destination": "/desktop.html"
-      }
-    ]
+    "hosting": {
+      "public": "public",
+      "rewrites": [
+        {
+          "source": "/__/auth/handler",
+          "destination": "/__/auth/handler",
+          "type": 301
+        },
+        {
+          "source": "/auth/**",
+          "function": "app"
+        },
+        {
+          "source": "/__/**",
+          "destination": "/desktop.html"
+        },
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "ignore": [
+        "firebase.json",
+        "*/.",
+        "/node_modules/"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "headers": [
+        {
+          "source": "/__/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        }
+      ],
+      "redirects": []
+    }
   }
-}
