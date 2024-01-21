@@ -12,6 +12,10 @@
   <script src="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.css" />
   
 
   
@@ -92,13 +96,13 @@
     </div>
   </div>
 
-  <div id="google-sign-in"></div>
+  <!-- Sign Up Form -->
+  <div id="firebaseui-auth-container"></div>
 
   <!-- Initialize Firebase -->
   <script>
     // Your Firebase configuration
-    var firebaseConfig = {
-
+   var  firebaseConfig = {
       apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
       authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
       databaseURL: "https://notify-666e5-default-rtdb.europe-west1.firebasedatabase.app",
@@ -107,65 +111,32 @@
       messagingSenderId: "103778555109",
       appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
     };
+
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-  </script>
-</head>
-<body>
-  <!-- Sign Up Form -->
-  <h2>Sign Up</h2>
-  <input type="email" id="signup-email" placeholder="Email">
-  <input type="password" id="signup-password" placeholder="Password">
-  <button onclick="signUp()">Sign Up</button>
 
-  <!-- Login Form -->
-  <h2>Login</h2>
-  <input type="email" id="login-email" placeholder="Email">
-  <input type="password" id="login-password" placeholder="Password">
-  <button onclick="login()">Login</button>
-
-  <script>
-    // Sign Up function
-    function signUp() {
-      var email = document.getElementById("signup-email").value;
-      var password = document.getElementById("signup-password").value;
-
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then(function(userCredential) {
-          // Sign up successful
-          var user = userCredential.user;
-          console.log("Sign up successful:", user);
-          alert("Sign up successful!");
-        })
-        .catch(function(error) {
-          // Handle sign up errors
-          var errorCode = error.code;
-          var errorMessage = error.message;
-          console.log("Sign up error:", errorCode, errorMessage);
-          alert("Sign up error: " + errorMessage);
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in, do something with the signed-in user
+        console.log("User is signed in:", user);
+        alert("User is signed in: " + user.email);
+        // Redirect the user to the desired page
+        window.location.href = "https://pbhweb.github.io/project/desktop.html";
+      } else {
+        // User is signed out, display the sign-in options
+        var ui = new firebaseui.auth.AuthUI(firebase.auth());
+        ui.start('#firebaseui-auth-container', {
+          signInOptions: [
+            firebase.auth.GoogleAuthProvider.PROVIDER_ID
+          ],
+          callbacks: {
+            signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+              return false;
+            }
+          }
         });
-    }
-
-    // Login function
-    function login() {
-      var email = document.getElementById("login-email").value;
-      var password = document.getElementById("login-password").value;
-
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(function(userCredential) {
-          // Login successful
-          var user = userCredential.user;
-          console.log("Login successful:", user);
-          alert("Login successful!");
-        })
-        .catch(function(error) {
-          // Handle login errors
-          var errorCode = error.code;
-          var errorMessage = error.message;
-          console.log("Login error:", errorCode, errorMessage);
-          alert("Login error: " + errorMessage);
-        });
-    }
+      }
+    });
   </script>
   <!-- Bootstrap JS and jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
