@@ -96,63 +96,77 @@
 
   <!-- Initialize Firebase -->
   <script>
+    // Your Firebase configuration
+    var firebaseConfig = {
 
-    var  firebaseConfig = {
-        apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
-        authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
-        databaseURL: "https://notify-666e5-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "notify-666e5",
-        storageBucket: "notify-666e5.appspot.com",
-        messagingSenderId: "103778555109",
-        appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
+      apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
+      authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
+      databaseURL: "https://notify-666e5-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "notify-666e5",
+      storageBucket: "notify-666e5.appspot.com",
+      messagingSenderId: "103778555109",
+      appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
     };
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-  
-    // Sign up function using email and password
+  </script>
+</head>
+<body>
+  <!-- Sign Up Form -->
+  <h2>Sign Up</h2>
+  <input type="email" id="signup-email" placeholder="Email">
+  <input type="password" id="signup-password" placeholder="Password">
+  <button onclick="signUp()">Sign Up</button>
+
+  <!-- Login Form -->
+  <h2>Login</h2>
+  <input type="email" id="login-email" placeholder="Email">
+  <input type="password" id="login-password" placeholder="Password">
+  <button onclick="login()">Login</button>
+
+  <script>
+    // Sign Up function
     function signUp() {
       var email = document.getElementById("signup-email").value;
       var password = document.getElementById("signup-password").value;
-  
+
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .then(function(userCredential) {
           // Sign up successful
           var user = userCredential.user;
           console.log("Sign up successful:", user);
+          alert("Sign up successful!");
         })
         .catch(function(error) {
           // Handle sign up errors
           var errorCode = error.code;
           var errorMessage = error.message;
           console.log("Sign up error:", errorCode, errorMessage);
+          alert("Sign up error: " + errorMessage);
         });
     }
-  
-    // Login function using email and password
+
+    // Login function
     function login() {
       var email = document.getElementById("login-email").value;
       var password = document.getElementById("login-password").value;
-  
+
       firebase.auth().signInWithEmailAndPassword(email, password)
         .then(function(userCredential) {
           // Login successful
           var user = userCredential.user;
           console.log("Login successful:", user);
+          alert("Login successful!");
         })
         .catch(function(error) {
           // Handle login errors
           var errorCode = error.code;
           var errorMessage = error.message;
           console.log("Login error:", errorCode, errorMessage);
+          alert("Login error: " + errorMessage);
         });
     }
-  
-    // Initiate sign up
-    document.getElementById("signup-btn").addEventListener("click", signUp);
-  
-    // Initiate login
-    document.getElementById("login-btn").addEventListener("click", login);
   </script>
-
   <!-- Bootstrap JS and jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
