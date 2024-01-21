@@ -102,19 +102,20 @@
   <!-- Initialize Firebase -->
   <script>
     // Your Firebase configuration
-   var  firebaseConfig = {
-      apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
-      authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
-      databaseURL: "https://notify-666e5-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "notify-666e5",
-      storageBucket: "notify-666e5.appspot.com",
-      messagingSenderId: "103778555109",
-      appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
+    var  firebaseConfig = {
+        apiKey: "AIzaSyBrMJvDycfEjIsV8LUrK-7_aCU2GCLg7kE",
+        authDomain: "103778555109-l6ueu3pa6s2jgc8pfll87ujn8mavqk07.apps.googleusercontent.com",
+        databaseURL: "https://notify-666e5-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "notify-666e5",
+        storageBucket: "notify-666e5.appspot.com",
+        messagingSenderId: "103778555109",
+        appId: "1:103778555109:android:1cb1a1ae8722560487f00c",
     };
-
+  
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-
+  
+    // Authenticatation state change listener
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         // User is signed in, do something with the signed-in user
