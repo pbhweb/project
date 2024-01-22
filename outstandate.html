@@ -147,24 +147,26 @@
         }
     
         // Check session and redirect if needed
-        lock.checkSession({}, function (err, authResult) {
-          if (err || !authResult) {
-            // Session not started, redirect to login page
-            window.location.href = '/desktop.html';
-          } else {
-            // Session started, do something else if needed
-          }
-        });
+        var accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+          // Session not started, redirect to login page
+          window.location.href = 'project/desktop.html';
+        }
     
         // Handle the authentication result
         lock.on('authenticated', function(authResult) {
           var accessToken = authResult.accessToken;
           var idToken = authResult.idToken;
     
+          // Store the access token in local storage
+          localStorage.setItem('access_token', accessToken);
+    
           // Use the tokens or call a server-side endpoint for validation/storage
           console.log('Access Token:', accessToken);
           console.log('ID Token:', idToken);
           alert('Authenticated with Auth0');
+    
+       
         });
     
       });
