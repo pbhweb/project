@@ -30,21 +30,24 @@
         transform: translate(-50%, -40%);
       }
     }
+    .text-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 710px;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      color: black;
+    }
   </style>
-  <script>
-    // Disable right-click context menu
-    document.addEventListener("contextmenu", function(e) {
-        e.preventDefault();
-    });
-
-    // Disable text selection
-    document.addEventListener("selectstart", function(e) {
-        e.preventDefault();
-    });
-  </script>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" oncontextmenu="return false">
     <a class="navbar-brand" href="#"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -55,7 +58,7 @@
           <a class="nav-link" href="#">الرئيسية</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">المكتبة</a>
+          <a class="nav-link" href="library.html">المكتبة</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#">الأرشيف مشاريع</a>
@@ -72,6 +75,12 @@
         <li class="nav-item">
           <a class="nav-link" href="#">Lab</a>
         </li>
+      <li class="nav-item">
+        <a class="nav-link" href="outstandate.html">الآشتراكات</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">متابعة طلب</a>
+      </li>
         <li class="nav-item">
           <a class="nav-link" href="desktop.html">English</a>
         </li>
@@ -79,15 +88,75 @@
     </div>
   </nav>
 
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col-sm-12">
-        <h1 id="research-center" class="text-center">مركز البحوث</h1>
+
+
+        <div class="container mt-5">
+          <div class="row">
+     
+                  <div class="text-box">
+                    
+     
+                    <p>تنبثق خدمات التطبيق عبر سطح المكتب كمكتبة متنوعة مع توفر المكاتب المجانية والمكاتب المدفوعة، حيث يتمكن المستخدم من الوصول إلى المكاتب المدفوعة فقط إذا كان لديه صلاحية دخول من قبل مؤسسة تعليمية.
+          يتوفر أيضًا قسم للأرشيف يحتوي على بحوث جامعية سابقة تساعد الطلاب في فهم آليات البحث وتطبيقها بشكل صحيح في بحوثهم.
+          تحتوي التطبيق أيضًا على نظام إدارة الحقوق الرقمية (DRM) الذي يتيح للمستخدم تتبع المشاركين في الأبحاث لضمان عدم تسرب البحث ومشاركته مع طلاب آخرين دون إذن.
+          بالإضافة إلى ذلك، يتوفر قسم لحلول الكتب (Text solutions) والذي يحتوي على إجابات لأسئلة منصات مثل Course Hero وBrainly وQuizlet، ويمكن الوصول إليها مجانًا عند توفرها.
+          كما يتوفر قسم خاص بـ Chegg والذي يحتوي على بيانات محفوظة في نظام خاص يمكن الوصول إليها مجانًا عند توفرها.
+          أخيرًا، يحتوي التطبيق على قسم Lab يوفر مكاتب ومنصات تساعد المستخدم على تعلم الأكواد والبيئات البرمجية المختلفة بشكل مجاني.
+جميع الخدمات المذكورة متاحة في التطبيق عبر سطح المكتب ويمكن الوصول إليها .</p>
       </div>
     </div>
   </div>
-
+        </div>
   <!-- Bootstrap JS and jQuery -->
+  <script src="https://cdn.auth0.com/js/lock/12.3.0/lock.min.js"></script>
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", function() {
+    
+        // Auth0 configuration
+        var lock = new Auth0Lock(
+           'hkAyerndC0nVLhFkjPbhW2px2WPOsvWo',
+          'dev-76752jxuwjiwb7gc.us.auth0.com',
+          {
+            auth: {
+              redirectUrl: 'https://pbhweb.github.io/project/arabic.html',
+              responseType: 'token',
+              params: {
+                max_age: 36000
+              }
+            }
+          }
+        );
+    
+        // On button click, open the Auth0 login modal
+        function connectWithAuth0() {
+          lock.show();
+        }
+    
+        // Check session and redirect if needed
+        var accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+          // Session not started, redirect to login page
+          window.location.href = 'desktop.html';
+        }
+    
+        // Handle the authentication result
+        lock.on('authenticated', function(authResult) {
+          var accessToken = authResult.accessToken;
+          var idToken = authResult.idToken;
+    
+          // Store the access token in local storage
+          localStorage.setItem('access_token', accessToken);
+    
+          // Use the tokens or call a server-side endpoint for validation/storage
+          console.log('Access Token:', accessToken);
+          console.log('ID Token:', idToken);
+          alert('Authenticated with Auth0');
+    
+       
+        });
+    
+      });
+    </script>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
