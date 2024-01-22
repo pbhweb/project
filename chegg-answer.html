@@ -201,54 +201,6 @@
       });
     }
   </script>
-  <script src="https://cdn.auth0.com/js/lock/12.3.0/lock.min.js"></script>
-  <script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function() {
-  
-      // Auth0 configuration
-      var lock = new Auth0Lock(
-         'hkAyerndC0nVLhFkjPbhW2px2WPOsvWo',
-        'dev-76752jxuwjiwb7gc.us.auth0.com',
-        {
-          auth: {
-            redirectUrl: 'https://pbhweb.github.io/project/arabic.html',
-            responseType: 'token',
-            params: {
-              max_age: 36000
-            }
-          }
-        }
-      );
-  
-      // On button click, open the Auth0 login modal
-      function connectWithAuth0() {
-        lock.show();
-      }
-  
-      // Check session and redirect if needed
-      var accessToken = localStorage.getItem('access_token');
-      if (!accessToken) {
-        // Session not started, redirect to login page
-        window.location.href = 'desktop.html';
-      }
-  
-      // Handle the authentication result
-      lock.on('authenticated', function(authResult) {
-        var accessToken = authResult.accessToken;
-        var idToken = authResult.idToken;
-  
-        // Store the access token in local storage
-        localStorage.setItem('access_token', accessToken);
-  
-        // Use the tokens or call a server-side endpoint for validation/storage
-        console.log('Access Token:', accessToken);
-        console.log('ID Token:', idToken);
-        alert('Authenticated with Auth0');
-  
-     
-      });
-  
-    });
-  </script>
+
 </body>
 </html>
