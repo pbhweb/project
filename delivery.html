@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav li {
+            display: inline;
+            margin-right: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+        }
+
+        main {
+            padding: 1rem;
+        }
+
+        section {
+            margin-bottom: 2rem;
+        }
+
+        #restaurant-list, #menu-items, #cart-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            width: 200px;
+        }
+
+        .card h4, .card h3 {
+            margin: 0 0 1rem 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Delivery Orders</h1>
+        <nav>
+            <ul>
+                <li><a href="#restaurants">Restaurants</a></li>
+                <li><a href="#cart">Cart</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="restaurants">
+            <h2>Restaurants</h2>
+            <div id="restaurant-list"></div>
+        </section>
+        <section id="menu">
+            <h2>Menu</h2>
+            <div id="menu-items"></div>
+        </section>
+        <section id="cart">
+            <h2>Cart</h2>
+            <div id="cart-items"></div>
+            <button id="checkout">Checkout</button>
+        </section>
+    </main>
+    
+    <!-- The Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Checkout</h2>
+            <div id="cart-details"></div>
+            <form id="checkout-form">
+                <label for="name">Name:</label><br>
+                <input type="text" id="name" name="name" required><br>
+                <label for="address">Address:</label><br>
+                <input type="text" id="address" name="address" required><br>
+                <label for="phone">Phone:</label><br>
+                <input type="tel" id="phone" name="phone" required><br><br>
+                <button type="submit">Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAK5RudP6qIPX8kUbHj3YdaMPERrmry5ns",
+            authDomain: "project-80357.firebaseapp.com",
+            databaseURL: "https://project-80357-default-rtdb.firebaseio.com",
+            projectId: "project-80357",
+            storageBucket: "project-80357.appspot.com",
+            messagingSenderId: "421768499139",
+            appId: "1:421768499139:web:5f8a0d50956a5cdeacb9a0"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Sample data
+        const restaurants = [
+            { id: 1, name: "Restaurant A" },
+            { id: 2, name: "Restaurant B" },
+            { id: 3, name: "Restaurant C" }
+        ];
+
+        const menuItems = {
+            1: [
+                { id: 1, name: "Pizza", price: 10 },
+                { id: 2, name: "Pasta", price: 8 }
+            ],
+            2: [
+                { id: 3, name: "Burger", price: 5 },
+                { id: 4, name: "Fries", price: 3 }
+            ],
+            3: [
+                { id: 5, name: "Sushi", price: 12 },
+                { id: 6, name: "Ramen", price: 9 }
+            ]
+        };
+
+        let cart = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadRestaurants();
+        });
+
+        function loadRestaurants() {
+            const restaurantList = document.getElementById("restaurant-list");
+            restaurantList.innerHTML = "";
+            restaurants.forEach(restaurant => {
+                const div = document.createElement("div");
+                div.className = "card";
+                div.innerHTML = `<h3>${restaurant.name}</h3><button onclick="viewMenu(${restaurant.id})">View Menu</button>`;
+                restaurantList.appendChild(div);
+            });
+        }
+
+        function viewMenu(restaurantId) {
+            const menuDiv = document.getElementById("menu-items");
+            menuDiv.innerHTML = "";
+            menuItems[restaurantId].forEach(item => {
+                const div = document.createElement("div");
+                div.className = "card";
+                div.innerHTML = `<h4>${item.name}</h4><p>$${item.price}</p><button onclick="addToCart(${item.id}, ${restaurantId})">Add to Cart</button>`;
+                menuDiv.appendChild(div);
+            });
+        }
+
+        function addToCart(itemId, restaurantId) {
+            const item = menuItems[restaurantId].find(item => item.id === itemId);
+            cart.push(item);
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartDiv = document.getElementById("cart-items");
+            cartDiv.innerHTML = "";
+            cart.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "card";
+                div.innerHTML = `<h4>${item.name}</h4><p>$${item.price}</p>`;
+                cartDiv.appendChild(div);
+            });
+        }
+
+        function updateCartDetails() {
+            const cartDetailsDiv = document.getElementById("cart-details");
+            cartDetailsDiv.innerHTML = "";
+            let total = 0;
+            cart.forEach(item => {
+                const div = document.createElement("div");
+                div.innerHTML = `<p>${item.name} - $${item.price}</p>`;
+                cartDetailsDiv.appendChild(div);
+                total += item.price;
+            });
+            const totalDiv = document.createElement("div");
+            totalDiv.innerHTML = `<p><strong>Total: $${total}</strong></p>`;
+            cartDetailsDiv.appendChild(totalDiv);
+        }
+
+        const modal = document.getElementById("checkoutModal");
+        const btn = document.getElementById("checkout");
+        const span = document.getElementsByClassName("close")[0];
+
+        btn.onclick = function() {
+            updateCartDetails();
+            modal.style.display = "block";
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.getElementById("checkout-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            placeOrder();
+        });
+
+        function placeOrder() {
+            const name = document.getElementById("name").value;
+            const address = document.getElementById("address").value;
+            const phone = document.getElementById("phone").value;
+
+            const order = {
+                name,
+                address,
+                phone,
+                items: cart,
+                total: cart.reduce((sum, item) => sum + item.price, 0)
+            };
+
+            const ordersRef = db.ref('food');
+            ordersRef.push(order)
+                .then(() => {
+                    alert("Order placed successfully!");
+                    modal.style.display = "none";
+                    cart = [];
+                    updateCart();
+                })
+                .catch(error => {
+                    alert("Order could not be placed: " + error.message);
+                });
+        }
+    </script>
+</body>
+</html>
