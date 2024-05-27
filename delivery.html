@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Orders</title>
-    <style>
-        body {
+   <style>
+       body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -45,24 +45,32 @@
             margin-bottom: 2rem;
         }
 
-        #restaurant-list, #menu-items, #cart-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
         .card {
             border: 1px solid #ddd;
             padding: 1rem;
             width: 200px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
         }
 
-        .card h4, .card h3 {
-            margin: 0 0 1rem 0;
+        .card h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #333;
         }
 
-        button {
+        .card button {
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
             cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .card button:hover {
+            background-color: #555;
         }
 
         /* Modal styles */
@@ -84,6 +92,7 @@
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
+            border-radius: 8px;
         }
 
         .close {
@@ -99,6 +108,48 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            background-color: black;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #555;
+        }
+        
+        button {
+            cursor: pointer;
+            background-color: black;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
     </style>
 </head>
 <body>
@@ -132,7 +183,8 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Checkout</h2>
-            <div id="cart-details"></div>
+<div id="cart-details" name="cart"></div>
+          
             <form id="checkout-form">
                 <label for="name">Name:</label><br>
                 <input type="text" id="name" name="name" required><br>
@@ -145,25 +197,7 @@
         </div>
     </div>
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAK5RudP6qIPX8kUbHj3YdaMPERrmry5ns",
-            authDomain: "project-80357.firebaseapp.com",
-            databaseURL: "https://project-80357-default-rtdb.firebaseio.com",
-            projectId: "project-80357",
-            storageBucket: "project-80357.appspot.com",
-            messagingSenderId: "421768499139",
-            appId: "1:421768499139:web:5f8a0d50956a5cdeacb9a0"
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
         // Sample data
         const restaurants = [
             { id: 1, name: "Restaurant A" },
@@ -190,6 +224,40 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             loadRestaurants();
+
+            // Get the modal
+            var modal = document.getElementById("checkoutModal");
+
+            // Get the button that opens the modal
+            var btn = document.getElementById("checkout");
+
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
+
+            // When the user clicks on the button, open the modal
+            btn.onclick = function() {
+                updateCartDetails();
+                modal.style.display = "block";
+            }
+
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            // Handle form submission
+            document.getElementById("checkout-form").addEventListener("submit", function(event) {
+                event.preventDefault();
+                alert("Order placed!");
+                modal.style.display = "none";
+            });
         });
 
         function loadRestaurants() {
@@ -246,55 +314,59 @@
             cartDetailsDiv.appendChild(totalDiv);
         }
 
-        const modal = document.getElementById("checkoutModal");
-        const btn = document.getElementById("checkout");
-        const span = document.getElementsByClassName("close")[0];
-
-        btn.onclick = function() {
-            updateCartDetails();
-            modal.style.display = "block";
-        }
-
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        document.getElementById("checkout-form").addEventListener("submit", function(event) {
-            event.preventDefault();
-            placeOrder();
-        });
-
-        function placeOrder() {
-            const name = document.getElementById("name").value;
-            const address = document.getElementById("address").value;
-            const phone = document.getElementById("phone").value;
-
-            const order = {
-                name,
-                address,
-                phone,
-                items: cart,
-                total: cart.reduce((sum, item) => sum + item.price, 0)
-            };
-
-            const ordersRef = db.ref('food');
-            ordersRef.push(order)
-                .then(() => {
-                    alert("Order placed successfully!");
-                    modal.style.display = "none";
-                    cart = [];
-                    updateCart();
-                })
-                .catch(error => {
-                    alert("Order could not be placed: " + error.message);
-                });
-        }
     </script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyAK5RudP6qIPX8kUbHj3YdaMPERrmry5ns",
+        authDomain: "project-80357.firebaseapp.com",
+        databaseURL: "https://project-80357-default-rtdb.firebaseio.com",
+        projectId: "project-80357",
+        storageBucket: "project-80357.appspot.com",
+        messagingSenderId: "421768499139",
+        appId: "1:421768499139:web:5f8a0d50956a5cdeacb9a0"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Reference to the Firebase Realtime Database
+    var database = firebase.database();
+
+    // Get reference to the form
+    var checkoutForm = document.getElementById('checkout-form');
+
+    // Handle form submission
+    checkoutForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Get form values
+        var name = document.getElementById('name').value;
+        var address = document.getElementById('address').value;
+        var phone = document.getElementById('phone').value;
+        var cart = document.getElementById('cart').value;
+      
+     
+        console.log('Form values:', { name, address, phone,cart });
+
+        // Save form data to Firebase Realtime Database
+        database.ref('food').push({
+            name: name,
+            address: address,
+            phone: phone
+        }).then(function() {
+            alert('Order placed successfully!');
+            // Optionally, you can reset the form here
+            checkoutForm.reset();
+        }).catch(function(error) {
+            console.error('Error placing order:', error);
+        });
+    });
+
+  
+</script>
+        
+   
 </body>
 </html>
