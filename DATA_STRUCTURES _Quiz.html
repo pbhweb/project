@@ -4,85 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Structures Quiz and Lab Submission</title>
-   <style>body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #e9ecef;
-    padding: 20px;
-    margin: 0;
-}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e2f; /* Dark background */
+            color: #ffffff; /* Light text color */
+            padding: 20px;
+            margin: 0;
+        }
 
-.container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    max-width: 800px;
-    margin: 0 auto;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-}
+        .container {
+            background-color: #282a36; /* Dark container */
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
 
-h1 {
-    color: #007BFF;
-    text-align: center;
-}
+        h1 {
+            color: #bd93f9; /* Light purple */
+            text-align: center;
+        }
 
-.question {
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    background-color: #f8f9fa;
-}
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #44475a; /* Dark border */
+            border-radius: 8px;
+            background-color: #44475a; /* Dark question background */
+        }
 
-.question p {
-    margin: 0;
-    font-weight: 600;
-}
+        .question p {
+            margin: 0;
+            font-weight: 600;
+        }
 
-label {
-    margin-left: 10px;
-}
+        label {
+            margin-left: 10px;
+            color: #ffffff; /* Light text for labels */
+        }
 
-button {
-    background-color: #007BFF;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    display: block;
-    margin: 20px auto 0;
-    transition: background-color 0.3s;
-}
+        button {
+            background-color: #bd93f9; /* Light purple */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto 0;
+            transition: background-color 0.3s;
+        }
 
-button:hover {
-    background-color: #0056b3;
-}
+        button:hover {
+            background-color: #a46bdb; /* Darker purple on hover */
+        }
 
-#result {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    border-radius: 5px;
-    display: none;
-}
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #50fa7b; /* Light green for results */
+            color: #000; /* Dark text for readability */
+            border: 1px solid #45a049; /* Green border */
+            border-radius: 5px;
+            display: none;
+        }
 
-input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ced4da;
-    font-size: 16px;
-    margin-top: 10px;
-}
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #6272a4; /* Light border */
+            font-size: 16px;
+            margin-top: 10px;
+            background-color: #f8f9fa; /* Light background for input */
+            color: #000; /* Dark text for input */
+        }
 
-.email-info {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #6c757d;
-}
-</style>
+        .email-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #f8f9fa; /* Light text color for email info */
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -138,7 +144,7 @@ input[type="text"] {
             <div class="question">
                 <p>6. Write a JavaScript function that takes an array as input and returns the index of the target element using Binary Search.</p>
                 <input type="text" name="labAnswer" placeholder="Write your function here..." required>
-                <p class="email-info">Your answered lab output from https://www.programiz.com/java-programming/online-compiler/  to be email will be sent captured to: <strong>student@tryprojectbh.info</strong></p>
+                <p class="email-info">Your answered lab output from <a href="https://www.programiz.com/java-programming/online-compiler/" style="color: #bd93f9; text-decoration: none;">Programiz</a> will be sent to: <strong>student@tryprojectbh.info</strong></p>
             </div>
 
             <!-- Submit Button -->
@@ -149,12 +155,13 @@ input[type="text"] {
 
         <h2>Lab Exercise: Array Length and Binary Search</h2>
        
-            <p>
-                Your answered lab output from https://www.programiz.com/java-programming/online-compiler/  to be email will be sent captured to: <strong>student@tryprojectbh.info</strong>
-            </p>
+        <p>
+            Your answered lab output from <a href="https://www.programiz.com/java-programming/online-compiler/" style="color: #bd93f9; text-decoration: none;">Programiz</a> will be sent to: <strong>student@tryprojectbh.info</strong>
+        </p>
     </div>
 
-    <script>// Correct answers for the quiz
+    <script>
+        // Correct answers for the quiz
         const correctAnswers = {
             q1: "C",
             q2: "C",
@@ -193,6 +200,6 @@ input[type="text"] {
             const mailToLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             window.location.href = mailToLink;
         }
-        </script>
+    </script>
 </body>
 </html>
