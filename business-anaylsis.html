@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Analytics in Excel</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #2a0d3b;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            color: #f1c40f;
+        }
+
+        h3 {
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.5;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        input {
+            padding: 10px;
+            width: calc(100% - 22px);
+            border: 1px solid #7a4c94;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .dashboard {
+            background-color: #4b2c55;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        canvas {
+            border: 1px solid #7a4c94;
+            margin: 20px auto;
+        }
+
+        .btn {
+            background-color: #7a4c94;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #9b66b7;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .footer-link {
+            color: #f1c40f;
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Business Analytics Overview</h1>
+            <p>Explore key concepts and visualize data analytics using Excel!</p>
+        </header>
+        <section id="analytics-info">
+            <h2>What is Business Analytics?</h2>
+            <p>Business analytics involves using data analysis and statistical methods to make informed business decisions. It includes descriptive, predictive, and prescriptive analytics to provide insights into business performance.</p>
+            <h3>Key Components:</h3>
+            <ul>
+                <li><strong>Descriptive Analytics:</strong> Summarizes past data to understand trends.</li>
+                <li><strong>Predictive Analytics:</strong> Uses statistical models to forecast future outcomes.</li>
+                <li><strong>Prescriptive Analytics:</strong> Suggests actions based on data analysis.</li>
+            </ul>
+        </section>
+        <section id="excel-dashboard">
+            <h2>Excel Dashboard Simulation</h2>
+            <div class="dashboard">
+                <input type="number" id="salesInput" placeholder="Enter Sales Amount" class="input-field">
+                <button id="addDataBtn" class="btn">Add Data</button>
+                <h3>Sales Data:</h3>
+                <ul id="salesList"></ul>
+                <h3>Total Sales: <span id="totalSales">0</span></h3>
+                <button id="generatePivotBtn" class="btn">Generate Pivot Table</button>
+            </div>
+        </section>
+        <section id="data-visualization">
+            <h2>Interactive Sales Data Visualization</h2>
+            <canvas id="salesChart" width="400" height="200"></canvas>
+            <canvas id="barChart" width="400" height="200"></canvas>
+            <canvas id="gaugeChart" width="400" height="200"></canvas>
+            <button id="updateData" class="btn">Update Charts</button>
+        </section>
+    </div>
+    <footer>
+        <p>© 2024 Business Analytics Inc. | <a href="#" class="footer-link">Contact Us</a></p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const salesData = [];
+        let totalSales = 0;
+
+        // Sales Chart (Line Chart)
+        const lineCtx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Sales',
+                    data: salesData,
+                    borderColor: '#f1c40f',
+                    backgroundColor: 'rgba(241, 196, 15, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Bar Chart
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Sales Amount',
+                    data: salesData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gauge Chart
+        const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+        const gaugeChart = new Chart(gaugeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Sales', 'Remaining'],
+                datasets: [{
+                    data: [0, 100],
+                    backgroundColor: ['#f1c40f', '#7a4c94'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Add Sales Data
+        document.getElementById('addDataBtn').addEventListener('click', function () {
+            const salesInput = document.getElementById('salesInput');
+            const salesAmount = parseFloat(salesInput.value);
+            if (!isNaN(salesAmount) && salesAmount > 0) {
+                totalSales += salesAmount;
+                salesData.push(salesAmount);
+                const salesList = document.getElementById('salesList');
+                const newSalesItem = document.createElement('li');
+                newSalesItem.textContent = `Sales Amount: $${salesAmount.toFixed(2)}`;
+                salesList.appendChild(newSalesItem);
+                document.getElementById('totalSales').textContent = totalSales.toFixed(2);
+                salesChart.data.labels.push(`Sale ${salesList.children.length}`);
+                salesChart.data.datasets[0].data.push(salesAmount);
+                barChart.data.labels.push(`Sale ${salesList.children.length}`);
+                barChart.data.datasets[0].data.push(salesAmount);
+                gaugeChart.data.datasets[0].data[0] = totalSales;
+                gaugeChart.data.datasets[0].data[1] = 100 - totalSales;
+                salesInput.value = '';
+                salesChart.update();
+                barChart.update();
+                gaugeChart.update();
+            } else {
+                alert('Please enter a valid sales amount.');
+            }
+        });
+
+        // Update Charts
+        document.getElementById('updateData').addEventListener('click', function () {
+            // Simulate random data update
+            salesData.forEach((_, index) => {
+                salesData[index] = Math.floor(Math.random() * 100);
+            });
+            salesChart.update();
+            barChart.update();
+            gaugeChart.update();
+        });
+
+        // Generate Pivot Table Placeholder
+        document.getElementById('generatePivotBtn').addEventListener('click', function() {
+            alert("Pivot Table feature is under development. Please check back later!");
+        });
+    </script>
+</body>
+</html>
