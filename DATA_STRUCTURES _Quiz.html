@@ -4,89 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Structures Quiz and Lab Submission</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1e1e2f; /* Dark background */
-            color: #ffffff; /* Light text color */
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4; /* Light background for better contrast */
+            color: #333; /* Dark text for readability */
             padding: 20px;
             margin: 0;
         }
 
         .container {
-            background-color: #282a36; /* Dark container */
-            padding: 30px;
+            background-color: #ffffff; /* White background for container */
+            padding: 40px;
             border-radius: 10px;
             max-width: 800px;
             margin: 0 auto;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            color: #bd93f9; /* Light purple */
+            color: #4a4a4a; /* Darker title color */
             text-align: center;
+            font-weight: 700;
+            margin-bottom: 30px;
         }
 
         .question {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #44475a; /* Dark border */
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #e0e0e0; /* Light gray border */
             border-radius: 8px;
-            background-color: #44475a; /* Dark question background */
+            background-color: #f9f9f9; /* Slightly off-white background */
         }
 
         .question p {
             margin: 0;
-            font-weight: 600;
+            font-weight: 500;
+            font-size: 16px;
         }
 
         label {
+            display: block; /* Make labels block elements for easier interaction */
             margin-left: 10px;
-            color: #ffffff; /* Light text for labels */
+            color: #555; /* Medium gray color for labels */
+            font-size: 15px;
         }
 
         button {
-            background-color: #bd93f9; /* Light purple */
+            background-color: #007bff; /* Primary blue color */
             color: white;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
             display: block;
-            margin: 20px auto 0;
+            margin: 30px auto 0;
             transition: background-color 0.3s;
+            width: 100%; /* Full-width button */
         }
 
         button:hover {
-            background-color: #a46bdb; /* Darker purple on hover */
+            background-color: #0056b3; /* Darker blue on hover */
         }
 
         #result {
             margin-top: 20px;
-            padding: 10px;
-            background-color: #50fa7b; /* Light green for results */
-            color: #000; /* Dark text for readability */
-            border: 1px solid #45a049; /* Green border */
+            padding: 15px;
+            background-color: #d4edda; /* Light green for results */
+            color: #155724; /* Dark green text */
+            border: 1px solid #c3e6cb; /* Green border */
             border-radius: 5px;
             display: none;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border-radius: 5px;
-            border: 1px solid #6272a4; /* Light border */
+            border: 1px solid #ced4da; /* Light border */
             font-size: 16px;
             margin-top: 10px;
-            background-color: #f8f9fa; /* Light background for input */
-            color: #000; /* Dark text for input */
+            background-color: #ffffff; /* White background for input */
+            color: #333; /* Dark text for input */
         }
 
         .email-info {
             margin-top: 10px;
             font-size: 14px;
-            color: #f8f9fa; /* Light text color for email info */
+            color: #777; /* Light gray for email info */
+        }
+
+        a {
+            color: #007bff; /* Link color */
+            text-decoration: none; /* No underline */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Underline on hover */
         }
     </style>
 </head>
@@ -98,53 +114,53 @@
             <!-- Question 1 -->
             <div class="question">
                 <p>1. What function can be used to determine the number of elements in an array?</p>
-                <label><input type="radio" name="q1" value="A"> A) array.size()</label><br>
-                <label><input type="radio" name="q1" value="B"> B) array.len()</label><br>
-                <label><input type="radio" name="q1" value="C"> C) array.length()</label><br>
-                <label><input type="radio" name="q1" value="D"> D) array.count()</label><br>
+                <label><input type="radio" name="q1" value="A"> A) array.size()</label>
+                <label><input type="radio" name="q1" value="B"> B) array.len()</label>
+                <label><input type="radio" name="q1" value="C"> C) array.length()</label>
+                <label><input type="radio" name="q1" value="D"> D) array.count()</label>
             </div>
 
             <!-- Question 2 -->
             <div class="question">
                 <p>2. Which of the following algorithms is most suitable for searching a sorted array?</p>
-                <label><input type="radio" name="q2" value="A"> A) Linear Search</label><br>
-                <label><input type="radio" name="q2" value="B"> B) Bubble Sort</label><br>
-                <label><input type="radio" name="q2" value="C"> C) Binary Search</label><br>
-                <label><input type="radio" name="q2" value="D"> D) Quick Search</label><br>
+                <label><input type="radio" name="q2" value="A"> A) Linear Search</label>
+                <label><input type="radio" name="q2" value="B"> B) Bubble Sort</label>
+                <label><input type="radio" name="q2" value="C"> C) Binary Search</label>
+                <label><input type="radio" name="q2" value="D"> D) Quick Search</label>
             </div>
 
             <!-- Question 3 -->
             <div class="question">
                 <p>3. What will the result of a binary search be if the target value is not found in the array?</p>
-                <label><input type="radio" name="q3" value="A"> A) It returns -1</label><br>
-                <label><input type="radio" name="q3" value="B"> B) It returns null</label><br>
-                <label><input type="radio" name="q3" value="C"> C) It throws an error</label><br>
-                <label><input type="radio" name="q3" value="D"> D) It continues searching indefinitely</label><br>
+                <label><input type="radio" name="q3" value="A"> A) It returns -1</label>
+                <label><input type="radio" name="q3" value="B"> B) It returns null</label>
+                <label><input type="radio" name="q3" value="C"> C) It throws an error</label>
+                <label><input type="radio" name="q3" value="D"> D) It continues searching indefinitely</label>
             </div>
 
             <!-- Question 4 -->
             <div class="question">
                 <p>4. If an array is already sorted, which action should you skip before performing a binary search?</p>
-                <label><input type="radio" name="q4" value="A"> A) Sorting the array</label><br>
-                <label><input type="radio" name="q4" value="B"> B) Searching the array</label><br>
-                <label><input type="radio" name="q4" value="C"> C) Importing the binary search function</label><br>
-                <label><input type="radio" name="q4" value="D"> D) Initializing the array</label><br>
+                <label><input type="radio" name="q4" value="A"> A) Sorting the array</label>
+                <label><input type="radio" name="q4" value="B"> B) Searching the array</label>
+                <label><input type="radio" name="q4" value="C"> C) Importing the binary search function</label>
+                <label><input type="radio" name="q4" value="D"> D) Initializing the array</label>
             </div>
 
             <!-- Question 5 -->
             <div class="question">
                 <p>5. In a zero-indexed array, what index corresponds to the third element in the array?</p>
-                <label><input type="radio" name="q5" value="A"> A) 0</label><br>
-                <label><input type="radio" name="q5" value="B"> B) 1</label><br>
-                <label><input type="radio" name="q5" value="C"> C) 2</label><br>
-                <label><input type="radio" name="q5" value="D"> D) 3</label><br>
+                <label><input type="radio" name="q5" value="A"> A) 0</label>
+                <label><input type="radio" name="q5" value="B"> B) 1</label>
+                <label><input type="radio" name="q5" value="C"> C) 2</label>
+                <label><input type="radio" name="q5" value="D"> D) 3</label>
             </div>
 
             <!-- Lab Question -->
             <div class="question">
                 <p>6. Write a JavaScript function that takes an array as input and returns the index of the target element using Binary Search.</p>
                 <input type="text" name="labAnswer" placeholder="Write your function here..." required>
-                <p class="email-info">Your answered lab output from <a href="https://www.programiz.com/java-programming/online-compiler/" style="color: #bd93f9; text-decoration: none;">Programiz</a> will be sent to: <strong>student@tryprojectbh.info</strong></p>
+                <p class="email-info">Your answered lab output from <a href="https://www.programiz.com/java-programming/online-compiler/">Programiz</a> will be sent to: <strong>student@tryprojectbh.info</strong></p>
             </div>
 
             <!-- Submit Button -->
@@ -156,7 +172,7 @@
         <h2>Lab Exercise: Array Length and Binary Search</h2>
        
         <p>
-            Your answered lab output from <a href="https://www.programiz.com/java-programming/online-compiler/" style="color: #bd93f9; text-decoration: none;">Programiz</a> will be sent to: <strong>student@tryprojectbh.info</strong>
+            Your answered lab output from <a href="https://www.programiz.com/java-programming/online-compiler/">Programiz</a> will be sent to: <strong>student@tryprojectbh.info</strong>
         </p>
     </div>
 
@@ -194,10 +210,8 @@
         
         // Function to send lab answer via email
         function sendLabResult(labAnswer) {
-            const email = "student@tryprojectbh.info";
-            const subject = "Lab Answer Submission";
-            const body = `Here is the lab exercise answer:\n\n${labAnswer}`;
-            const mailToLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            const email = 'student@tryprojectbh.info'; // Change to the appropriate email
+            const mailToLink = `mailto:${email}?subject=Lab Submission&body=${encodeURIComponent(labAnswer)}`;
             window.location.href = mailToLink;
         }
     </script>
