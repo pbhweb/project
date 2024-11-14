@@ -87,6 +87,7 @@
                 return;
             }
 
+            // Display contacts in HTML
             const contactsList = connections.map(person => {
                 const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
                 const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
@@ -94,6 +95,14 @@
             });
 
             document.getElementById('contacts').innerHTML = contactsList.join('');
+
+            // Log contacts to console
+            console.log("Logging contacts to console:");
+            connections.forEach(person => {
+                const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
+                const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
+                console.log(`${name}: ${phone}`);
+            });
         }
     </script>
 </body>
