@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Google Contacts with Firebase</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+    <h1>Login with Google to Fetch Contacts</h1>
+    <button id="loginButton">Login with Google</button>
+    <div id="contacts"></div>
+
+    <script>
+        // إعداد Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508",
+            authDomain: "salespoint-7615c.firebaseapp.com",
+            projectId: "salespoint-7615c",
+            storageBucket: "salespoint-7615c.appspot.com",
+            messagingSenderId: "309323278781",
+            appId: "1:309323278781:web:7be9ee009942f264198ad4",
+            measurementId: "G-34SS07VW9T"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+
+        // زر تسجيل الدخول
+        document.getElementById('loginButton').onclick = async () => {
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const accessToken = result.credential.accessToken;
+                gapi.load('client', async () => {
+                    await gapi.client.init({
+                        apiKey: firebaseConfig.apiKey,
+                        discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1']
+                    });
+                    gapi.client.setToken({ access_token: accessToken });
+                    fetchContacts();
+                });
+            } catch (error) {
+                console.error("Error during login:", error);
+            }
+        };
+
+        // جلب جهات الاتصال
+        async function fetchContacts() {
+            try {
+                const response = await gapi.client.people.people.connections.list({
+                    resourceName: 'people/me',
+                    pageSize: 100,
+                    personFields: 'names,emailAddresses,phoneNumbers',
+                });
+                displayContacts(response.result.connections);
+            } catch (error) {
+                console.error('Error fetching contacts:', error);
+            }
+        }
+
+        // عرض جهات الاتصال
+        function displayContacts(connections) {
+            const contactsDiv = document.getElementById('contacts');
+            if (!connections || connections.length === 0) {
+                contactsDiv.innerText = 'No contacts found.';
+                return;
+            }
+            const contactsList = connections.map(person => {
+                const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
+                const email = person.emailAddresses && person.emailAddresses.length ? person.emailAddresses[0].value : 'No Email';
+                const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
+                return `<p>${name}: ${email}, ${phone}</p>`;
+            });
+            contactsDiv.innerHTML = contactsList.join('');
+        }
+    </script>
+</body>
+</html>
