@@ -3,92 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Google Contacts</title>
+    <title>Fetch Google Contacts with Firebase</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
-    <button id="loginButton" style="display:none;">Login and Fetch Contacts</button>
+    <h1>Login with Google to Fetch Contacts</h1>
+    <button id="loginButton">Login with Google</button>
     <div id="contacts"></div>
 
-    <!-- Google API and GSI Libraries -->
-    <script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
-
     <script>
-        // Replace with your client ID and API Key from Google Developer Console
+        // Firebase Configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508",
+  authDomain: "salespoint-7615c.firebaseapp.com",
+  projectId: "salespoint-7615c",
+  storageBucket: "salespoint-7615c.firebasestorage.app",
+  messagingSenderId: "309323278781",
+  appId: "1:309323278781:web:7be9ee009942f264198ad4",
+  measurementId: "G-34SS07VW9T"
+};
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
         const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
         const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
         const DISCOVERY_DOC = 'https://people.googleapis.com/$discovery/rest?version=v1';
 
-        let tokenClient;
-        let gapiInited = false;
-        let gisInited = false;
+        // Show login button
+        document.getElementById('loginButton').style.display = 'block';
 
-        // This function is called when Google API is loaded
-        function gapiLoaded() {
-            gapi.load('client', initializeGapiClient);
-        }
-
-        // Initialize the GAPI client
-        async function initializeGapiClient() {
-            console.log("Initializing GAPI client...");
-            await gapi.client.init({
-                apiKey: API_KEY,
-                discoveryDocs: [DISCOVERY_DOC],
-            });
-            gapiInited = true;
-            maybeEnableLoginButton();
-        }
-
-        // This function is called when Google Identity Services (GIS) is loaded
-        function gisLoaded() {
-            console.log("GIS Loaded");
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID,
-                scope: SCOPES,
-                callback: async (response) => {
-                    if (response.error) {
-                        console.error('Token error:', response);
-                        return;
-                    }
-                    console.log("Token received:", response);
-                    await fetchContacts();
-                },
-            });
-            gisInited = true;
-            maybeEnableLoginButton();
-        }
-
-        // Enable the login button once GAPI and GIS are initialized
-        function maybeEnableLoginButton() {
-            if (gapiInited && gisInited) {
-                document.getElementById('loginButton').style.display = 'block';
-            }
-        }
-
-        // Trigger the OAuth login process when the button is clicked
+        // Handle Google Login
         document.getElementById('loginButton').onclick = () => {
-            console.log("Requesting access token...");
-            tokenClient.requestAccessToken();
+            auth.signInWithPopup(provider).then((result) => {
+                console.log('User signed in');
+                // After successful login, fetch contacts
+                const user = result.user;
+                gapi.load('client:auth2', () => {
+                    gapi.auth2.init({
+                        client_id: CLIENT_ID
+                    }).then(() => {
+                        // Fetch Google Contacts after Firebase login
+                        fetchContacts();
+                    });
+                });
+            }).catch((error) => {
+                console.error("Error during login:", error);
+            });
         };
 
-        // Fetch contacts from Google People API
+        // Initialize Google API client
+        function initializeGoogleAPI() {
+            gapi.client.setApiKey(API_KEY);
+            return gapi.client.load(DISCOVERY_DOC);
+        }
+
+        // Fetch Google Contacts
         async function fetchContacts() {
             try {
-                console.log("Fetching contacts...");
                 const response = await gapi.client.people.people.connections.list({
                     resourceName: 'people/me',
                     pageSize: 50,
-                    personFields: 'names,emailAddresses,phoneNumbers', // Request names, emails, and phone numbers
+                    personFields: 'names,emailAddresses,phoneNumbers',
                 });
-                console.log("Contacts fetched:", response); // Log the response to inspect it
                 displayContacts(response.result.connections);
             } catch (error) {
                 console.error('Error fetching contacts:', error);
             }
         }
 
-        // Display contacts in the HTML
+        // Display Contacts
         function displayContacts(connections) {
             if (!connections || connections.length === 0) {
                 document.getElementById('contacts').innerText = 'No contacts found.';
@@ -96,7 +85,6 @@
             }
 
             const contactsList = connections.map(person => {
-                // Safely access names, emailAddresses, and phoneNumbers
                 const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
                 const email = person.emailAddresses && person.emailAddresses.length ? person.emailAddresses[0].value : 'No Email';
                 const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
