@@ -3,159 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Contacts App</title>
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: #fff;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-        button {
-            padding: 12px 24px;
-            margin: 10px;
-            font-size: 18px;
-            border: none;
-            border-radius: 30px;
-            background-color: #6c5ce7;
-            color: #fff;
-            cursor: pointer;
-        }
-        #contacts {
-            margin-top: 20px;
-            max-width: 600px;
-            width: 90%;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            text-align: left;
-        }
-    </style>
-    <!-- تحميل مكتبات Google Identity Services و Google API client -->
-    <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
-    <script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
+    <title>Fetch Google Contacts</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <h1>Google Contacts</h1>
-    <button id="loginButton" style="display:none;">Login with Google</button>
-    <button id="getContactsButton" style="display:none;">Get Contacts</button>
+    <h1>Login with Google to Fetch Contacts</h1>
+    <div id="g_id_onload"
+         data-client_id="309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-login_uri=""
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"></div>
     <div id="contacts"></div>
 
     <script>
-        // تعيين CLIENT_ID و API_KEY
+        // استبدل 'YOUR_CLIENT_ID' بـ Client ID الخاص بك من Google Cloud Console
         const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
-        const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
-        const DISCOVERY_DOC = 'https://people.googleapis.com/$discovery/rest?version=v1';
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
 
-        let tokenClient;
-        let gapiInited = false;
-        let gisInited = false;
-
-        // تحميل مكتبة Google API
-        function gapiLoaded() {
-            gapi.load('client', initializeGapiClient);
+        function handleCredentialResponse(response) {
+            const accessToken = response.credential;
+            loadGapiClient(accessToken);
         }
 
-        // تهيئة Google API client
-        async function initializeGapiClient() {
-            await gapi.client.init({
-                apiKey: API_KEY,
-                discoveryDocs: [DISCOVERY_DOC],
+        // تحميل Google People API باستخدام gapi
+        function loadGapiClient(accessToken) {
+            gapi.load('client', async () => {
+                await gapi.client.init({
+                    apiKey: CLIENT_ID,
+                    discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1']
+                });
+                gapi.client.setToken({access_token: accessToken});
+                fetchContacts();
             });
-            gapiInited = true;
-            maybeEnableButtons();
         }
 
-        // تحميل Google Identity Services وتعيين tokenClient
-        function gisLoaded() {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID,
-                scope: SCOPES,
-                callback: (response) => {
-                    if (response.error) {
-                        console.error('Error during authentication:', response);
-                        return;
-                    }
-                    document.getElementById('getContactsButton').style.display = 'block';
-                    document.getElementById('loginButton').style.display = 'none';
-                },
-            });
-            gisInited = true;
-            maybeEnableButtons();
-        }
-
-        // تمكين الأزرار بعد تحميل المكتبات
-        function maybeEnableButtons() {
-            if (gapiInited && gisInited) {
-                document.getElementById('loginButton').style.display = 'block';
-            }
-        }
-
-        // تسجيل الدخول باستخدام Google
-        document.getElementById('loginButton').onclick = () => {
-            tokenClient.callback = async (response) => {
-                if (response.error) {
-                    console.error('Login failed:', response);
-                    return;
-                }
-                document.getElementById('getContactsButton').style.display = 'block';
-                document.getElementById('loginButton').style.display = 'none';
-            };
-
-            if (gapi.client.getToken() === null) {
-                // طلب الوصول وتفويض المستخدم
-                tokenClient.requestAccessToken({ prompt: 'consent' });
-            } else {
-                tokenClient.requestAccessToken({ prompt: '' });
-            }
-        };
-
-        // جلب جهات الاتصال بعد تسجيل الدخول بنجاح
-        document.getElementById('getContactsButton').onclick = async () => {
+        // جلب جهات الاتصال
+        async function fetchContacts() {
             try {
                 const response = await gapi.client.people.people.connections.list({
                     resourceName: 'people/me',
-                    pageSize: 10,
-                    personFields: 'names,emailAddresses,phoneNumbers',
+                    pageSize: 50,
+                    personFields: 'names,emailAddresses,phoneNumbers'
                 });
-
-                const connections = response.result.connections;
-                if (!connections || connections.length === 0) {
-                    document.getElementById('contacts').innerText = 'No contacts found.';
-                    return;
-                }
-
-                const contactsList = connections.map((person) => {
-                    const name = person.names && person.names.length > 0 ? person.names[0].displayName : 'No name';
-                    const email = person.emailAddresses && person.emailAddresses.length > 0 ? person.emailAddresses[0].value : 'No email';
-                    const phone = person.phoneNumbers && person.phoneNumbers.length > 0 ? person.phoneNumbers[0].value : 'No phone number';
-                    return `<li>${name} - ${email} - ${phone}</li>`;
-                });
-
-                document.getElementById('contacts').innerHTML = `<ul>${contactsList.join('')}</ul>`;
-            } catch (err) {
-                console.error('Error fetching contacts:', err);
+                displayContacts(response.result.connections);
+            } catch (error) {
+                console.error('Error fetching contacts:', error);
+                document.getElementById('contacts').innerText = `Error fetching contacts: ${error.message}`;
             }
-        };
+        }
+
+        // عرض جهات الاتصال
+        function displayContacts(connections) {
+            const contactsDiv = document.getElementById('contacts');
+            if (!connections || connections.length === 0) {
+                contactsDiv.innerText = 'No contacts found.';
+                return;
+            }
+            const contactsList = connections.map(person => {
+                const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
+                const email = person.emailAddresses && person.emailAddresses.length ? person.emailAddresses[0].value : 'No Email';
+                const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
+                return `<p>${name}: ${email}, ${phone}</p>`;
+            });
+            contactsDiv.innerHTML = contactsList.join('');
+        }
     </script>
 </body>
 </html>
