@@ -6,7 +6,7 @@
     <title>Fetch Google Contacts</title>
 </head>
 <body>
-    <button id="loginButton">Login and Fetch Contacts</button>
+    <button id="loginButton" style="display:none;">Login and Fetch Contacts</button>
     <div id="contacts"></div>
 
     <!-- Google API and GSI Libraries -->
@@ -14,7 +14,7 @@
     <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
 
     <script>
-        // Replace with your client ID and API Key
+        // Replace with your client ID and API Key from Google Developer Console
         const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
         const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
@@ -24,7 +24,7 @@
         let gapiInited = false;
         let gisInited = false;
 
-        // Function that runs when Google API is loaded
+        // This function is called when Google API is loaded
         function gapiLoaded() {
             gapi.load('client', initializeGapiClient);
         }
@@ -40,7 +40,7 @@
             maybeEnableLoginButton();
         }
 
-        // Function that runs when Google Identity Services is loaded
+        // This function is called when Google Identity Services (GIS) is loaded
         function gisLoaded() {
             console.log("GIS Loaded");
             tokenClient = google.accounts.oauth2.initTokenClient({
@@ -66,7 +66,7 @@
             }
         }
 
-        // Trigger login process when button is clicked
+        // Trigger the OAuth login process when the button is clicked
         document.getElementById('loginButton').onclick = () => {
             console.log("Requesting access token...");
             tokenClient.requestAccessToken();
@@ -79,9 +79,9 @@
                 const response = await gapi.client.people.people.connections.list({
                     resourceName: 'people/me',
                     pageSize: 50,
-                    personFields: 'names,emailAddresses,phoneNumbers',
+                    personFields: 'names,emailAddresses,phoneNumbers', // Request names, emails, and phone numbers
                 });
-                console.log("Contacts fetched:", response);
+                console.log("Contacts fetched:", response); // Log the response to inspect it
                 displayContacts(response.result.connections);
             } catch (error) {
                 console.error('Error fetching contacts:', error);
@@ -96,9 +96,11 @@
             }
 
             const contactsList = connections.map(person => {
+                // Safely access names, emailAddresses, and phoneNumbers
                 const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
                 const email = person.emailAddresses && person.emailAddresses.length ? person.emailAddresses[0].value : 'No Email';
                 const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
+                
                 return `<p>${name}: ${email}, ${phone}</p>`;
             });
 
