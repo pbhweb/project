@@ -20,7 +20,6 @@
     <div id="contacts"></div>
 
     <script>
-        // استبدل 'YOUR_CLIENT_ID' بـ Client ID الخاص بك من Google Cloud Console
         const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
 
@@ -29,7 +28,6 @@
             loadGapiClient(accessToken);
         }
 
-        // تحميل Google People API باستخدام gapi
         function loadGapiClient(accessToken) {
             gapi.load('client:auth2', async () => {
                 await gapi.client.init({
@@ -37,18 +35,26 @@
                     discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1']
                 });
                 gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-                gapi.auth2.getAuthInstance().signIn();
+                gapi.auth2.getAuthInstance().setAccessToken(accessToken);
+                checkAccess();
             });
         }
 
-        // تحديث حالة تسجيل الدخول
         function updateSigninStatus(isSignedIn) {
             if (isSignedIn) {
-                fetchContacts();
+                checkAccess();
             }
         }
 
-        // جلب جهات الاتصال
+        function checkAccess() {
+            const authInstance = gapi.auth2.getAuthInstance();
+            if (authInstance.hasGrantedScopes(SCOPES)) {
+                fetchContacts();
+            } else {
+                alert("You need to grant permission to access your contacts.");
+            }
+        }
+
         async function fetchContacts() {
             try {
                 const response = await gapi.client.people.people.connections.list({
@@ -63,7 +69,6 @@
             }
         }
 
-        // عرض جهات الاتصال
         function displayContacts(connections) {
             const contactsDiv = document.getElementById('contacts');
             if (!connections || connections.length === 0) {
