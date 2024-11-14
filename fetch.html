@@ -26,36 +26,34 @@
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 
-        // Initialize Google API
+        // Google API Configuration
         const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
-        const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
-        const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
         const DISCOVERY_DOC = 'https://people.googleapis.com/$discovery/rest?version=v1';
-
-        // Show login button
-        document.getElementById('loginButton').style.display = 'block';
 
         // Handle Google Login
         document.getElementById('loginButton').onclick = async () => {
             try {
-                // Sign in using Firebase Authentication with Google
+                // Sign in with Firebase Authentication using Google
                 const result = await auth.signInWithPopup(provider);
                 console.log('User signed in:', result.user);
 
-                // After successful login, initialize Google API
-                gapi.load('client:auth2', async () => {
-                    await gapi.auth2.init({
-                        client_id: CLIENT_ID
+                // Initialize Google API client
+                gapi.load('client', async () => {
+                    await gapi.client.init({
+                        apiKey: firebaseConfig.apiKey,
+                        clientId: CLIENT_ID,
+                        discoveryDocs: [DISCOVERY_DOC],
+                        scope: 'https://www.googleapis.com/auth/contacts.readonly'
                     });
 
-                    // Get the Firebase ID token and set it in Google API client
-                    const user = result.user;
-                    const idToken = await user.getIdToken();
-                    gapi.auth.setToken({ access_token: idToken });
+                    // Set access token for authenticated Google API requests
+                    const accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+                    gapi.client.setApiKey(firebaseConfig.apiKey);
 
                     // Fetch Google Contacts after Firebase login
                     fetchContacts();
@@ -81,8 +79,9 @@
 
         // Display Contacts
         function displayContacts(connections) {
+            const contactsDiv = document.getElementById('contacts');
             if (!connections || connections.length === 0) {
-                document.getElementById('contacts').innerText = 'No contacts found.';
+                contactsDiv.innerText = 'No contacts found.';
                 return;
             }
 
@@ -94,7 +93,7 @@
                 return `<p>${name}: ${email}, ${phone}</p>`;
             });
 
-            document.getElementById('contacts').innerHTML = contactsList.join('');
+            contactsDiv.innerHTML = contactsList.join('');
         }
 
     </script>
