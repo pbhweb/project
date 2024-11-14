@@ -30,6 +30,7 @@
         const auth = firebase.auth();
         const provider = new firebase.auth.GoogleAuthProvider();
 
+        // Initialize Google API
         const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
         const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
@@ -39,36 +40,30 @@
         document.getElementById('loginButton').style.display = 'block';
 
         // Handle Google Login
-        document.getElementById('loginButton').onclick = () => {
-            auth.signInWithPopup(provider).then((result) => {
-                console.log('User signed in');
-                // After successful login, get the user's Google token and use it to initialize the Google API client
-                const user = result.user;
-                console.log('User Info:', user);
+        document.getElementById('loginButton').onclick = async () => {
+            try {
+                // Sign in using Firebase Authentication with Google
+                const result = await auth.signInWithPopup(provider);
+                console.log('User signed in:', result.user);
 
-                // Initialize Google API with the token
+                // After successful login, initialize Google API
                 gapi.load('client:auth2', async () => {
                     await gapi.auth2.init({
                         client_id: CLIENT_ID
                     });
 
-                    // Get access token from Firebase
+                    // Get the Firebase ID token and set it in Google API client
+                    const user = result.user;
                     const idToken = await user.getIdToken();
                     gapi.auth.setToken({ access_token: idToken });
 
                     // Fetch Google Contacts after Firebase login
                     fetchContacts();
                 });
-            }).catch((error) => {
+            } catch (error) {
                 console.error("Error during login:", error);
-            });
+            }
         };
-
-        // Initialize Google API client
-        function initializeGoogleAPI() {
-            gapi.client.setApiKey(API_KEY);
-            return gapi.client.load(DISCOVERY_DOC);
-        }
 
         // Fetch Google Contacts
         async function fetchContacts() {
@@ -101,6 +96,7 @@
 
             document.getElementById('contacts').innerHTML = contactsList.join('');
         }
+
     </script>
 </body>
 </html>
