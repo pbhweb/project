@@ -14,6 +14,7 @@
     <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
 
     <script>
+        // Replace with your client ID and API Key
         const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
         const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
@@ -23,10 +24,12 @@
         let gapiInited = false;
         let gisInited = false;
 
+        // Function that runs when Google API is loaded
         function gapiLoaded() {
             gapi.load('client', initializeGapiClient);
         }
 
+        // Initialize the GAPI client
         async function initializeGapiClient() {
             console.log("Initializing GAPI client...");
             await gapi.client.init({
@@ -37,6 +40,7 @@
             maybeEnableLoginButton();
         }
 
+        // Function that runs when Google Identity Services is loaded
         function gisLoaded() {
             console.log("GIS Loaded");
             tokenClient = google.accounts.oauth2.initTokenClient({
@@ -55,17 +59,20 @@
             maybeEnableLoginButton();
         }
 
+        // Enable the login button once GAPI and GIS are initialized
         function maybeEnableLoginButton() {
             if (gapiInited && gisInited) {
                 document.getElementById('loginButton').style.display = 'block';
             }
         }
 
+        // Trigger login process when button is clicked
         document.getElementById('loginButton').onclick = () => {
             console.log("Requesting access token...");
             tokenClient.requestAccessToken();
         };
 
+        // Fetch contacts from Google People API
         async function fetchContacts() {
             try {
                 console.log("Fetching contacts...");
@@ -81,6 +88,7 @@
             }
         }
 
+        // Display contacts in the HTML
         function displayContacts(connections) {
             if (!connections || connections.length === 0) {
                 document.getElementById('contacts').innerText = 'No contacts found.';
@@ -89,8 +97,9 @@
 
             const contactsList = connections.map(person => {
                 const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
+                const email = person.emailAddresses && person.emailAddresses.length ? person.emailAddresses[0].value : 'No Email';
                 const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
-                return `<p>${name}: ${phone}</p>`;
+                return `<p>${name}: ${email}, ${phone}</p>`;
             });
 
             document.getElementById('contacts').innerHTML = contactsList.join('');
