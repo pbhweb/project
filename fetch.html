@@ -14,7 +14,7 @@
     <div id="contacts"></div>
 
     <script>
-        // Firebase Configuration
+        // إعداد Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508",
             authDomain: "salespoint-7615c.firebaseapp.com",
@@ -25,32 +25,23 @@
             measurementId: "G-34SS07VW9T"
         };
 
-        // Initialize Firebase
+        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 
-        // Handle Google Login
+        // زر تسجيل الدخول
         document.getElementById('loginButton').onclick = async () => {
             try {
-                // Sign in with Firebase Authentication using Google
                 const result = await auth.signInWithPopup(provider);
-                console.log('User signed in:', result.user);
-
-                // Get the Google Access Token from Firebase Auth
-                const credential = result.credential;
-                const accessToken = credential.accessToken;
-
-                // Initialize Google API client with the access token
+                const accessToken = result.credential.accessToken;
                 gapi.load('client', async () => {
                     await gapi.client.init({
                         apiKey: firebaseConfig.apiKey,
                         discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1']
                     });
                     gapi.client.setToken({ access_token: accessToken });
-
-                    // Fetch Google Contacts
                     fetchContacts();
                 });
             } catch (error) {
@@ -58,12 +49,12 @@
             }
         };
 
-        // Fetch Google Contacts
+        // جلب جهات الاتصال
         async function fetchContacts() {
             try {
                 const response = await gapi.client.people.people.connections.list({
                     resourceName: 'people/me',
-                    pageSize: 50,
+                    pageSize: 100,
                     personFields: 'names,emailAddresses,phoneNumbers',
                 });
                 displayContacts(response.result.connections);
@@ -72,22 +63,19 @@
             }
         }
 
-        // Display Contacts
+        // عرض جهات الاتصال
         function displayContacts(connections) {
             const contactsDiv = document.getElementById('contacts');
             if (!connections || connections.length === 0) {
                 contactsDiv.innerText = 'No contacts found.';
                 return;
             }
-
             const contactsList = connections.map(person => {
                 const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
                 const email = person.emailAddresses && person.emailAddresses.length ? person.emailAddresses[0].value : 'No Email';
                 const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
-                
                 return `<p>${name}: ${email}, ${phone}</p>`;
             });
-
             contactsDiv.innerHTML = contactsList.join('');
         }
     </script>
