@@ -31,10 +31,6 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 
-        // Google API Configuration
-        const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
-        const DISCOVERY_DOC = 'https://people.googleapis.com/$discovery/rest?version=v1';
-
         // Handle Google Login
         document.getElementById('loginButton').onclick = async () => {
             try {
@@ -42,20 +38,19 @@
                 const result = await auth.signInWithPopup(provider);
                 console.log('User signed in:', result.user);
 
-                // Initialize Google API client
+                // Get the Google Access Token from Firebase Auth
+                const credential = result.credential;
+                const accessToken = credential.accessToken;
+
+                // Initialize Google API client with the access token
                 gapi.load('client', async () => {
                     await gapi.client.init({
                         apiKey: firebaseConfig.apiKey,
-                        clientId: CLIENT_ID,
-                        discoveryDocs: [DISCOVERY_DOC],
-                        scope: 'https://www.googleapis.com/auth/contacts.readonly'
+                        discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1']
                     });
+                    gapi.client.setToken({ access_token: accessToken });
 
-                    // Set access token for authenticated Google API requests
-                    const accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
-                    gapi.client.setApiKey(firebaseConfig.apiKey);
-
-                    // Fetch Google Contacts after Firebase login
+                    // Fetch Google Contacts
                     fetchContacts();
                 });
             } catch (error) {
@@ -95,7 +90,6 @@
 
             contactsDiv.innerHTML = contactsList.join('');
         }
-
     </script>
 </body>
 </html>
