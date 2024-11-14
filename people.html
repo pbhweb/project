@@ -4,49 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Contacts App</title>
-    <style>body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-    }
-    
-    button {
-        padding: 10px 20px;
-        margin: 10px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-    
-    #contacts {
-        margin-top: 20px;
-    }
+    <style>
+        /* General reset and font setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #3a7bd5, #3a6073);
+            color: #fff;
+        }
+
+        /* Container styles */
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background-color: #2c3e50;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Title styling */
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #f39c12;
+        }
+
+        /* Button styles */
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            background-color: #f39c12;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #f1c40f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Contacts list styling */
+        #contacts {
+            margin-top: 20px;
+            background: #34495e;
+            padding: 10px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #475f7b;
+            color: #ecf0f1;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
-    <h1>Google Contacts</h1>
-    <button id="loginButton">Login with Google</button>
-    <button id="getContactsButton" style="display: none;">Get Contacts</button>
-    <div id="contacts"></div>
+    <div class="container">
+        <h1>Google Contacts</h1>
+        <button id="loginButton">Login with Google</button>
+        <button id="getContactsButton" style="display: none;">Get Contacts</button>
+        <div id="contacts">Your contacts will appear here after login.</div>
+    </div>
 
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script>// Replace with your Google OAuth 2.0 Client ID
-        const CLIENT_ID = '309323278781-g2o0afcj20frq68chab5suov8smku705.apps.googleusercontent.com';
+    <!-- Load the Google API -->
+    <script src="https://apis.google.com/js/api.js" async defer></script>
+    <script>
+        const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
         const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
-        
-        // API discovery doc URL for Google People API
         const DISCOVERY_DOC = 'https://people.googleapis.com/$discovery/rest?version=v1';
-        
-        // Authorization scopes for Google Contacts
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
-        
+
         let tokenClient;
         let gapiInited = false;
         let gisInited = false;
-        
-        // Load the API and make sure the client is ready
+
         function gapiLoaded() {
             gapi.load('client', initializeGapiClient);
         }
-        
+
         async function initializeGapiClient() {
             await gapi.client.init({
                 apiKey: API_KEY,
@@ -55,26 +119,30 @@
             gapiInited = true;
             maybeEnableButtons();
         }
-        
-        // Load the Google Identity Services library
+
         function gisLoaded() {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: SCOPES,
-                callback: '', // Will set callback later
+                callback: async (response) => {
+                    if (response.error) {
+                        console.error(response);
+                        return;
+                    }
+                    document.getElementById('getContactsButton').style.display = 'block';
+                    document.getElementById('loginButton').style.display = 'none';
+                },
             });
             gisInited = true;
             maybeEnableButtons();
         }
-        
-        // Enable buttons when both libraries are loaded
+
         function maybeEnableButtons() {
             if (gapiInited && gisInited) {
                 document.getElementById('loginButton').style.display = 'block';
             }
         }
-        
-        // Login function to authenticate the user
+
         document.getElementById('loginButton').onclick = () => {
             tokenClient.callback = async (response) => {
                 if (response.error) {
@@ -84,51 +152,45 @@
                 document.getElementById('getContactsButton').style.display = 'block';
                 document.getElementById('loginButton').style.display = 'none';
             };
-        
+
             if (gapi.client.getToken() === null) {
-                // Prompt the user to select a Google Account and authorize access
                 tokenClient.requestAccessToken({ prompt: 'consent' });
             } else {
-                // Skip authorization prompt
                 tokenClient.requestAccessToken({ prompt: '' });
             }
         };
-        
-        // Fetch contacts after successful login
+
         document.getElementById('getContactsButton').onclick = async () => {
-            let response;
             try {
-                response = await gapi.client.people.people.connections.list({
+                const response = await gapi.client.people.people.connections.list({
                     resourceName: 'people/me',
                     pageSize: 10,
                     personFields: 'names,emailAddresses,phoneNumbers',
                 });
+
+                const connections = response.result.connections;
+                if (!connections || connections.length === 0) {
+                    document.getElementById('contacts').innerText = 'No contacts found.';
+                    return;
+                }
+
+                const contactsList = connections.map((person) => {
+                    const name = person.names && person.names.length > 0 ? person.names[0].displayName : 'No name';
+                    const email = person.emailAddresses && person.emailAddresses.length > 0 ? person.emailAddresses[0].value : 'No email';
+                    const phone = person.phoneNumbers && person.phoneNumbers.length > 0 ? person.phoneNumbers[0].value : 'No phone number';
+                    return `<li>${name} - ${email} - ${phone}</li>`;
+                });
+
+                document.getElementById('contacts').innerHTML = `<ul>${contactsList.join('')}</ul>`;
             } catch (err) {
-                console.error(err);
-                return;
+                console.error('Error fetching contacts:', err);
             }
-        
-            const connections = response.result.connections;
-            if (!connections || connections.length === 0) {
-                document.getElementById('contacts').innerText = 'No contacts found.';
-                return;
-            }
-        
-            const contactsList = connections.map((person) => {
-                const name = person.names && person.names.length > 0 ? person.names[0].displayName : 'No name';
-                const email = person.emailAddresses && person.emailAddresses.length > 0 ? person.emailAddresses[0].value : 'No email';
-                const phone = person.phoneNumbers && person.phoneNumbers.length > 0 ? person.phoneNumbers[0].value : 'No phone number';
-                return `<li>${name} - ${email} - ${phone}</li>`;
-            });
-        
-            document.getElementById('contacts').innerHTML = `<ul>${contactsList.join('')}</ul>`;
         };
-        
-        // Load the Google APIs and Identity Service libraries
+
         window.onload = function () {
             gapiLoaded();
             gisLoaded();
         };
-        </script>
+    </script>
 </body>
 </html>
