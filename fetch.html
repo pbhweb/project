@@ -16,14 +16,14 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-  apiKey: "AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508",
-  authDomain: "salespoint-7615c.firebaseapp.com",
-  projectId: "salespoint-7615c",
-  storageBucket: "salespoint-7615c.firebasestorage.app",
-  messagingSenderId: "309323278781",
-  appId: "1:309323278781:web:7be9ee009942f264198ad4",
-  measurementId: "G-34SS07VW9T"
-};
+            apiKey: "AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508",
+            authDomain: "salespoint-7615c.firebaseapp.com",
+            projectId: "salespoint-7615c",
+            storageBucket: "salespoint-7615c.appspot.com",
+            messagingSenderId: "309323278781",
+            appId: "1:309323278781:web:7be9ee009942f264198ad4",
+            measurementId: "G-34SS07VW9T"
+        };
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
@@ -42,15 +42,22 @@
         document.getElementById('loginButton').onclick = () => {
             auth.signInWithPopup(provider).then((result) => {
                 console.log('User signed in');
-                // After successful login, fetch contacts
+                // After successful login, get the user's Google token and use it to initialize the Google API client
                 const user = result.user;
-                gapi.load('client:auth2', () => {
-                    gapi.auth2.init({
+                console.log('User Info:', user);
+
+                // Initialize Google API with the token
+                gapi.load('client:auth2', async () => {
+                    await gapi.auth2.init({
                         client_id: CLIENT_ID
-                    }).then(() => {
-                        // Fetch Google Contacts after Firebase login
-                        fetchContacts();
                     });
+
+                    // Get access token from Firebase
+                    const idToken = await user.getIdToken();
+                    gapi.auth.setToken({ access_token: idToken });
+
+                    // Fetch Google Contacts after Firebase login
+                    fetchContacts();
                 });
             }).catch((error) => {
                 console.error("Error during login:", error);
