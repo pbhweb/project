@@ -16,10 +16,10 @@
     <button id="getContactsButton" style="display: none;">Get Contacts</button>
     <div id="contacts"></div>
 
-    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
     <script>
-       const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
-       const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
+    const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
+    const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
         const DISCOVERY_DOC = 'https://people.googleapis.com/$discovery/rest?version=v1';
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
 
@@ -29,10 +29,12 @@
 
         // Load the API and make sure the client is ready
         function gapiLoaded() {
+            console.log('gapi loaded');
             gapi.load('client', initializeGapiClient);
         }
 
         async function initializeGapiClient() {
+            console.log('Initializing gapi client');
             await gapi.client.init({
                 apiKey: API_KEY,
                 discoveryDocs: [DISCOVERY_DOC],
@@ -43,16 +45,16 @@
 
         // Load the Google Identity Services library
         function gisLoaded() {
+            console.log('Google Identity Services loaded');
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: SCOPES,
                 callback: (response) => {
-                    // This callback will handle the response after login
                     if (response.error) {
                         console.error('Error during authentication:', response);
                         return;
                     }
-                    // If successful, show the "Get Contacts" button
+                    console.log('User authenticated successfully');
                     document.getElementById('getContactsButton').style.display = 'block';
                     document.getElementById('loginButton').style.display = 'none';
                 },
@@ -70,11 +72,13 @@
 
         // Login function to authenticate the user
         document.getElementById('loginButton').onclick = () => {
+            console.log('Login button clicked');
             tokenClient.callback = async (response) => {
                 if (response.error) {
-                    console.error(response);
+                    console.error('Login failed:', response);
                     return;
                 }
+                console.log('Access token acquired:', response.access_token);
                 document.getElementById('getContactsButton').style.display = 'block';
                 document.getElementById('loginButton').style.display = 'none';
             };
@@ -90,6 +94,7 @@
 
         // Fetch contacts after successful login
         document.getElementById('getContactsButton').onclick = async () => {
+            console.log('Fetching contacts...');
             let response;
             try {
                 response = await gapi.client.people.people.connections.list({
@@ -97,6 +102,7 @@
                     pageSize: 10,
                     personFields: 'names,emailAddresses,phoneNumbers',
                 });
+                console.log('Contacts fetched:', response);
             } catch (err) {
                 console.error('Error fetching contacts:', err);
                 return;
@@ -120,6 +126,7 @@
 
         // Load the Google APIs and Identity Service libraries
         window.onload = function () {
+            console.log('Window loaded');
             gapiLoaded();
             gisLoaded();
         };
