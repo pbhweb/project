@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Google Contacts</title>
+    <title>Fetch and Download Contacts</title>
 </head>
 <body>
     <button id="loginButton">Login and Fetch Contacts</button>
+    <button id="downloadButton" style="display:none;">Download Contacts</button>
     <div id="contacts"></div>
 
     <!-- Google API and GSI Libraries -->
@@ -87,7 +88,6 @@
                 return;
             }
 
-            // Display contacts in HTML
             const contactsList = connections.map(person => {
                 const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
                 const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
@@ -95,14 +95,20 @@
             });
 
             document.getElementById('contacts').innerHTML = contactsList.join('');
+            document.getElementById('downloadButton').style.display = 'block';
+        }
 
-            // Log contacts to console
-            console.log("Logging contacts to console:");
-            connections.forEach(person => {
-                const name = person.names && person.names.length ? person.names[0].displayName : 'No Name';
-                const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'No Phone Number';
-                console.log(`${name}: ${phone}`);
-            });
+        document.getElementById('downloadButton').onclick = () => {
+            const contacts = document.getElementById('contacts').innerText;
+            downloadContacts(contacts);
+        };
+
+        function downloadContacts(contacts) {
+            const blob = new Blob([contacts], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'contacts.txt';
+            link.click();
         }
     </script>
 </body>
