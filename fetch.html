@@ -10,12 +10,12 @@
     <div id="contacts"></div>
 
     <!-- Google API and GSI Libraries -->
-    <script src="https://apis.google.com/js/api.js" async defer></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
 
     <script>
-       const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
-       const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
+        const CLIENT_ID = '309323278781-dm72hseo75prfa78gurbabvl62uere1a.apps.googleusercontent.com';
+        const API_KEY = 'AIzaSyCCFce3IKX149rt7fEwDCJnzPXVJDHF508';
         const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
         const DISCOVERY_DOC = 'https://people.googleapis.com/$discovery/rest?version=v1';
 
@@ -28,6 +28,7 @@
         }
 
         async function initializeGapiClient() {
+            console.log("Initializing GAPI client...");
             await gapi.client.init({
                 apiKey: API_KEY,
                 discoveryDocs: [DISCOVERY_DOC],
@@ -37,6 +38,7 @@
         }
 
         function gisLoaded() {
+            console.log("GIS Loaded");
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: SCOPES,
@@ -45,6 +47,7 @@
                         console.error('Token error:', response);
                         return;
                     }
+                    console.log("Token received:", response);
                     await fetchContacts();
                 },
             });
@@ -59,16 +62,19 @@
         }
 
         document.getElementById('loginButton').onclick = () => {
+            console.log("Requesting access token...");
             tokenClient.requestAccessToken();
         };
 
         async function fetchContacts() {
             try {
+                console.log("Fetching contacts...");
                 const response = await gapi.client.people.people.connections.list({
                     resourceName: 'people/me',
                     pageSize: 50,
                     personFields: 'names,emailAddresses,phoneNumbers',
                 });
+                console.log("Contacts fetched:", response);
                 displayContacts(response.result.connections);
             } catch (error) {
                 console.error('Error fetching contacts:', error);
@@ -89,11 +95,6 @@
 
             document.getElementById('contacts').innerHTML = contactsList.join('');
         }
-
-        window.onload = function() {
-            gapiLoaded();
-            gisLoaded();
-        };
     </script>
 </body>
 </html>
