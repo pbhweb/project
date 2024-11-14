@@ -4,7 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>استيراد جهات اتصال Google</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #4a90e2;
+            font-size: 2em;
+            margin-bottom: 1em;
+        }
+        .g_id_signin {
+            display: inline-block;
+            margin-bottom: 1em;
+        }
+        #contacts {
+            max-width: 600px;
+            margin: 2em auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #contacts p {
+            font-size: 1em;
+            color: #555;
+            line-height: 1.5;
+            margin: 0.5em 0;
+        }
+        #contacts p span {
+            font-weight: bold;
+            color: #4a90e2;
+        }
+        .contact {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+        .contact:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
     <h1>تسجيل الدخول باستخدام Google للوصول إلى جهات الاتصال</h1>
@@ -31,12 +76,10 @@
         let gapiInited = false;
         let gisInited = false;
 
-        // تحميل مكتبة gapi.js
         function gapiLoaded() {
             gapi.load('client', initializeGapiClient);
         }
 
-        // تهيئة عميل gapi بعد تحميله
         async function initializeGapiClient() {
             await gapi.client.init({
                 apiKey: API_KEY,
@@ -46,7 +89,6 @@
             maybeEnableButtons();
         }
 
-        // تحميل خدمة Google Identity Services
         function gisLoaded() {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
@@ -57,20 +99,17 @@
             maybeEnableButtons();
         }
 
-        // التأكد من تحميل مكتبة gapi وGIS قبل إظهار زر التفويض
         function maybeEnableButtons() {
             if (gapiInited && gisInited) {
                 // إعدادات إضافية في حال الحاجة
             }
         }
 
-        // التعامل مع رد الاعتماد بعد تسجيل الدخول
         function handleCredentialResponse(response) {
             const accessToken = response.credential;
             loadGapiClient(accessToken);
         }
 
-        // تحميل عميل Google People API واستخدام التوكن للوصول إلى جهات الاتصال
         function loadGapiClient(accessToken) {
             gapi.load('client:auth2', async () => {
                 await gapi.client.init({
@@ -82,20 +121,18 @@
             });
         }
 
-        // تحديث حالة تسجيل الدخول واسترداد جهات الاتصال
         function updateSigninStatus(isSignedIn) {
             if (isSignedIn) {
                 fetchContacts();
             }
         }
 
-        // استرداد جهات الاتصال من Google People API
         async function fetchContacts() {
             try {
                 const response = await gapi.client.people.people.connections.list({
                     resourceName: 'people/me',
-                    pageSize: 50, // عدد جهات الاتصال المسترجعة، يمكنك تغييره
-                    personFields: 'names,emailAddresses,phoneNumbers', // الحقول المطلوبة
+                    pageSize: 50,
+                    personFields: 'names,emailAddresses,phoneNumbers',
                 });
                 displayContacts(response.result.connections);
             } catch (error) {
@@ -103,7 +140,6 @@
             }
         }
 
-        // عرض جهات الاتصال في الصفحة
         function displayContacts(connections) {
             const contactsDiv = document.getElementById('contacts');
             if (!connections || connections.length === 0) {
@@ -114,7 +150,7 @@
                 const name = person.names && person.names.length ? person.names[0].displayName : 'بدون اسم';
                 const email = person.emailAddresses && person.emailAddresses.length ? person.emailAddresses[0].value : 'بدون بريد إلكتروني';
                 const phone = person.phoneNumbers && person.phoneNumbers.length ? person.phoneNumbers[0].value : 'بدون رقم هاتف';
-                return `<p>${name}: ${email}, ${phone}</p>`;
+                return `<div class="contact"><p><span>الاسم:</span> ${name}</p><p><span>البريد الإلكتروني:</span> ${email}</p><p><span>رقم الهاتف:</span> ${phone}</p></div>`;
             });
             contactsDiv.innerHTML = contactsList.join('');
         }
