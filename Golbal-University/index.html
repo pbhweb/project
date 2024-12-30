@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Structure - PBH Global University</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #003366;
+            color: #fff;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem 2rem;
+        }
+
+        .fee-structure {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .fee-structure {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fee-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .fee-section[dir="rtl"] {
+            text-align: right;
+        }
+
+        h1 {
+            color: #003366;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            color: #003366;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .fee-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .fee-item:last-child {
+            border-bottom: none;
+        }
+
+        .price {
+            color: #e63946;
+            font-weight: bold;
+        }
+
+        .discount {
+            color: #2a9d8f;
+            font-weight: bold;
+        }
+
+        .note {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .crypto-address {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .crypto-address code {
+            display: block;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #e9ecef;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+
+        .highlight {
+            background-color: #ffd700;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 0.5rem 0;
+        }
+
+        .additional-info {
+            margin-top: 2rem;
+            padding: 2rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .additional-info h2 {
+            color: #003366;
+            margin-bottom: 1.5rem;
+        }
+
+        .additional-info h3 {
+            color: #003366;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .erc20-info, .contact-info, .application-forms {
+            margin-bottom: 1.5rem;
+        }
+
+        .crypto-logo {
+            width: 50px;
+            height: auto;
+            margin-top: 1rem;
+        }
+
+        .application-forms ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .application-forms li {
+            margin-bottom: 0.5rem;
+        }
+
+        .application-forms a {
+            color: #003366;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .application-forms a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">PBH Global University</div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Updated Fee Structure (70% Discount)</h1>
+        
+        <div class="fee-structure">
+            <!-- English Section -->
+            <div class="fee-section">
+                <h2>Fee Structure</h2>
+                
+                <div class="fee-item">
+                    <h3>Application Fee</h3>
+                    <p>Before Discount: <span class="price">$66.25</span></p>
+                    <p>After Discount: <span class="discount">$19.88</span></p>
+                    <p class="note">Non-refundable, payable one time</p>
+                </div>
+
+                <div class="fee-item">
+                    <h3>Registration Fee</h3>
+                    <p>Before Discount: <span class="price">$132.50</span></p>
+                    <p>After Discount: <span class="discount">$39.75</span></p>
+                    <p class="note">Non-refundable, payable every term</p>
+                </div>
+
+               
+
+                <div class="fee-item">
+                    <h3>Tuition Fee</h3>
+                    <p>Before Discount: <span class="price">$136.48</span> per credit unit</p>
+                    <p>After Discount: <span class="discount">$40.94</span> per credit unit</p>
+                </div>
+
+                <div class="fee-item">
+                    <h3>Graduation Fee</h3>
+                    <p>Before Discount: <span class="price">$662.50</span></p>
+                    <p>After Discount: <span class="discount">$198.75</span></p>
+                    <p class="note">Non-refundable, payable one time</p>
+                </div>
+
+                <div class="fee-item">
+                    <h3>First Payment</h3>
+                    <p>Application Fee (one time): <span class="discount">$19.88</span></p>
+                    <p>Registration Fee (each term): <span class="discount">$39.75</span></p>
+                    <p class="highlight">Total First Payment: $59.63</p>
+                </div>
+
+                <div class="fee-item">
+                    <h3>Additional Details</h3>
+                    <p>Term Duration: 3 months</p>
+                    <p>Minimum Units Per Term: 9 units (Total: <span class="discount">$368.46</span>)</p>
+                    <p>Maximum Units Per Term: 18 units (Total: <span class="discount">$736.92</span>)</p>
+                    <p>Total Units Required for Degree: 180 units</p>
+                </div>
+            </div>
+
+            <!-- Arabic Section -->
+            <div class="fee-section" dir="rtl" lang="ar">
+                <h2>هيكل الرسوم</h2>
+                
+                <div class="fee-item">
+                    <h3>رسوم التقديم</h3>
+                    <p>قبل الخصم: <span class="price">66.25 دولار</span></p>
+                    <p>بعد الخصم: <span class="discount">19.88 دولار</span></p>
+                    <p class="note">غير قابلة للاسترداد، تُدفع مرة واحدة</p>
+                </div>
+
+                <div class="fee-item">
+                    <h3>رسوم التسجيل</h3>
+                    <p>قبل الخصم: <span class="price">132.50 دولار</span></p>
+                    <p>بعد الخصم: <span class="discount">39.75 دولار</span></p>
+                    <p class="note">غير قابلة للاسترداد، تُدفع كل فصل دراسي</p>
+                </div>
+
+
+                <div class="fee-item">
+                    <h3>رسوم التعليم</h3>
+                    <p>قبل الخصم: <span class="price">136.48 دولار</span> لكل وحدة دراسية</p>
+                    <p>بعد الخصم: <span class="discount">40.94 دولار</span> لكل وحدة دراسية</p>
+                </div>
+
+                <div class="fee-item">
+                    <h3>رسوم التخرج</h3>
+                    <p>قبل الخصم: <span class="price">662.50 دولار</span></p>
+                    <p>بعد الخصم: <span class="discount">198.75 دولار</span></p>
+                    <p class="note">غير قابلة للاسترداد، تُدفع مرة واحدة</p>
+                </div>
+
+                <div class="fee-item">
+                    <h3>الدفع الأول</h3>
+                    <p>رسوم التقديم (مرة واحدة): <span class="discount">19.88 دولار</span></p>
+                    <p>رسوم التسجيل (لكل فصل دراسي): <span class="discount">39.75 دولار</span></p>
+                    <p class="highlight">إجمالي الدفع الأول: 59.63 دولار</p>
+                </div>
+
+                <div class="fee-item">
+                    <h3>تفاصيل إضافية</h3>
+                    <p>مدة الفصل الدراسي: 3 أشهر</p>
+                    <p>الحد الأدنى للوحدات لكل فصل: 9 وحدات (الإجمالي: <span class="discount">368.46 دولار</span>)</p>
+                    <p>الحد الأقصى للوحدات لكل فصل: 18 وحدة (الإجمالي: <span class="discount">736.92 دولار</span>)</p>
+                    <p>إجمالي الوحدات المطلوبة للحصول على الدرجة: 180 وحدة</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="crypto-address">
+            <h3>USDC Payment Address</h3>
+            <code>0xe7937c6cabe8ddfcfac337ba65d3a004a60d507b</code>
+        </div>
+
+        <div class="additional-info">
+            <h2>Additional Information</h2>
+            
+            <div class="erc20-info">
+                <h3>ERC20 Network</h3>
+                <p>We accept payments on the ERC20 network. Please ensure you're using the correct network when sending payments.</p>
+                <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png" alt="Ethereum logo" class="crypto-logo">
+            </div>
+
+            <div class="contact-info">
+                <h3>Submit Application</h3>
+                <p>For inquiries, submission please contact: <a href="mailto:student@tryprojectbh.info">student@tryprojectbh.info</a></p>
+            </div>
+
+            <div class="application-forms">
+                <h3>Application Forms</h3>
+                <p>Download the Student Application Form:</p>
+                <ul>
+                    <li><a href="https://pbhweb.github.io/project/Golbal-University/Student%20Application%20Form.docx" download>English Version</a></li>
+                    <li><a href="https://pbhweb.github.io/project/Golbal-University/Student%20Application%20Form%20(Arabic)%20%E2%80%8B.docx" download>Arabic Version</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add copy functionality for the crypto address
+            const cryptoAddress = document.querySelector('.crypto-address code');
+            
+            cryptoAddress.addEventListener('click', async function() {
+                try {
+                    await navigator.clipboard.writeText(this.textContent);
+                    const originalText = this.textContent;
+                    this.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
