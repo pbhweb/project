@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -195,7 +196,7 @@
         <h1>Updated Fee Structure (70% Discount)</h1>
         
         <div class="fee-structure">
-            <!-- English Section -->
+            
             <div class="fee-section">
                 <h2>Fee Structure</h2>
                 
@@ -252,7 +253,7 @@
                 </div>
             </div>
 
-            <!-- Arabic Section -->
+            
             <div class="fee-section" dir="rtl" lang="ar">
                 <h2>هيكل الرسوم</h2>
                 
@@ -310,7 +311,7 @@
 
         <div class="crypto-address">
             <h3>USDC Payment Address</h3>
-            <code>0xe7937c6cabe8ddfcfac337ba65d3a004a60d507b</code>
+            <code></code>
         </div>
 
         <div class="additional-info">
@@ -356,6 +357,189 @@
                 }
             });
         });
+    </script>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon - قريباً</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #003366;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .countdown-item {
+            background-color: #e6f2ff;
+            padding: 1rem;
+            border-radius: 5px;
+            min-width: 80px;
+        }
+
+        .countdown-item span {
+            display: block;
+        }
+
+        .countdown-item span:first-child {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #003366;
+        }
+
+        .countdown-item span:last-child {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #004080;
+        }
+
+        .rtl {
+            direction: rtl;
+            font-family: 'Cairo', Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="content">
+        <h1 id="title">Coming Soon</h1>
+        <p id="subtitle">We are working hard to bring you something amazing.</p>
+        <div class="countdown">
+            <div class="countdown-item">
+                <span id="days">00</span>
+                <span id="days-label">Days</span>
+            </div>
+            <div class="countdown-item">
+                <span id="hours">00</span>
+                <span id="hours-label">Hours</span>
+            </div>
+            <div class="countdown-item">
+                <span id="minutes">00</span>
+                <span id="minutes-label">Minutes</span>
+            </div>
+            <div class="countdown-item">
+                <span id="seconds">00</span>
+                <span id="seconds-label">Seconds</span>
+            </div>
+        </div>
+        <button id="language-toggle">عربي</button>
+    </div>
+
+    <script>
+        const content = {
+            en: {
+                title: "Coming Soon",
+                subtitle: "We are working hard to bring you something amazing.",
+                days: "Days",
+                hours: "Hours",
+                minutes: "Minutes",
+                seconds: "Seconds",
+                languageToggle: "عربي"
+            },
+            ar: {
+                title: "قريباً",
+                subtitle: "نحن نعمل بجد لنقدم لكم شيئاً مذهلاً.",
+                days: "أيام",
+                hours: "ساعات",
+                minutes: "دقائق",
+                seconds: "ثواني",
+                languageToggle: "English"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
+            updateContent();
+        }
+
+        function updateContent() {
+            document.getElementById('title').textContent = content[currentLanguage].title;
+            document.getElementById('subtitle').textContent = content[currentLanguage].subtitle;
+            document.getElementById('days-label').textContent = content[currentLanguage].days;
+            document.getElementById('hours-label').textContent = content[currentLanguage].hours;
+            document.getElementById('minutes-label').textContent = content[currentLanguage].minutes;
+            document.getElementById('seconds-label').textContent = content[currentLanguage].seconds;
+            document.getElementById('language-toggle').textContent = content[currentLanguage].languageToggle;
+            
+            document.getElementById('content').classList.toggle('rtl', currentLanguage === 'ar');
+        }
+
+        document.getElementById('language-toggle').addEventListener('click', toggleLanguage);
+
+        // Countdown functionality (replace with your desired launch date)
+        const launchDate = new Date("2025-12-31T00:00:00").getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = launchDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
     </script>
 </body>
 </html>
