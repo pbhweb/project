@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Career Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000;
+            --text-color: #fff;
+            --accent-color: #00ffff;
+            --secondary-color: #ff00ff;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-color);
+        }
+        #search {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            box-shadow: 0 0 20px var(--accent-color);
+            transition: all 0.3s ease;
+        }
+        #search:focus {
+            outline: none;
+            box-shadow: 0 0 30px var(--secondary-color);
+        }
+        #fields-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            perspective: 1000px;
+        }
+        .field {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            transition: all 0.5s ease;
+            cursor: pointer;
+            width: 200px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 14px;
+            transform-style: preserve-3d;
+        }
+        .field:hover {
+            transform: translateZ(20px) rotateX(10deg) rotateY(10deg);
+            box-shadow: 0 0 30px var(--accent-color);
+        }
+        #field-count {
+            text-align: center;
+            color: var(--secondary-color);
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @media (max-width: 768px) {
+            .field {
+                width: calc(50% - 20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles"></div>
+    <div class="container">
+        <h1>Future Career Nexus</h1>
+        <input type="text" id="search" placeholder="Explore the careers of tomorrow...">
+        <div id="fields-container"></div>
+        <div id="field-count"></div>
+    </div>
+
+    <script>
+        const fields = [
+            "Mechanical Engineer",
+"Aerospace engineer",
+"Electrical engineer",
+"Chemical Engineer",
+"Nuclear Engineer",
+"Petroleum Engineer",
+"Civil Engineer",
+"Biomedical Engineering",
+"Architecture",
+"Business Administration",
+"Marketing Administration",
+"Liberal Arts",
+"Robotics",
+"Law",
+"Computer Science",
+"Political Science",
+"Nanoengineering",
+"Electronics Engineering",
+"Computer Engineering",
+"Materials Science",
+"Manufacturing and Production Technology",
+"Software Engineering",
+"Product Design",
+"Security and Safety Engineering",
+"Systems Engineering",
+"Automotive Engineering",
+"Production Engineering",
+"Industrial Engineering",
+"Environmental Engineering",
+"Applied Sciences & Chemistry",
+"Nanotechnology",
+"Mining Engineering",
+"Polymer Technology",
+"Chemistry",
+"Industrial Business Management",
+"Supply Chain Management",
+"Physics",
+"Industrial Finance",
+"Industrial Chemistry",
+"Health and Safety Management",
+"Industrial Marketing",
+"Geological Sciences",
+"Industrial Operations Management",
+"Commercial and Industrial Law",
+"Water Science",
+"Waste Management",
+"Biotechnology",
+"Natural Resources Management",
+"Environmental Analysis",
+"Food Engineering",
+"Food Science and Technology",
+"Nutrition and Food Science",
+"Food Safety",
+"Human Resources Management",
+"Statistics and Data Analysis",
+"Manufacturing Engineering",
+"Operations Management",
+"Industrial Design",
+"Microelectronics",
+"Information Technology",
+"Packaging Technology",
+"Logistics Management",
+"Industrial Economics",
+"Environmental Management",
+"Acoustical Engineering",
+"Marketing and Advertising",
+"Pharmacy",
+"Biological Sciences",
+"Control Engineering",
+"Automation",
+"Environmental Science",
+"Economics",
+"Metallurgical Engineering",
+"Engineering Management",
+"Furniture Design",
+"Marketing",
+"Fine Arts",
+"Manufacturing Technologies",
+"Fine Arts Design",
+"Applied Arts",
+"Carpentry",
+"Handcrafts",
+"Project Management",
+"Safety and Occupational Health Engineering",
+"Agricultural Engineering",
+"International Business Studies",
+"Toxicology and Medical Sciences",
+"Water Treatment Technologies",
+"Artificial Intelligence",
+"Air Conditioning and Refrigeration Technology",
+"Automation Control Systems",
+"Renewable Energy",
+"Optical Engineering",
+"Medical Sciences",
+"Space Sciences",
+"Materials Science and Engineering",
+"Industrial and Systems Engineering",
+"Production and Manufacturing Engineering",
+"Robotics and Automation Engineering",
+"Data Science and Artificial Intelligence",
+"Mechatronics Engineering",
+"Telecommunications and Networking",
+"Artificial Intelligence and Machine Learning",
+"Robotics Science",
+"Automotive Technology",
+"Advanced Manufacturing Technology",
+"Data Science & Analytics",
+"Occupational Health & Safety",
+"Industrial Psychology",
+"Robotics and Intelligent Systems",
+"Renewable Energy Engineering",
+"Industrial and Manufacturing Engineering",
+"Game Design",
+"Sustainable Industrial Design",
+"Information Systems Engineering",
+"Telecommunication Engineering",
+"Applied Physics",
+"Space Technology",
+"Clinical Medicine",
+"Preventive Medicine",
+"Genetic Medicine",
+"Epidemiology",
+"Immunology",
+"Microbiology",
+"Histology",
+"Pharmacology",
+"Biochemistry",
+"Public Health",
+"Nutrition and Health",
+"Environmental Health",
+"Neurology",
+"Neuropsychology",
+"Behavioral Neuroscience",
+"AI in Medicine",
+"Big Data in Healthcare",
+"Digital Health",
+"Clinical Trials",
+"Biostatistics",
+"Gerontology",
+"Immunotherapy in Aging",
+"Medical Ethics",
+"Health Law",
+"Research Management",
+"Health Technology Innovation",
+"Medical Psychology",
+"Sleep Disorders Treatment",
+"Medical Robotics",
+"Genetic Research",
+"Diagnostic Research",
+"Nutrition and Prevention",
+"Radiology and Radiation Therapy",
+"Advanced Surgical Techniques",
+"Environmental Research",
+"Home Appliance Engineering",
+"Industrial Safety Engineering",
+"Information and Communication Technology (ICT)",
+"Marine Safety Engineering",
+"Production Management",
+"Media and Television Engineering",
+"Radio and Television Broadcast Engineering",
+"Sound and Image Engineering",
+"Media Management",
+"Corporate Communication and Public Relations",
+"Media Project Management",
+"Communications Engineering",
+"Satellite Technologies",
+"Digital Communication Networks",
+"Media Production",
+"TV Content Editing",
+"TV Production Management",
+"Graphic Design",
+"Interactive Design & Digital Media",
+"Motion Graphics",
+"Media Law",
+"Broadcast Rights & Licensing",
+"Government Compliance",
+"Financial Management",
+"Journalism & Media",
+"Digital Media",
+"Video Journalism",
+"Oncology",
+"Neurosurgery",
+"Ophthalmology",
+"Plastic and Reconstructive Surgery",
+"Stem Cell Medicine",
+"Regenerative Medicine",
+"Gene Therapy",
+"Medical Information Technology",
+"Oncology Nursing",
+"Neurology Nursing",
+"Stem Cell Nursing",
+"Aeronautical Engineering",
+"Maintenance Engineering",
+"Aviation Operations",
+"Aviation Safety",
+"Composite Materials Science",
+"Marine Engineering",
+"Banking Management",
+"Finance",
+"Islamic Banking",
+"Business Economics",
+"Information Security",
+"Banking Information Technology",
+"Financial Accounting",
+"Management Accounting",
+"Financial Analysis",
+"Risk Management",
+"Financial Marketing",
+"Customer Relationship Management",
+"Cyber Security",
+"Agricultural Systems Engineering",
+"Animal Technology",
+"Environmental Farm Management",
+"Soil Science",
+"Animal Nutrition",
+"Vegetable and Fruit Growing",
+"Sprinkler and Irrigation Engineering",
+"Quality Management in Food Industry",
+"Pest Management",
+"Food Production Technology",
+"Energy Resources Management in Agriculture",
+"Natural Resources Engineering",
+"Marketing of Animal Products",
+"Sustainable Animal Production",
+"Agricultural Risk Management",
+"Environmental Economics",
+"Hospitality and Tourism Management",
+"Hotel and Resort Management",
+"Food and Beverage Management",
+"Event and Conference Management",
+"Tourism Marketing Management",
+"Human Resources Management in Hospitality",
+"Hotel Operations Management",
+"Luxury Services Management",
+"Eco-Tourism and Sustainable Tourism Management",
+"Information Technology in Hospitality",
+"Hotel Design and Furnishing",
+"Hotel Security and Safety Management",
+"Culinary Arts and Food Innovation",
+"Hotel Real Estate and Investment Management",
+"Customer Relationship Management in the Hospitality Sector",
+"Hygiene and Health Management in Hospitality",
+"Ceramics and Glass Engineering",
+"Innovation and Technology Development Management",
+"Sustainable Technology in Manufacturing",
+"Maintenance and Operation Management",
+"Electrical Power Engineering",
+"Microelectronics Engineering",
+"Production and Manufacturing Management",
+"Engineering Maintenance Management",
+"Human Resource Management in Manufacturing",
+"Consumer Electronics",
+"Design and Development of Electronic Devices",
+"Digital Marketing for Technical Products",
+"Film Production",
+"Film Directing",
+"Sound Design",
+"Visual Effects (VFX)",
+"Screenwriting",
+"Production Design",
+"Cinematography",
+"Film Distribution",
+"Television Production",
+"Film Financing",
+"Digital Production",
+"Film Editing",
+"Music Production",
+"Sound Engineering",
+"Artistic Production Management",
+"Marketing and Sales (Arts Marketing)",
+"Mass Communication and Media Studies",
+"Film and Television Directing",
+"Sound Design and Film Scoring",
+"Event Management and Concert Promotion",
+"Photography and Video Production",
+"Digital Media and Social Media Studies",
+"Creative Direction",
+"Creative Writing and Screenwriting",
+"Legal Rights in Music Industry",
+"Advanced Media Technologies",
+"Interactive Media and Virtual Production",
+"Fashion Design",
+"Hospitality Management",
+"Digital Public Relations",
+"Digital Marketing and Social Media",
+"Modeling and Acting Training",
+"Music and Sound Production",
+"Personal Development and Social Relations",
+"Social Psychology",
+"Brand Management",
+"Construction Management",
+"Surveying Engineering",
+"Urban and Regional Planning",
+"Sustainable Building Technologies",
+"Structural Engineering",
+"Geotechnical Engineering",
+"Engineering Economics",
+"Risk Management in Construction",
+"Smart Systems Design",
+"Geological Engineering",
+"Geology",
+"Environmental Law",
+"Advanced Technology and Techniques",
+"Geophysics",
+"Geography",
+"Geospatial Project Management",
+"Natural Resource Management",
+"Mechanical Systems and Robotics",
+"Mineralogy",
+"Large-Scale Project Management",
+"Exploration Techniques",
+"Quantum Physics",
+"Theoretical Physics",
+"Applied Quantum Mechanics",
+"Quantum Optics and Photonics",
+"Superconducting Materials",
+"Quantum Computer Science",
+"Computer Architecture",
+"Quantum Algorithm Design",
+"Cryogenic Engineering",
+"Applied Mathematics",
+"Computational Mathematics",
+"Cryptography",
+"Quantum Information Theory"
+
+        ];
+
+        const fieldsContainer = document.getElementById('fields-container');
+        const searchInput = document.getElementById('search');
+        const fieldCount = document.getElementById('field-count');
+        const particlesContainer = document.querySelector('.particles');
+
+        function renderFields(fieldsToRender) {
+            fieldsContainer.innerHTML = '';
+            fieldsToRender.forEach((field, index) => {
+                const fieldElement = document.createElement('div');
+                fieldElement.classList.add('field');
+                fieldElement.textContent = field;
+                fieldElement.style.animationDelay = `${index * 0.1}s`;
+                fieldsContainer.appendChild(fieldElement);
+            });
+            updateFieldCount(fieldsToRender.length);
+        }
+
+        function filterFields() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredFields = fields.filter(field => 
+                field.toLowerCase().includes(searchTerm)
+            );
+            renderFields(filteredFields);
+        }
+
+        function updateFieldCount(count) {
+            fieldCount.textContent = `Exploring ${count} out of ${fields.length} future careers`;
+        }
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.style.position = 'absolute';
+            particle.style.width = '2px';
+            particle.style.height = '2px';
+            particle.style.background = 'white';
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.top = `${Math.random() * 100}vh`;
+            particle.style.opacity = Math.random();
+            particle.style.animation = `float ${5 + Math.random() * 10}s linear infinite`;
+            particlesContainer.appendChild(particle);
+        }
+
+        for (let i = 0; i < 100; i++) {
+            createParticle();
+        }
+
+        searchInput.addEventListener('input', filterFields);
+
+        // Initial render
+        renderFields(fields);
+
+        // 3D parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const moveX = (clientX - centerX) / centerX;
+            const moveY = (clientY - centerY) / centerY;
+            
+            document.querySelectorAll('.field').forEach(field => {
+                const depth = Math.random() * 50;
+                field.style.transform = `translate3d(${moveX * depth}px, ${moveY * depth}px, 0)`;
+            });
+        });
+    </script>
+</body>
+</html>
