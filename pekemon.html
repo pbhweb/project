@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟 متجر بطاقات البوكيمون الملكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #fd79a8);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating Particles */
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(-60px) rotate(240deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from { filter: drop-shadow(0 0 5px rgba(255, 107, 107, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(78, 205, 196, 0.8)); }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-links a:hover::before {
+            left: 100%;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Audio Player */
+        .audio-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            border-radius: 25px;
+            margin: 120px auto 2rem;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audio-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .audio-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .audio-section h3 {
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-audio-player {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            max-width: 400px;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .play-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .audio-info {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 6rem 0;
+            color: white;
+            position: relative;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://occ-0-8407-2218.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABctMHHBqYQnLNHv2YBMg5y-8a3zKxiyfDagD_zi-HP3i0IZd3v-3V-eYOHbtRpmywCqo7HY5U9YcffWM_4Lo6IYGEGPGi1LJ10gB.jpg?r=1b2');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(45deg, #fff, #f093fb, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: heroGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes heroGlow {
+            from { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); }
+            to { filter: drop-shadow(0 0 30px rgba(240, 147, 251, 0.8)); }
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            margin-bottom: 3rem;
+            opacity: 0.95;
+            font-weight: 400;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 200% 200%;
+            color: white;
+            padding: 1.2rem 3rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: gradientMove 3s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Pokemon Gallery Section */
+        .pokemon-gallery {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4rem 0;
+            margin: 3rem 0;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: all 0.3s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            padding: 2rem 1.5rem 1.5rem;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            transform: translateY(0);
+        }
+
+        .gallery-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .gallery-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Cards Section */
+        .cards-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 5rem 0;
+            margin: 3rem 0;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cards-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            animation: sectionGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes sectionGlow {
+            from { opacity: 0.3; }
+            to { opacity: 0.7; }
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3.5rem;
+            margin-bottom: 4rem;
+            color: white;
+            font-weight: 800;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: cardRotate 6s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card-item:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes cardRotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .card-item:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .card-image {
+            width: 250px;
+            height: 350px;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            border-radius: 20px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .card-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .card-item:hover .card-image::before {
+            transform: translateX(100%);
+        }
+
+        .card-image::after {
+            content: '⚡';
+            font-size: 6rem;
+            opacity: 0.2;
+            position: absolute;
+            animation: sparkle 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes sparkle {
+            from { transform: scale(1) rotate(0deg); opacity: 0.2; }
+            to { transform: scale(1.2) rotate(180deg); opacity: 0.4; }
+        }
+
+        .card-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-price {
+            font-size: 2rem;
+            color: #4ecdc4;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        .buy-button {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d, #45b7d1);
+            background-size: 200% 200%;
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s;
+            font-weight: 700;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            animation: buttonGradient 3s ease infinite;
+        }
+
+        @keyframes buttonGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .buy-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .buy-button:hover::before {
+            left: 100%;
+        }
+
+        .buy-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Featured Section */
+        .featured-section {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://occ-0-8407-90.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABTuBcnYy58FqVbdP1W6iAINEtS5t_tIayiCTC-YlmLU8SOUCnBqURD_5vpQNRvDW7Z5yqEQTxe1INmOXXpxcYorbY94uXFYJC7ZP.jpg?r=47e');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 6rem 0;
+            margin: 3rem 0;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .featured-content {
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        .featured-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .featured-description {
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Payment Section */
+        .payment-section {
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://m.media-amazon.com/images/S/pv-target-images/2f0f0e3bebf2d4f4d7d162e7f8d04b96d3044cd9146fecd747fe7b107bac1e6f._SX1080_FMpng_.png');
+            background-size: cover;
+            background-position: center;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 5rem 0;
+            margin: 3rem 0;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .payment-method {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 3rem 2rem;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-method::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .payment-method:hover::before {
+            opacity: 1;
+        }
+
+        .payment-method:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .payment-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+            position: relative;
+            z-index: 2;
+        }
+
+        .payment-method h3 {
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+        }
+
+        .payment-method p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* About Section */
+        .about-section {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://resizing.flixster.com/6J4U4BS2GTFzuRMHaETTOyZN2Oc=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p12579462_b_h8_ak.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 6rem 0;
+            margin: 3rem 0;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .about-text {
+            color: white;
+        }
+
+        .about-text h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .about-text p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #4ecdc4;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 3% auto;
+            padding: 3rem;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            animation: modalSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: white;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: rgba(255, 255, 255, 0.7);
+            float: left;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            transition: all 0.3s;
+        }
+
+        .close:hover {
+            color: #ff6b6b;
+            transform: scale(1.2);
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 5% auto;
+                width: 95%;
+                padding: 2rem;
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .about-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Special Effects */
+        .sparkle-effect {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes sparkleFloat {
+            0%, 100% { 
+                transform: translateY(0px) scale(0);
+                opacity: 0;
+            }
+            50% { 
+                transform: translateY(-100px) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">🎴 PokéCards Royal</div>
+            <ul class="nav-links">
+                <li><a href="#home">الرئيسية</a></li>
+                <li><a href="#gallery">المعرض</a></li>
+                <li><a href="#cards">البطاقات</a></li>
+                <li><a href="#payment">الدفع</a></li>
+                <li><a href="#contact">اتصل بنا</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Audio Player -->
+    <div class="container">
+        <div class="audio-section">
+            <div class="audio-content">
+                <h3>🎵 موسيقى البوكيمون الأصلية الملحمية</h3>
+                <div class="custom-audio-player">
+                    <button class="play-btn" id="playBtn" onclick="toggleAudio()">▶️</button>
+                    <div class="audio-info">
+                        <div>Pokemon Theme Song</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">Gotta Catch 'Em All!</div>
+                    </div>
+                </div>
+                <audio id="pokemonAudio" loop>
+                    <source src="https://pouch.jumpshare.com/preview/j7SH9XPMmvdI7fx8q-uTyqGXkapAmrquvuX1mNAK4TD4duqngPz06dHX23VlYh4kbjv_-sq_YWpIFQoqBwiP9OISUV3sYaporPkB-75cVOnEYIhm2YnRiONlDUekOf7mdW3Kgr7toi4czmIoqVUoYG6yjbN-I2pg_cnoHs_AmgI.mp3" type="audio/mp3">
+                    متصفحك لا يدعم تشغيل الصوت
+                </audio>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>🌟 متجر بطاقات البوكيمون الملكي</h1>
+                <p>اكتشف مجموعة رائعة من بطاقات البوكيمون النادرة والمميزة بأفضل الأسعار</p>
+                <a href="#cards" class="cta-button">🛒 تسوق الآن واحصل على أفضل العروض</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pokemon Gallery Section -->
+    <section class="pokemon-gallery" id="gallery">
+        <div class="container">
+            <h2 class="section-title">🎬 معرض البوكيمون المميز</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://occ-0-8407-2218.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABctMHHBqYQnLNHv2YBMg5y-8a3zKxiyfDagD_zi-HP3i0IZd3v-3V-eYOHbtRpmywCqo7HY5U9YcffWM_4Lo6IYGEGPGi1LJ10gB.jpg?r=1b2" alt="Pokemon Adventure">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">🌟 مغامرة البوكيمون الكبرى</div>
+                        <div class="gallery-description">انطلق في رحلة ملحمية مع أقوى البوكيمون</div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://occ-0-8407-90.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABTuBcnYy58FqVbdP1W6iAINEtS5t_tIayiCTC-YlmLU8SOUCnBqURD_5vpQNRvDW7Z5yqEQTxe1INmOXXpxcYorbY94uXFYJC7ZP.jpg?r=47e" alt="Pokemon Battle">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">⚔️ معارك البوكيمون الأسطورية</div>
+                        <div class="gallery-description">شاهد أقوى المعارك والتحديات</div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://m.media-amazon.com/images/S/pv-target-images/2f0f0e3bebf2d4f4d7d162e7f8d04b96d3044cd9146fecd747fe7b107bac1e6f._SX1080_FMpng_.png" alt="Pokemon World">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">🌍 عالم البوكيمون السحري</div>
+                        <div class="gallery-description">استكشف العوالم المذهلة والمخلوقات النادرة</div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://resizing.flixster.com/6J4U4BS2GTFzuRMHaETTOyZN2Oc=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p12579462_b_h8_ak.jpg" alt="Pokemon Masters">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">🏆 أساتذة البوكيمون</div>
+                        <div class="gallery-description">تعرف على أعظم مدربي البوكيمون في التاريخ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Section -->
+    <section class="featured-section">
+        <div class="container">
+            <div class="featured-content">
+                <h2 class="featured-title">🔥 العروض الحصرية والمميزة</h2>
+                <p class="featured-description">
+                    احصل على أندر بطاقات البوكيمون بأسعار لا تُقاوم! عروض محدودة الوقت على البطاقات الذهبية والنادرة. 
+                    لا تفوت الفرصة للحصول على مجموعتك المثالية من بطاقات البوكيمون الأصلية والمعتمدة.
+                </p>
+                <a href="#cards" class="cta-button">🎯 اكتشف العروض الآن</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cards Section -->
+    <section class="cards-section" id="cards">
+        <div class="container">
+            <h2 class="section-title">🎴 البطاقات المميزة والنادرة</h2>
+            <div class="cards-grid">
+                <div class="card-item">
+                    <div class="card-image">
+                        <span>Charizard</span>
+                    </div>
+                    <div class="card-name">🔥 تشاريزارد الذهبي النادر</div>
+                    <div class="card-price">$299.99</div>
+                    <button class="buy-button" onclick="openModal('Charizard الذهبي النادر', 299.99)">💎 شراء فوري</button>
+                </div>
+                
+                <div class="card-item">
+                    <div class="card-image">
+                        <span>Pikachu</span>
+                    </div>
+                    <div class="card-name">⚡ بيكاتشو اللامع المميز</div>
+                    <div class="card-price">$149.99</div>
+                    <button class="buy-button" onclick="openModal('Pikachu اللامع المميز', 149.99)">💎 شراء فوري</button>
+                </div>
+                
+                <div class="card-item">
+                    <div class="card-image">
+                        <span>Mewtwo</span>
+                    </div>
+                    <div class="card-name">🧠 ميوتو الأسطوري</div>
+                    <div class="card-price">$399.99</div>
+                    <button class="buy-button" onclick="openModal('Mewtwo الأسطوري', 399.99)">💎 شراء فوري</button>
+                </div>
+                
+                <div class="card-item">
+                    <div class="card-image">
+                        <span>Blastoise</span>
+                    </div>
+                    <div class="card-name">🌊 بلاستويز الأزرق الملكي</div>
+                    <div class="card-price">$199.99</div>
+                    <button class="buy-button" onclick="openModal('Blastoise الأزرق الملكي', 199.99)">💎 شراء فوري</button>
+                </div>
+                
+                <div class="card-item">
+                    <div class="card-image">
+                        <span>Venusaur</span>
+                    </div>
+                    <div class="card-name">🌿 فينوسور الأخضر الإمبراطوري</div>
+                    <div class="card-price">$179.99</div>
+                    <button class="buy-button" onclick="openModal('Venusaur الأخضر الإمبراطوري', 179.99)">💎 شراء فوري</button>
+                </div>
+                
+                <div class="card-item">
+                    <div class="card-image">
+                        <span>Rayquaza</span>
+                    </div>
+                    <div class="card-name">🐉 رايكوازا التنين الأسطوري</div>
+                    <div class="card-price">$499.99</div>
+                    <button class="buy-button" onclick="openModal('Rayquaza التنين الأسطوري', 499.99)">💎 شراء فوري</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>🏆 لماذا نحن الأفضل؟</h2>
+                    <p>
+                        نحن متجر البوكيمون الرائد في المنطقة، نقدم أندر وأجمل بطاقات البوكيمون الأصلية والمعتمدة. 
+                        مع خبرة تزيد عن 10 سنوات في هذا المجال، نضمن لك الحصول على أفضل البطاقات بأسعار منافسة.
+                    </p>
+                    <p>
+                        جميع بطاقاتنا أصلية ومعتمدة، مع ضمان الاستبدال والإرجاع. نوفر خدمة توصيل سريعة وآمنة 
+                        لجميع أنحاء العالم مع تغليف احترافي يحافظ على البطاقات في أفضل حالة.
+                    </p>
+                </div>
+                <div class="about-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">عميل سعيد</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">بطاقة نادرة</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">دولة نوصل إليها</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">99%</div>
+                        <div class="stat-label">رضا العملاء</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Section -->
+    <section class="payment-section" id="payment">
+        <div class="container">
+            <h2 class="section-title">💳 طرق الدفع الآمنة والمتنوعة</h2>
+            <div class="payment-methods">
+                <div class="payment-method">
+                    <div class="payment-icon">🏦</div>
+                    <h3>التحويل البنكي الآمن</h3>
+                    <p>ادفع بأمان تام عبر التحويل البنكي المباشر. نقبل جميع البنوك المحلية والدولية مع ضمان الحماية الكاملة.</p>
+                </div>
+                
+                <div class="payment-method">
+                    <div class="payment-icon">💸</div>
+                    <h3>ويسترن يونيون السريع</h3>
+                    <p>تحويل سريع وآمن عبر ويسترن يونيون في جميع أنحاء العالم. استلام فوري وضمان 100%.</p>
+                </div>
+                
+                <div class="payment-method">
+                    <div class="payment-icon">₿</div>
+                    <h3>العملات الرقمية المتقدمة</h3>
+                    <p>ندعم Bitcoin, Ethereum, USDT وجميع العملات الرقمية الرئيسية. دفع سريع وآمن بتقنية البلوك تشين.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Purchase Modal -->
+    <div id="purchaseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 style="text-align: center; margin-bottom: 2rem; color: white; font-size: 2rem;">🛒 إتمام عملية الشراء</h2>
+            
+            <form id="purchaseForm">
+                <div class="form-group">
+                    <label>🎴 البطاقة المختارة:</label>
+                    <input type="text" id="selectedCard" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>💰 السعر:</label>
+                    <input type="text" id="cardPrice" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>👤 الاسم الكامل:</label>
+                    <input type="text" id="fullName" required placeholder="أدخل اسمك الكامل">
+                </div>
+                
+                <div class="form-group">
+                    <label>📧 البريد الإلكتروني:</label>
+                    <input type="email" id="email" required placeholder="example@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>📱 رقم الهاتف:</label>
+                    <input type="tel" id="phone" required placeholder="+966 50 123 4567">
+                </div>
+                
+                <div class="form-group">
+                    <label>💳 طريقة الدفع:</label>
+                    <select id="paymentMethod" required onchange="showPaymentDetails()">
+                        <option value="">اختر طريقة الدفع المناسبة</option>
+                        <option value="bank">🏦 التحويل البنكي</option>
+                        <option value="western">💸 ويسترن يونيون</option>
+                        <option value="crypto">₿ العملات الرقمية</option>
+                    </select>
+                </div>
+                
+                <div id="paymentDetails" style="display: none;">
+                    <div class="form-group">
+                        <label>📝 تفاصيل الدفع:</label>
+                        <textarea id="paymentInfo" rows="4" placeholder="أدخل تفاصيل الدفع هنا..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>🏠 عنوان الشحن:</label>
+                    <textarea id="address" rows="3" required placeholder="أدخل عنوان الشحن الكامل مع رقم الهاتف"></textarea>
+                </div>
+                
+                <button type="submit" class="cta-button" style="width: 100%; margin-top: 1rem; font-size: 1.2rem;">
+                    ✅ تأكيد الطلب والشراء الآن 🛒
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <p style="font-size: 1.2rem; margin-bottom: 1rem;">🎴 &copy; 2024 متجر بطاقات البوكيمون الملكي - جميع الحقوق محفوظة</p>
+            <p style="font-size: 1.1rem;">📧 info@pokecards-royal.com | 📱 +966-50-123-4567 | 🌐 www.pokecards-royal.com</p>
+            <p style="margin-top: 1rem; opacity: 0.8;">⭐ أفضل متجر لبطاقات البوكيمون في الشرق الأوسط ⭐</p>
+        </div>
+    </footer>
+
+    <script>
+        let isPlaying = false;
+        const audio = document.getElementById('pokemonAudio');
+        const playBtn = document.getElementById('playBtn');
+
+        // Audio functionality
+        function toggleAudio() {
+            if (isPlaying) {
+                audio.pause();
+                playBtn.innerHTML = '▶️';
+                isPlaying = false;
+            } else {
+                audio.play();
+                playBtn.innerHTML = '⏸️';
+                isPlaying = true;
+            }
+        }
+
+        // Modal functionality
+        function openModal(cardName, price) {
+            document.getElementById('selectedCard').value = cardName;
+            document.getElementById('cardPrice').value = '$' + price;
+            document.getElementById('purchaseModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('purchaseModal').style.display = 'none';
+            document.getElementById('purchaseForm').reset();
+            document.getElementById('paymentDetails').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function showPaymentDetails() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const paymentDetails = document.getElementById('paymentDetails');
+            const paymentInfo = document.getElementById('paymentInfo');
+            
+            if (paymentMethod) {
+                paymentDetails.style.display = 'block';
+                
+                switch(paymentMethod) {
+                    case 'bank':
+                        paymentInfo.placeholder = `🏦 أدخل تفاصيل التحويل البنكي:
+📋 اسم البنك:
+🔢 رقم الحساب:
+👤 اسم صاحب الحساب:
+🏛️ رمز البنك (SWIFT):`;
+                        break;
+                    case 'western':
+                        paymentInfo.placeholder = `💸 أدخل تفاصيل ويسترن يونيون:
+🔢 رقم التحويل (MTCN):
+👤 اسم المرسل:
+🌍 البلد:
+📱 رقم هاتف المرسل:`;
+                        break;
+                    case 'crypto':
+                        paymentInfo.placeholder = `₿ أدخل تفاصيل العملة الرقمية:
+💰 نوع العملة (Bitcoin, Ethereum, USDT):
+🏦 عنوان المحفظة:
+🔗 معرف المعاملة (Transaction ID):
+⏰ وقت الإرسال:`;
+                        break;
+                }
+            } else {
+                paymentDetails.style.display = 'none';
+            }
+        }
+
+        // Form submission
+        document.getElementById('purchaseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect form data
+            const formData = {
+                card: document.getElementById('selectedCard').value,
+                price: document.getElementById('cardPrice').value,
+                name: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                paymentMethod: document.getElementById('paymentMethod').value,
+                paymentInfo: document.getElementById('paymentInfo').value,
+                address: document.getElementById('address').value
+            };
+            
+            // Success animation
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '✅ تم إرسال الطلب بنجاح!';
+            submitBtn.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+            
+            setTimeout(() => {
+                alert(`🎉 تم إرسال طلبك بنجاح!
+                
+🎴 البطاقة: ${formData.card}
+💰 السعر: ${formData.price}
+👤 الاسم: ${formData.name}
+
+📞 سنتواصل معك خلال 24 ساعة لتأكيد الطلب وتفاصيل الشحن.
+🚚 مدة التوصيل: 3-5 أيام عمل
+📦 الشحن مجاني للطلبات أكثر من $200
+
+شكراً لثقتك في متجر بطاقات البوكيمون الملكي! 🌟`);
+                closeModal();
+            }, 1000);
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('purchaseModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Add loading animation to cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(50px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Add animation to gallery items
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            galleryItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+
+            // Create floating particles
+            createFloatingParticles();
+        });
+
+        // Create floating particles effect
+        function createFloatingParticles() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    createParticle();
+                }, i * 500);
+            }
+        }
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = Math.random() * 8 + 4 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.top = window.innerHeight + 'px';
+            particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            particle.style.animationDelay = Math.random() * 2 + 's';
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                if (document.body.contains(particle)) {
+                    document.body.removeChild(particle);
+                }
+            }, 8000);
+        }
+
+        // Create particles continuously
+        setInterval(createParticle, 2000);
+
+        // Add sparkle effects on card hover
+        document.querySelectorAll('.card-item').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                createSparkles(this);
+            });
+        });
+
+        function createSparkles(element) {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle-effect';
+                    sparkle.style.left = Math.random() * element.offsetWidth + 'px';
+                    sparkle.style.top = Math.random() * element.offsetHeight + 'px';
+                    element.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        if (element.contains(sparkle)) {
+                            element.removeChild(sparkle);
+                        }
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+
+        // Add scroll animations
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.bg-animation');
+            const speed = scrolled * 0.5;
+            parallax.style.transform = `translateY(${speed}px)`;
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for scroll animations
+        document.querySelectorAll('.gallery-item, .stat-item, .payment-method').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
