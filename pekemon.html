@@ -11,7 +11,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Tajawal', sans-serif;
             background: #000;
@@ -20,7 +19,6 @@
             overflow-x: hidden;
             position: relative;
         }
-
         /* Ultra Modern Background */
         .bg-animation {
             position: fixed;
@@ -29,14 +27,13 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: 
+            background:
                 radial-gradient(circle at 25% 25%, #ff0080 0%, transparent 50%),
                 radial-gradient(circle at 75% 75%, #00ff80 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, #8000ff 0%, transparent 50%),
                 linear-gradient(45deg, #000428 0%, #004e92 100%);
             animation: ultraShift 15s ease infinite;
         }
-
         @keyframes ultraShift {
             0%, 100% { 
                 filter: hue-rotate(0deg) brightness(1);
@@ -51,7 +48,6 @@
                 transform: scale(0.95);
             }
         }
-
         /* Floating Neon Particles */
         .neon-particle {
             position: absolute;
@@ -62,7 +58,6 @@
             box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
             animation: neonFloat 8s ease-in-out infinite;
         }
-
         @keyframes neonFloat {
             0%, 100% { 
                 transform: translateY(100vh) translateX(0) scale(0);
@@ -77,13 +72,11 @@
                 transform: translateY(10vh) translateX(-10px) scale(1);
             }
         }
-
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 20px;
         }
-
         /* Futuristic Header */
         header {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 40, 0.9));
@@ -97,13 +90,13 @@
             z-index: 1000;
             box-shadow: 0 8px 32px rgba(0, 255, 255, 0.3);
         }
-
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-
         .logo {
             font-family: 'Orbitron', monospace;
             font-size: 2.5rem;
@@ -116,18 +109,16 @@
             animation: logoGlow 3s ease infinite;
             text-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
         }
-
         @keyframes logoGlow {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
-
         .nav-links {
             display: flex;
             list-style: none;
             gap: 1rem;
+            flex-wrap: wrap;
         }
-
         .nav-links a {
             text-decoration: none;
             color: #fff;
@@ -140,7 +131,6 @@
             overflow: hidden;
             border: 1px solid transparent;
         }
-
         .nav-links a::before {
             content: '';
             position: absolute;
@@ -151,17 +141,88 @@
             background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.4), transparent);
             transition: left 0.5s;
         }
-
         .nav-links a:hover::before {
             left: 100%;
         }
-
         .nav-links a:hover {
             border: 1px solid #00ffff;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
             transform: translateY(-2px);
         }
+        
+        /* Language and Currency Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .control-label {
+            font-size: 0.8rem;
+            color: #00ffff;
+            text-align: center;
+            font-weight: 600;
+        }
+        .control-select {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 40, 0.8));
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            min-width: 120px;
+        }
+        .control-select:hover {
+            border-color: #ff0080;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+        .control-select:focus {
+            outline: none;
+            border-color: #ff0080;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.6);
+        }
+        .control-select option {
+            background: #000;
+            color: white;
+            padding: 0.5rem;
+        }
 
+        /* WhatsApp Button */
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            animation: whatsappPulse 2s ease infinite;
+        }
+        @keyframes whatsappPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .whatsapp-btn:hover {
+            transform: scale(1.2);
+            box-shadow: 0 15px 40px rgba(37, 211, 102, 0.6);
+        }
         /* Cyber Audio Player */
         .audio-section {
             background: linear-gradient(135deg, rgba(255, 0, 128, 0.1), rgba(0, 255, 128, 0.1));
@@ -170,15 +231,14 @@
             border-image: linear-gradient(45deg, #ff0080, #00ff80) 1;
             padding: 3rem;
             border-radius: 25px;
-            margin: 120px auto 3rem;
+            margin: 140px auto 3rem;
             text-align: center;
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.5),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
         }
-
         .audio-section::before {
             content: '';
             position: absolute;
@@ -189,16 +249,13 @@
             background: conic-gradient(from 0deg, transparent, rgba(0, 255, 255, 0.1), transparent);
             animation: cyberRotate 8s linear infinite;
         }
-
         @keyframes cyberRotate {
             100% { transform: rotate(360deg); }
         }
-
         .audio-content {
             position: relative;
             z-index: 2;
         }
-
         .audio-section h3 {
             margin-bottom: 2rem;
             color: #fff;
@@ -206,7 +263,6 @@
             font-weight: 800;
             text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
         }
-
         .custom-audio-player {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 40, 0.8));
             border: 2px solid #00ffff;
@@ -221,7 +277,6 @@
             backdrop-filter: blur(10px);
             box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
         }
-
         .play-btn {
             background: linear-gradient(135deg, #ff0080, #8000ff);
             border: none;
@@ -235,7 +290,6 @@
             box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
             position: relative;
         }
-
         .play-btn::before {
             content: '';
             position: absolute;
@@ -248,24 +302,21 @@
             z-index: -1;
             animation: buttonGlow 2s ease infinite alternate;
         }
-
         @keyframes buttonGlow {
             from { opacity: 0.5; }
             to { opacity: 1; }
         }
-
         .play-btn:hover {
             transform: scale(1.1);
             box-shadow: 0 0 40px rgba(255, 0, 128, 0.8);
         }
-
         /* Futuristic Hero */
         .hero {
             text-align: center;
             padding: 10rem 0;
             color: white;
             position: relative;
-            background: 
+            background:
                 linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
                 url('https://occ-0-8407-2218.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABctMHHBqYQnLNHv2YBMg5y-8a3zKxiyfDagD_zi-HP3i0IZd3v-3V-eYOHbtRpmywCqo7HY5U9YcffWM_4Lo6IYGEGPGi1LJ10gB.jpg?r=1b2');
             background-size: cover;
@@ -277,7 +328,6 @@
             border: 2px solid transparent;
             border-image: linear-gradient(45deg, #ff0080, #00ff80, #8000ff) 1;
         }
-
         .hero::before {
             content: '';
             position: absolute;
@@ -285,28 +335,25 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 radial-gradient(circle at 30% 30%, rgba(255, 0, 128, 0.3) 0%, transparent 50%),
                 radial-gradient(circle at 70% 70%, rgba(0, 255, 128, 0.3) 0%, transparent 50%);
             animation: heroGlow 6s ease infinite alternate;
         }
-
         @keyframes heroGlow {
             from { opacity: 0.5; }
             to { opacity: 1; }
         }
-
         .hero-content {
             position: relative;
             z-index: 2;
         }
-
         .hero h1 {
             font-family: 'Orbitron', monospace;
             font-size: 5rem;
             margin-bottom: 2rem;
             font-weight: 900;
-            text-shadow: 
+            text-shadow:
                 0 0 10px rgba(255, 0, 128, 0.8),
                 0 0 20px rgba(0, 255, 128, 0.6),
                 0 0 30px rgba(128, 0, 255, 0.4);
@@ -317,12 +364,10 @@
             background-clip: text;
             animation: textShine 4s ease infinite;
         }
-
         @keyframes textShine {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
-
         .hero p {
             font-size: 1.4rem;
             margin-bottom: 3rem;
@@ -333,7 +378,6 @@
             margin-left: auto;
             margin-right: auto;
         }
-
         .cta-button {
             background: linear-gradient(135deg, #ff0080, #8000ff);
             color: white;
@@ -350,7 +394,6 @@
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(255, 0, 128, 0.4);
         }
-
         .cta-button::before {
             content: '';
             position: absolute;
@@ -361,16 +404,13 @@
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
             transition: left 0.5s;
         }
-
         .cta-button:hover::before {
             left: 100%;
         }
-
         .cta-button:hover {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 20px 50px rgba(255, 0, 128, 0.6);
         }
-
         /* Neon Gallery */
         .pokemon-gallery {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 40, 0.8));
@@ -383,7 +423,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .section-title {
             text-align: center;
             font-family: 'Orbitron', monospace;
@@ -391,7 +430,7 @@
             margin-bottom: 3rem;
             color: white;
             font-weight: 900;
-            text-shadow: 
+            text-shadow:
                 0 0 10px rgba(0, 255, 255, 0.8),
                 0 0 20px rgba(0, 255, 255, 0.6);
             background: linear-gradient(45deg, #00ffff, #ff0080, #00ff80);
@@ -401,50 +440,43 @@
             background-clip: text;
             animation: titleGlow 3s ease infinite;
         }
-
         @keyframes titleGlow {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
-
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
             margin-bottom: 2rem;
         }
-
         .gallery-item {
             position: relative;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.5),
                 0 0 20px rgba(0, 255, 255, 0.3);
             transition: all 0.4s ease;
             background: linear-gradient(135deg, rgba(255, 0, 128, 0.1), rgba(0, 255, 128, 0.1));
             border: 1px solid rgba(0, 255, 255, 0.3);
         }
-
         .gallery-item:hover {
             transform: translateY(-15px) rotateX(5deg);
-            box-shadow: 
+            box-shadow:
                 0 30px 60px rgba(0, 0, 0, 0.7),
                 0 0 40px rgba(0, 255, 255, 0.6);
             border-color: #00ffff;
         }
-
         .gallery-item img {
             width: 100%;
             height: 250px;
             object-fit: cover;
             transition: transform 0.4s ease;
         }
-
         .gallery-item:hover img {
             transform: scale(1.1);
         }
-
         .gallery-overlay {
             position: absolute;
             bottom: 0;
@@ -456,11 +488,9 @@
             transform: translateY(100%);
             transition: transform 0.4s ease;
         }
-
         .gallery-item:hover .gallery-overlay {
             transform: translateY(0);
         }
-
         /* Cyber Cards */
         .cards-section {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 40, 0.8));
@@ -471,14 +501,12 @@
             margin: 3rem 0;
             border-radius: 25px;
         }
-
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 3rem;
             margin-bottom: 2rem;
         }
-
         .card-item {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 40, 0.9));
             backdrop-filter: blur(20px);
@@ -486,7 +514,7 @@
             border-image: linear-gradient(45deg, #ff0080, #00ff80, #8000ff) 1;
             border-radius: 25px;
             padding: 2.5rem;
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.5),
                 0 0 20px rgba(255, 0, 128, 0.3);
             transition: all 0.4s ease;
@@ -494,7 +522,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .card-item::before {
             content: '';
             position: absolute;
@@ -507,22 +534,18 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-
         .card-item:hover::before {
             opacity: 1;
         }
-
         @keyframes cardRotate {
             100% { transform: rotate(360deg); }
         }
-
         .card-item:hover {
             transform: translateY(-15px) scale(1.02);
-            box-shadow: 
+            box-shadow:
                 0 30px 60px rgba(0, 0, 0, 0.7),
                 0 0 40px rgba(255, 0, 128, 0.6);
         }
-
         .card-image {
             width: 240px;
             height: 320px;
@@ -535,13 +558,12 @@
             color: white;
             font-size: 1.5rem;
             font-weight: 700;
-            box-shadow: 
+            box-shadow:
                 0 15px 35px rgba(0, 0, 0, 0.5),
                 0 0 20px rgba(255, 0, 128, 0.4);
             position: relative;
             overflow: hidden;
         }
-
         .card-image::before {
             content: '';
             position: absolute;
@@ -552,11 +574,9 @@
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
             transition: left 0.6s;
         }
-
         .card-item:hover .card-image::before {
             left: 100%;
         }
-
         .card-name {
             font-size: 1.5rem;
             font-weight: 700;
@@ -566,7 +586,6 @@
             position: relative;
             z-index: 2;
         }
-
         .card-price {
             font-size: 2rem;
             color: #00ffff;
@@ -576,7 +595,6 @@
             position: relative;
             z-index: 2;
         }
-
         .buy-button {
             background: linear-gradient(135deg, #ff0080, #8000ff);
             color: white;
@@ -591,7 +609,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .buy-button::before {
             content: '';
             position: absolute;
@@ -602,16 +619,122 @@
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
             transition: left 0.5s;
         }
-
         .buy-button:hover::before {
             left: 100%;
         }
-
         .buy-button:hover {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 15px 40px rgba(255, 0, 128, 0.6);
         }
-
+        /* Games Section */
+        .games-section {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 40, 0.8));
+            backdrop-filter: blur(20px);
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, #ff0080, #00ff80, #8000ff) 1;
+            padding: 4rem 0;
+            margin: 3rem 0;
+            border-radius: 25px;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+        .game-item {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 40, 0.9));
+            backdrop-filter: blur(20px);
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, #ff0080, #00ff80, #8000ff) 1;
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(255, 0, 128, 0.3);
+            transition: all 0.4s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: cardRotate 10s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .game-item:hover::before {
+            opacity: 1;
+        }
+        .game-item:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow:
+                0 30px 60px rgba(0, 0, 0, 0.7),
+                0 0 40px rgba(255, 0, 128, 0.6);
+        }
+        .game-image {
+            width: 240px;
+            height: 320px;
+            border-radius: 20px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(255, 0, 128, 0.4);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ff0080, #8000ff, #00ff80);
+        }
+        .game-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+            transition: transform 0.4s ease;
+        }
+        .game-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+            z-index: 2;
+        }
+        .game-item:hover .game-image::before {
+            left: 100%;
+        }
+        .game-item:hover .game-image img {
+            transform: scale(1.05);
+        }
+        .game-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            position: relative;
+            z-index: 2;
+        }
+        .game-price {
+            font-size: 2rem;
+            color: #00ffff;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            position: relative;
+            z-index: 2;
+        }
         /* Ultra Modern Shipping */
         .shipping-section {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 40, 0.8));
@@ -622,14 +745,12 @@
             margin: 3rem 0;
             border-radius: 25px;
         }
-
         .shipping-companies {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
-
         .shipping-company {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 40, 0.9));
             backdrop-filter: blur(10px);
@@ -642,7 +763,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .shipping-company::before {
             content: '';
             position: absolute;
@@ -655,20 +775,16 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-
         .shipping-company:hover::before {
             opacity: 1;
         }
-
         @keyframes shippingGlow {
             100% { transform: rotate(360deg); }
         }
-
         .shipping-company:hover {
             transform: translateY(-10px) scale(1.05);
             box-shadow: 0 20px 40px rgba(0, 255, 255, 0.4);
         }
-
         .shipping-logo {
             width: 100px;
             height: 100px;
@@ -682,7 +798,6 @@
             position: relative;
             z-index: 2;
         }
-
         .shipping-logo img {
             width: 100%;
             height: 100%;
@@ -690,7 +805,6 @@
             background: white;
             border-radius: 15px;
         }
-
         .shipping-info {
             background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
             backdrop-filter: blur(10px);
@@ -702,14 +816,12 @@
             position: relative;
             overflow: hidden;
         }
-
         .shipping-rates {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
             margin-top: 2rem;
         }
-
         .rate-item {
             background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(128, 0, 255, 0.1));
             border: 2px solid transparent;
@@ -719,12 +831,10 @@
             text-align: center;
             transition: all 0.3s ease;
         }
-
         .rate-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 30px rgba(0, 255, 255, 0.3);
         }
-
         .rate-price {
             font-size: 2rem;
             font-weight: 800;
@@ -732,10 +842,9 @@
             margin-bottom: 0.5rem;
             text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
         }
-
         /* Cyber Payment */
         .payment-section {
-            background: 
+            background:
                 linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
                 url('https://m.media-amazon.com/images/S/pv-target-images/2f0f0e3bebf2d4f4d7d162e7f8d04b96d3044cd9146fecd747fe7b107bac1e6f._SX1080_FMpng_.png');
             background-size: cover;
@@ -746,13 +855,11 @@
             border: 2px solid transparent;
             border-image: linear-gradient(45deg, #ff0080, #00ff80, #8000ff) 1;
         }
-
         .payment-methods {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
         }
-
         .payment-method {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 40, 0.9));
             backdrop-filter: blur(20px);
@@ -765,7 +872,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .payment-method::before {
             content: '';
             position: absolute;
@@ -778,20 +884,16 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-
         .payment-method:hover::before {
             opacity: 1;
         }
-
         @keyframes paymentGlow {
             100% { transform: rotate(360deg); }
         }
-
         .payment-method:hover {
             transform: translateY(-10px) scale(1.02);
             box-shadow: 0 25px 50px rgba(255, 0, 128, 0.4);
         }
-
         .payment-icon {
             font-size: 4rem;
             margin-bottom: 2rem;
@@ -799,7 +901,6 @@
             position: relative;
             z-index: 2;
         }
-
         /* Ultra Modal */
         .modal {
             display: none;
@@ -812,7 +913,6 @@
             background-color: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(15px);
         }
-
         .modal-content {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(20, 20, 40, 0.95));
             backdrop-filter: blur(20px);
@@ -827,11 +927,10 @@
             overflow-y: auto;
             position: relative;
             color: white;
-            box-shadow: 
+            box-shadow:
                 0 30px 60px rgba(0, 0, 0, 0.7),
                 0 0 40px rgba(255, 0, 128, 0.3);
         }
-
         .close {
             color: #00ffff;
             float: left;
@@ -845,13 +944,11 @@
             z-index: 10;
             text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
         }
-
         .close:hover {
             color: #ff0080;
             transform: scale(1.2);
             text-shadow: 0 0 20px rgba(255, 0, 128, 0.8);
         }
-
         .modal h2 {
             text-align: center;
             margin-bottom: 2rem;
@@ -860,11 +957,9 @@
             font-size: 2rem;
             text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
         }
-
         .form-group {
             margin-bottom: 1.5rem;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
@@ -873,7 +968,6 @@
             font-size: 1rem;
             text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
-
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -888,12 +982,10 @@
             backdrop-filter: blur(10px);
             color: white;
         }
-
         .form-group input::placeholder,
         .form-group textarea::placeholder {
             color: rgba(255, 255, 255, 0.6);
         }
-
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
@@ -902,7 +994,6 @@
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
             background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
         }
-
         .submit-button {
             background: linear-gradient(135deg, #ff0080, #8000ff);
             color: white;
@@ -919,7 +1010,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .submit-button::before {
             content: '';
             position: absolute;
@@ -930,16 +1020,13 @@
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
             transition: left 0.5s;
         }
-
         .submit-button:hover::before {
             left: 100%;
         }
-
         .submit-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 20px 50px rgba(255, 0, 128, 0.6);
         }
-
         /* Cyber Footer */
         footer {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(20, 20, 40, 0.95));
@@ -951,48 +1038,100 @@
             padding: 3rem 0;
             margin-top: 3rem;
         }
-
         /* Responsive */
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
             }
-
             .hero h1 {
                 font-size: 3rem;
             }
-
             .modal-content {
                 margin: 5% auto;
                 width: 95%;
                 padding: 1.5rem;
             }
-
             .section-title {
                 font-size: 2.5rem;
             }
-
             .shipping-companies {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            .whatsapp-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+                bottom: 20px;
+                right: 20px;
+            }
+            .controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .control-group {
+                flex-direction: row;
+                align-items: center;
+                gap: 1rem;
+            }
+            .control-select {
+                min-width: 100px;
+                font-size: 0.8rem;
+            }
+            .logo {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="bg-animation"></div>
-
+    
+    <!-- WhatsApp Button -->
+    <a href="https://wa.me/97339517276" class="whatsapp-btn" target="_blank">
+        📱
+    </a>
+    
     <!-- Header -->
     <header>
         <nav class="container">
-            <div class="logo">🎴 POKÉCARDS</div>
+            <div class="logo" data-translate="logo">🎴 POKÉCARDS</div>
             <ul class="nav-links">
-                <li><a href="#home">الرئيسية</a></li>
-                <li><a href="#gallery">المعرض</a></li>
-                <li><a href="#cards">البطاقات</a></li>
-                <li><a href="#shipping">الشحن</a></li>
-                <li><a href="#payment">الدفع</a></li>
-                <li><a href="#contact">اتصل بنا</a></li>
+                <li><a href="#home" data-translate="nav_home">الرئيسية</a></li>
+                <li><a href="#gallery" data-translate="nav_gallery">المعرض</a></li>
+                <li><a href="#cards" data-translate="nav_cards">البطاقات</a></li>
+                <li><a href="#games" data-translate="nav_games">الألعاب</a></li>
+                <li><a href="#shipping" data-translate="nav_shipping">الشحن</a></li>
+                <li><a href="#payment" data-translate="nav_payment">الدفع</a></li>
+                <li><a href="#contact" data-translate="nav_contact">اتصل بنا</a></li>
             </ul>
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label" data-translate="language_label">اللغة</div>
+                    <select class="control-select" id="languageSelect" onchange="changeLanguage()">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                        <option value="ur">اردو</option>
+                        <option value="zh">中文</option>
+                        <option value="ja">日本語</option>
+                        <option value="ko">한국어</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label" data-translate="currency_label">العملة</div>
+                    <select class="control-select" id="currencySelect" onchange="changeCurrency()">
+                        <option value="USD">USD $</option>
+                        <option value="SAR">SAR ﷼</option>
+                        <option value="KWD">KWD د.ك</option>
+                        <option value="BHD">BHD د.ب</option>
+                        <option value="EUR">EUR €</option>
+                        <option value="QAR">QAR ﷼</option>
+                        <option value="OMR">OMR ﷼</option>
+                        <option value="AED">AED د.إ</option>
+                        <option value="GBP">GBP £</option>
+                    </select>
+                </div>
+            </div>
         </nav>
     </header>
 
@@ -1000,17 +1139,17 @@
     <div class="container">
         <div class="audio-section">
             <div class="audio-content">
-                <h3>🎵 موسيقى البوكيمون الأصلية الملحمية</h3>
+                <h3 data-translate="audio_title">🎵 موسيقى البوكيمون الأصلية الملحمية</h3>
                 <div class="custom-audio-player">
                     <button class="play-btn" id="playBtn" onclick="toggleAudio()">▶️</button>
                     <div class="audio-info">
-                        <div style="font-weight: 700; font-size: 1.1rem;">Pokemon Theme Song</div>
-                        <div style="font-size: 0.9rem; opacity: 0.8;">Gotta Catch 'Em All!</div>
+                        <div style="font-weight: 700; font-size: 1.1rem;" data-translate="audio_song">Pokemon Theme Song</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;" data-translate="audio_subtitle">Gotta Catch 'Em All!</div>
                     </div>
                 </div>
                 <audio id="pokemonAudio" loop>
-                    <source src="https://pouch.jumpshare.com/preview/j7SH9XPMmvdI7fx8q-uTyqGXkapAmrquvuX1mNAK4TD4duqngPz06dHX23VlYh4kbjv_-sq_YWpIFQoqBwiP9OISUV3sYaporPkB-75cVOnEYIhm2YnRiONlDUekOf7mdW3Kgr7toi4czmIoqVUoYG6yjbN-I2pg_cnoHs_AmgI.mp3" type="audio/mp3">
-                    متصفحك لا يدعم تشغيل الصوت
+                    <source src="https://pouch.jumpshare.com/preview/lyr9oLNlDsvv3mOYNc5I_lf1QR32IE0Ujj0B2OSZ-IN9hZDLLm0aPUrVbuZa55ONEqfsgqGYODsTJhH2sCXauOISUV3sYaporPkB-75cVOnEYIhm2YnRiONlDUekOf7m7mbFQNUaDxcd74gjVe15kW6yjbN-I2pg_cnoHs_AmgI.mp3" type="audio/mp3">
+                    <span data-translate="audio_not_supported">متصفحك لا يدعم تشغيل الصوت</span>
                 </audio>
             </div>
         </div>
@@ -1020,9 +1159,9 @@
     <section class="hero" id="home">
         <div class="container">
             <div class="hero-content">
-                <h1>POKÉMON ROYAL STORE</h1>
-                <p>اكتشف مجموعة رائعة من بطاقات البوكيمون النادرة والمميزة بأفضل الأسعار في العالم العربي</p>
-                <a href="#cards" class="cta-button">🛒 تسوق الآن واحصل على أفضل العروض</a>
+                <h1 data-translate="hero_title">POKÉMON ROYAL STORE</h1>
+                <p data-translate="hero_description">اكتشف مجموعة رائعة من بطاقات البوكيمون النادرة والألعاب المميزة بأفضل الأسعار في العالم العربي</p>
+                <a href="#cards" class="cta-button" data-translate="hero_cta">🛒 تسوق الآن واحصل على أفضل العروض</a>
             </div>
         </div>
     </section>
@@ -1030,34 +1169,34 @@
     <!-- Pokemon Gallery Section -->
     <section class="pokemon-gallery" id="gallery">
         <div class="container">
-            <h2 class="section-title">🎬 GALLERY</h2>
+            <h2 class="section-title" data-translate="gallery_title">🎬 GALLERY</h2>
             <div class="gallery-grid">
                 <div class="gallery-item">
                     <img src="https://occ-0-8407-2218.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABctMHHBqYQnLNHv2YBMg5y-8a3zKxiyfDagD_zi-HP3i0IZd3v-3V-eYOHbtRpmywCqo7HY5U9YcffWM_4Lo6IYGEGPGi1LJ10gB.jpg?r=1b2" alt="Pokemon Adventure">
                     <div class="gallery-overlay">
-                        <div class="gallery-title">🌟 مغامرة البوكيمون الكبرى</div>
-                        <div class="gallery-description">انطلق في رحلة ملحمية مع أقوى البوكيمون</div>
+                        <div class="gallery-title" data-translate="gallery_item1_title">🌟 مغامرة البوكيمون الكبرى</div>
+                        <div class="gallery-description" data-translate="gallery_item1_desc">انطلق في رحلة ملحمية مع أقوى البوكيمون</div>
                     </div>
                 </div>
                 <div class="gallery-item">
                     <img src="https://occ-0-8407-90.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABTuBcnYy58FqVbdP1W6iAINEtS5t_tIayiCTC-YlmLU8SOUCnBqURD_5vpQNRvDW7Z5yqEQTxe1INmOXXpxcYorbY94uXFYJC7ZP.jpg?r=47e" alt="Pokemon Battle">
                     <div class="gallery-overlay">
-                        <div class="gallery-title">⚔️ معارك البوكيمون الأسطورية</div>
-                        <div class="gallery-description">شاهد أقوى المعارك والتحديات</div>
+                        <div class="gallery-title" data-translate="gallery_item2_title">⚔️ معارك البوكيمون الأسطورية</div>
+                        <div class="gallery-description" data-translate="gallery_item2_desc">شاهد أقوى المعارك والتحديات</div>
                     </div>
                 </div>
                 <div class="gallery-item">
                     <img src="https://m.media-amazon.com/images/S/pv-target-images/2f0f0e3bebf2d4f4d7d162e7f8d04b96d3044cd9146fecd747fe7b107bac1e6f._SX1080_FMpng_.png" alt="Pokemon World">
                     <div class="gallery-overlay">
-                        <div class="gallery-title">🌍 عالم البوكيمون السحري</div>
-                        <div class="gallery-description">استكشف العوالم المذهلة والمخلوقات النادرة</div>
+                        <div class="gallery-title" data-translate="gallery_item3_title">🌍 عالم البوكيمون السحري</div>
+                        <div class="gallery-description" data-translate="gallery_item3_desc">استكشف العوالم المذهلة والمخلوقات النادرة</div>
                     </div>
                 </div>
                 <div class="gallery-item">
                     <img src="https://resizing.flixster.com/6J4U4BS2GTFzuRMHaETTOyZN2Oc=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p12579462_b_h8_ak.jpg" alt="Pokemon Masters">
                     <div class="gallery-overlay">
-                        <div class="gallery-title">🏆 أساتذة البوكيمون</div>
-                        <div class="gallery-description">تعرف على أعظم مدربي البوكيمون في التاريخ</div>
+                        <div class="gallery-title" data-translate="gallery_item4_title">🏆 أساتذة البوكيمون</div>
+                        <div class="gallery-description" data-translate="gallery_item4_desc">تعرف على أعظم مدربي البوكيمون في التاريخ</div>
                     </div>
                 </div>
             </div>
@@ -1067,60 +1206,135 @@
     <!-- Cards Section -->
     <section class="cards-section" id="cards">
         <div class="container">
-            <h2 class="section-title">🎴 RARE CARDS</h2>
+            <h2 class="section-title" data-translate="cards_title">🎴 RARE CARDS</h2>
             <div class="cards-grid">
                 <div class="card-item">
                     <div class="card-image">
+                       <img src="https://titancards.co.uk/cdn/shop/files/Charizard-ex-228-197_grande.jpg?v=1735819509" alt="🔥 تشاريزارد الذهبي النادر">
                         <span>Charizard</span>
                     </div>
-                    <div class="card-name">🔥 تشاريزارد الذهبي النادر</div>
-                    <div class="card-price">$299.99</div>
-                    <button class="buy-button" onclick="openModal('Charizard الذهبي النادر', 299.99)">💎 شراء فوري</button>
+                    <div class="card-name" data-translate="card1_name">🔥 تشاريزارد الذهبي النادر</div>
+                    <div class="card-price" data-price="299.99">$299.99</div>
+                    <button class="buy-button" onclick="openModal('Charizard الذهبي النادر', 299.99, 'card')" data-translate="buy_button">💎 شراء فوري</button>
                 </div>
                 
                 <div class="card-item">
                     <div class="card-image">
+                        <img src="https://i.ebayimg.com/images/g/fg0AAOSwiaBkX-5P/s-l500.jpg" alt="بيكاتشو اللامع المميز">
+
                         <span>Pikachu</span>
                     </div>
-                    <div class="card-name">⚡ بيكاتشو اللامع المميز</div>
-                    <div class="card-price">$149.99</div>
-                    <button class="buy-button" onclick="openModal('Pikachu اللامع المميز', 149.99)">💎 شراء فوري</button>
+                    <div class="card-name" data-translate="card2_name">⚡ بيكاتشو اللامع المميز</div>
+                    <div class="card-price" data-price="364.99">$364.99</div>
+                    <button class="buy-button" onclick="openModal('Pikachu اللامع المميز', 364.99, 'card')" data-translate="buy_button">💎 شراء فوري</button>
                 </div>
-                
+              
                 <div class="card-item">
                     <div class="card-image">
+                                              <img src="https://m.media-amazon.com/images/I/51QO4llkk7L._AC_.jpg" alt=" ميوتو الأسطوري">
+
                         <span>Mewtwo</span>
                     </div>
-                    <div class="card-name">🧠 ميوتو الأسطوري</div>
-                    <div class="card-price">$399.99</div>
-                    <button class="buy-button" onclick="openModal('Mewtwo الأسطوري', 399.99)">💎 شراء فوري</button>
+                    <div class="card-name" data-translate="card3_name">🧠 ميوتو الأسطوري</div>
+                    <div class="card-price" data-price="499.99">$499.99</div>
+                    <button class="buy-button" onclick="openModal('Mewtwo الأسطوري', 499.99, 'card')" data-translate="buy_button">💎 شراء فوري</button>
                 </div>
                 
                 <div class="card-item">
                     <div class="card-image">
+                        <img src="https://ae01.alicdn.com/kf/Sdd8823e8bbd14384ba1782250277a8f17.jpg" alt=" " width="500" height="500">
+
+
                         <span>Blastoise</span>
                     </div>
-                    <div class="card-name">🌊 بلاستويز الأزرق الملكي</div>
-                    <div class="card-price">$199.99</div>
-                    <button class="buy-button" onclick="openModal('Blastoise الأزرق الملكي', 199.99)">💎 شراء فوري</button>
+                    <div class="card-name" data-translate="card4_name"> بيكاتشو ياباني</div>
+                    <div class="card-price" data-price="199.99">$199.99</div>
+                    <button class="buy-button" onclick="openModal('ياباني  بيكاتشو', 199.99, 'card')" data-translate="buy_button">💎 شراء فوري</button>
                 </div>
                 
                 <div class="card-item">
                     <div class="card-image">
+
+                                              <img src="https://m.media-amazon.com/images/I/51Hr7XQYs5L._AC_SY679_.jpg" alt=" " width="500" height="500">
+
                         <span>Venusaur</span>
                     </div>
-                    <div class="card-name">🌿 فينوسور الأخضر الإمبراطوري</div>
-                    <div class="card-price">$179.99</div>
-                    <button class="buy-button" onclick="openModal('Venusaur الأخضر الإمبراطوري', 179.99)">💎 شراء فوري</button>
+                    <div class="card-name" data-translate="card5_name">🌿 فينوسور الأخضر الإمبراطوري</div>
+                    <div class="card-price" data-price="179.99">$179.99</div>
+                    <button class="buy-button" onclick="openModal('Venusaur الأخضر الإمبراطوري', 179.99, 'card')" data-translate="buy_button">💎 شراء فوري</button>
                 </div>
-                
                 <div class="card-item">
                     <div class="card-image">
+                                                                    <img src="https://i.ebayimg.com/00/s/MTYwMFgxMjAw/z/ipAAAOSwFQBc9E18/$_57.JPG?set_id=8800005007" alt=" " width="500" height="500">
+
                         <span>Rayquaza</span>
                     </div>
-                    <div class="card-name">🐉 رايكوازا التنين الأسطوري</div>
-                    <div class="card-price">$499.99</div>
-                    <button class="buy-button" onclick="openModal('Rayquaza التنين الأسطوري', 499.99)">💎 شراء فوري</button>
+                    <div class="card-name" data-translate="card6_name">🐉 رايكوازا التنين الأسطوري</div>
+                    <div class="card-price" data-price="499.99">$499.99</div>
+                    <button class="buy-button" onclick="openModal('Rayquaza التنين الأسطوري', 499.99, 'card')" data-translate="buy_button">💎 شراء فوري</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section class="games-section" id="games">
+        <div class="container">
+            <h2 class="section-title" data-translate="games_title">🎮 POKEMON GAMES</h2>
+            <div class="games-grid">
+                <div class="game-item">
+                    <div class="game-image">
+                        <img src="https://ae01.alicdn.com/kf/S0b9721c9d22b45f1938cddf003877dd2q.jpg" alt="كرة البوكيمون ">
+                    </div>
+                    <div class="game-name" data-translate="game1_name">🔴 كرة البوكيمون </div>
+                    <div class="game-price" data-price="59.99">$59.99</div>
+                    <button class="buy-button" onclick="openModal('كرة البوكيمون ', 59.99, 'game')" data-translate="buy_game_button">🎮 شراء فوري</button>
+                </div>
+                
+                <div class="game-item">
+                    <div class="game-image">
+                      <img src="https://ae01.alicdn.com/kf/Sa12313d0dba74131991aa94aa20dbbd7o.jpg" alt="  أباجورة البوكيمون  ">
+                    </div>
+                    <div class="game-name" data-translate="game2_name">🟣أباجورة البوكيمون </div>
+                    <div class="game-price" data-price="59.99">$59.99</div>
+                    <button class="buy-button" onclick="openModal(' أباجورة البوكيمون', 59.99, 'game')" data-translate="buy_game_button">🎮 شراء فوري</button>
+                </div>
+                
+                <div class="game-item">
+                    <div class="game-image">
+                       <img src="https://ae01.alicdn.com/kf/S9c1078e0fd094d408192fec8bd4181f5W.jpg" alt="  بيكاتشو، جنغار ">
+                      
+                    </div>
+                    <div class="game-name" data-translate="game3_name">⚡بيكاتشو، جنغار</div>
+                    <div class="game-price" data-price="59.99">$59.99</div>
+                    <button class="buy-button" onclick="openModal('بوكيمون ليجندز أركيوس', 59.99, 'game')" data-translate="buy_game_button">🎮 شراء فوري</button>
+                </div>
+                
+                <div class="game-item">
+                    <div class="game-image">
+                        <span>Pokémon Sword</span>
+                    </div>
+                    <div class="game-name" data-translate="game4_name">⚔️ بوكيمون سورد</div>
+                    <div class="game-price" data-price="39.99">$39.99</div>
+                    <button class="buy-button" onclick="openModal('بوكيمون سورد', 39.99, 'game')" data-translate="buy_game_button">🎮 شراء فوري</button>
+                </div>
+                
+                <div class="game-item">
+                    <div class="game-image">
+                        <span>Pokémon Shield</span>
+                    </div>
+                    <div class="game-name" data-translate="game5_name">🛡️ بوكيمون شيلد</div>
+                    <div class="game-price" data-price="39.99">$39.99</div>
+                    <button class="buy-button" onclick="openModal('بوكيمون شيلد', 39.99, 'game')" data-translate="buy_game_button">🎮 شراء فوري</button>
+                </div>
+                
+                <div class="game-item">
+                    <div class="game-image">
+                        <span>Pokémon BDSP</span>
+                    </div>
+                    <div class="game-name" data-translate="game6_name">💎 بوكيمون برليانت دايموند</div>
+                    <div class="game-price" data-price="44.99">$44.99</div>
+                    <button class="buy-button" onclick="openModal('بوكيمون برليانت دايموند', 44.99, 'game')" data-translate="buy_game_button">🎮 شراء فوري</button>
                 </div>
             </div>
         </div>
@@ -1129,65 +1343,63 @@
     <!-- Shipping Section -->
     <section class="shipping-section" id="shipping">
         <div class="container">
-            <h2 class="section-title">🚚 SHIPPING PARTNERS</h2>
+            <h2 class="section-title" data-translate="shipping_title">🚚 SHIPPING PARTNERS</h2>
             
             <div class="shipping-companies">
                 <div class="shipping-company">
                     <div class="shipping-logo">
                         <img src="https://www.wppit.com/wp-content/uploads/2018/05/%D8%B1%D8%B3%D9%88%D9%85-%D8%A7%D9%84%D8%B4%D8%AD%D9%86-%D9%81%D9%8A-%D8%B4%D8%B1%D9%83%D8%A9-%D9%81%D9%8A%D8%AF%D9%8A%D9%83%D8%B3-%D9%88%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%B4%D8%AD%D9%86-%D9%84%D9%84%D8%A7%D9%81%D8%B1%D8%A7%D8%AF-%D9%88%D8%A7%D9%84%D9%85%D8%AA%D8%A7%D8%AC%D8%B1-min-2.png" alt="FedEx">
                     </div>
-                    <h3>فيدكس</h3>
-                    <p>شحن سريع وآمن</p>
+                    <h3 data-translate="fedex_name">فيدكس</h3>
+                    <p data-translate="fedex_desc">شحن سريع وآمن</p>
                 </div>
                 
                 <div class="shipping-company">
                     <div class="shipping-logo">
                         <img src="https://dervna0xvut0o.cloudfront.net/packs/img/carriers/202306/dhl-express.webp" alt="DHL">
                     </div>
-                    <h3>دي إتش إل</h3>
-                    <p>توصيل عالمي موثوق</p>
+                    <h3 data-translate="dhl_name">دي إتش إل</h3>
+                    <p data-translate="dhl_desc">توصيل عالمي موثوق</p>
                 </div>
                 
                 <div class="shipping-company">
                     <div class="shipping-logo">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/United_Parcel_Service_logo_2014.svg/1200px-United_Parcel_Service_logo_2014.svg.png" alt="UPS">
                     </div>
-                    <h3>يو بي إس</h3>
-                    <p>خدمة توصيل متميزة</p>
+                    <h3 data-translate="ups_name">يو بي إس</h3>
+                    <p data-translate="ups_desc">خدمة توصيل متميزة</p>
                 </div>
-                
-            
                 
                 <div class="shipping-company">
                     <div class="shipping-logo">
                         <img src="https://s3-symbol-logo.tradingview.com/aramex--600.png" alt="Aramex">
                     </div>
-                    <h3>أرامكس</h3>
-                    <p>شحن إقليمي سريع</p>
+                    <h3 data-translate="aramex_name">أرامكس</h3>
+                    <p data-translate="aramex_desc">شحن إقليمي سريع</p>
                 </div>
             </div>
 
             <div class="shipping-info">
-                <h3>💰 رسوم الشحن</h3>
+                <h3 data-translate="shipping_rates_title">💰 رسوم الشحن</h3>
                 <div class="shipping-rates">
                     <div class="rate-item">
-                        <div class="rate-price">$15</div>
-                        <div>الشحن العادي (7-14 يوم)</div>
+                        <div class="rate-price" data-shipping-price="15">$15</div>
+                        <div data-translate="standard_shipping">الشحن العادي (7-14 يوم)</div>
                     </div>
                     <div class="rate-item">
-                        <div class="rate-price">$25</div>
-                        <div>الشحن السريع (3-7 أيام)</div>
+                        <div class="rate-price" data-shipping-price="25">$25</div>
+                        <div data-translate="express_shipping">الشحن السريع (3-7 أيام)</div>
                     </div>
                     <div class="rate-item">
-                        <div class="rate-price">$45</div>
-                        <div>الشحن الفوري (1-3 أيام)</div>
+                        <div class="rate-price" data-shipping-price="45">$45</div>
+                        <div data-translate="overnight_shipping">الشحن الفوري (1-3 أيام)</div>
                     </div>
                     <div class="rate-item">
-                        <div class="rate-price">مجاني</div>
-                        <div>للطلبات أكثر من $500</div>
+                        <div class="rate-price" data-translate="free_shipping">مجاني</div>
+                        <div data-translate="free_shipping_condition">للطلبات أكثر من $500</div>
                     </div>
                 </div>
-                <p style="margin-top: 2rem; opacity: 0.9; font-size: 1.1rem;">
+                <p style="margin-top: 2rem; opacity: 0.9; font-size: 1.1rem;" data-translate="shipping_guarantee">
                     🛡️ جميع الشحنات مؤمنة ومضمونة • 📦 تغليف احترافي يحافظ على البطاقات • 📍 تتبع الشحنة لحظة بلحظة
                 </p>
             </div>
@@ -1197,24 +1409,24 @@
     <!-- Payment Section -->
     <section class="payment-section" id="payment">
         <div class="container">
-            <h2 class="section-title">💳 PAYMENT METHODS</h2>
+            <h2 class="section-title" data-translate="payment_title">💳 PAYMENT METHODS</h2>
             <div class="payment-methods">
                 <div class="payment-method">
                     <div class="payment-icon">🏦</div>
-                    <h3>التحويل البنكي الآمن</h3>
-                    <p>ادفع بأمان تام عبر التحويل البنكي المباشر. نقبل جميع البنوك المحلية والدولية مع ضمان الحماية الكاملة.</p>
+                    <h3 data-translate="bank_transfer_title">التحويل البنكي الآمن</h3>
+                    <p data-translate="bank_transfer_desc">ادفع بأمان تام عبر التحويل البنكي المباشر. نقبل جميع البنوك المحلية والدولية مع ضمان الحماية الكاملة.</p>
                 </div>
                 
                 <div class="payment-method">
                     <div class="payment-icon">💸</div>
-                    <h3>ويسترن يونيون السريع</h3>
-                    <p>تحويل سريع وآمن عبر ويسترن يونيون في جميع أنحاء العالم. استلام فوري وضمان 100%.</p>
+                    <h3 data-translate="western_union_title">ويسترن يونيون السريع</h3>
+                    <p data-translate="western_union_desc">تحويل سريع وآمن عبر ويسترن يونيون في جميع أنحاء العالم. استلام فوري وضمان 100%.</p>
                 </div>
                 
                 <div class="payment-method">
                     <div class="payment-icon">₿</div>
-                    <h3>العملات الرقمية المتقدمة</h3>
-                    <p>ندعم Bitcoin, Ethereum, USDT وجميع العملات الرقمية الرئيسية. دفع سريع وآمن بتقنية البلوك تشين.</p>
+                    <h3 data-translate="crypto_title">العملات الرقمية المتقدمة</h3>
+                    <p data-translate="crypto_desc">ندعم Bitcoin, Ethereum, USDT وجميع العملات الرقمية الرئيسية. دفع سريع وآمن بتقنية البلوك تشين.</p>
                 </div>
             </div>
         </div>
@@ -1224,72 +1436,72 @@
     <div id="purchaseModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2>🛒 إتمام عملية الشراء</h2>
+            <h2 data-translate="modal_title">🛒 إتمام عملية الشراء</h2>
             
             <form id="purchaseForm">
                 <div class="form-group">
-                    <label>🎴 البطاقة المختارة:</label>
-                    <input type="text" id="selectedCard" readonly>
+                    <label data-translate="selected_item_label">🎴 المنتج المختار:</label>
+                    <input type="text" id="selectedItem" readonly>
                 </div>
                 
                 <div class="form-group">
-                    <label>💰 السعر:</label>
-                    <input type="text" id="cardPrice" readonly>
+                    <label data-translate="price_label">💰 السعر:</label>
+                    <input type="text" id="itemPrice" readonly>
                 </div>
                 
                 <div class="form-group">
-                    <label>👤 الاسم الكامل:</label>
-                    <input type="text" id="fullName" required placeholder="أدخل اسمك الكامل">
+                    <label data-translate="full_name_label">👤 الاسم الكامل:</label>
+                    <input type="text" id="fullName" required data-translate-placeholder="full_name_placeholder">
                 </div>
                 
                 <div class="form-group">
-                    <label>📧 البريد الإلكتروني:</label>
+                    <label data-translate="email_label">📧 البريد الإلكتروني:</label>
                     <input type="email" id="email" required placeholder="example@email.com">
                 </div>
                 
                 <div class="form-group">
-                    <label>📱 رقم الهاتف:</label>
+                    <label data-translate="phone_label">📱 رقم الهاتف:</label>
                     <input type="tel" id="phone" required placeholder="+966 50 123 4567">
                 </div>
                 
                 <div class="form-group">
-                    <label>🚚 طريقة الشحن:</label>
+                    <label data-translate="shipping_method_label">🚚 طريقة الشحن:</label>
                     <select id="shippingMethod" required onchange="updateShippingCost()">
-                        <option value="">اختر طريقة الشحن</option>
-                        <option value="standard">الشحن العادي (7-14 يوم) - $15</option>
-                        <option value="express">الشحن السريع (3-7 أيام) - $25</option>
-                        <option value="overnight">الشحن الفوري (1-3 أيام) - $45</option>
+                        <option value="" data-translate="choose_shipping">اختر طريقة الشحن</option>
+                        <option value="standard" data-translate="standard_option">الشحن العادي (7-14 يوم) - $15</option>
+                        <option value="express" data-translate="express_option">الشحن السريع (3-7 أيام) - $25</option>
+                        <option value="overnight" data-translate="overnight_option">الشحن الفوري (1-3 أيام) - $45</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label>💳 طريقة الدفع:</label>
+                    <label data-translate="payment_method_label">💳 طريقة الدفع:</label>
                     <select id="paymentMethod" required onchange="showPaymentDetails()">
-                        <option value="">اختر طريقة الدفع المناسبة</option>
-                        <option value="bank">🏦 التحويل البنكي</option>
-                        <option value="western">💸 ويسترن يونيون</option>
-                        <option value="crypto">₿ العملات الرقمية</option>
+                        <option value="" data-translate="choose_payment">اختر طريقة الدفع المناسبة</option>
+                        <option value="bank" data-translate="bank_option">🏦 التحويل البنكي</option>
+                        <option value="western" data-translate="western_option">💸 ويسترن يونيون</option>
+                        <option value="crypto" data-translate="crypto_option">₿ العملات الرقمية</option>
                     </select>
                 </div>
                 
                 <div id="paymentDetails" style="display: none;">
                     <div class="form-group">
-                        <label>📝 تفاصيل الدفع:</label>
-                        <textarea id="paymentInfo" rows="4" placeholder="أدخل تفاصيل الدفع هنا..."></textarea>
+                        <label data-translate="payment_details_label">📝 تفاصيل الدفع:</label>
+                        <textarea id="paymentInfo" rows="4" data-translate-placeholder="payment_details_placeholder"></textarea>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label>🏠 عنوان الشحن:</label>
-                    <textarea id="address" rows="3" required placeholder="أدخل عنوان الشحن الكامل مع رقم الهاتف"></textarea>
+                    <label data-translate="address_label">🏠 عنوان الشحن:</label>
+                    <textarea id="address" rows="3" required data-translate-placeholder="address_placeholder"></textarea>
                 </div>
                 
                 <div class="form-group">
-                    <label>💰 إجمالي المبلغ:</label>
+                    <label data-translate="total_amount_label">💰 إجمالي المبلغ:</label>
                     <input type="text" id="totalAmount" readonly style="font-weight: bold; color: #00ffff; text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);">
                 </div>
                 
-                <button type="submit" class="submit-button">
+                <button type="submit" class="submit-button" data-translate="submit_button">
                     ✅ تأكيد الطلب والشراء الآن 🛒
                 </button>
             </form>
@@ -1299,17 +1511,767 @@
     <!-- Footer -->
     <footer id="contact">
         <div class="container">
-            <p style="font-size: 1.3rem; margin-bottom: 1rem; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);">🎴 &copy; 2024 متجر بطاقات البوكيمون الملكي - جميع الحقوق محفوظة</p>
-            <p style="font-size: 1.1rem;">📧 info@pokecards-royal.com | 📱 +966-50-123-4567 | 🌐 www.pokecards-royal.com</p>
-            <p style="margin-top: 1rem; opacity: 0.8;">⭐ أفضل متجر لبطاقات البوكيمون في الشرق الأوسط ⭐</p>
+            <p style="font-size: 1.3rem; margin-bottom: 1rem; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);" data-translate="footer_copyright">🎴 &copy; 2024 متجر بطاقات البوكيمون الملكي - جميع الحقوق محفوظة</p>
+            <p style="font-size: 1.1rem;" data-translate="footer_contact">📧 info@pokecards-royal.com | 📱 +97339517276 | 🌐 www.pokecards-royal.com</p>
+            <p style="margin-top: 1rem; opacity: 0.8;" data-translate="footer_tagline">⭐ أفضل متجر لبطاقات البوكيمون والألعاب في الشرق الأوسط ⭐</p>
         </div>
     </footer>
 
     <script>
+        // Translation data
+        const translations = {
+            ar: {
+                logo: "🎴 POKÉCARDS",
+                nav_home: "الرئيسية",
+                nav_gallery: "المعرض",
+                nav_cards: "البطاقات",
+                nav_games: "الألعاب",
+                nav_shipping: "الشحن",
+                nav_payment: "الدفع",
+                nav_contact: "اتصل بنا",
+                language_label: "اللغة",
+                currency_label: "العملة",
+                audio_title: "🎵 موسيقى البوكيمون الأصلية الملحمية",
+                audio_song: "Pokemon Theme Song",
+                audio_subtitle: "Gotta Catch 'Em All!",
+                audio_not_supported: "متصفحك لا يدعم تشغيل الصوت",
+                hero_title: "POKÉMON ROYAL STORE",
+                hero_description: "اكتشف مجموعة رائعة من بطاقات البوكيمون النادرة والألعاب المميزة بأفضل الأسعار في العالم العربي",
+                hero_cta: "🛒 تسوق الآن واحصل على أفضل العروض",
+                gallery_title: "🎬 GALLERY",
+                gallery_item1_title: "🌟 مغامرة البوكيمون الكبرى",
+                gallery_item1_desc: "انطلق في رحلة ملحمية مع أقوى البوكيمون",
+                gallery_item2_title: "⚔️ معارك البوكيمون الأسطورية",
+                gallery_item2_desc: "شاهد أقوى المعارك والتحديات",
+                gallery_item3_title: "🌍 عالم البوكيمون السحري",
+                gallery_item3_desc: "استكشف العوالم المذهلة والمخلوقات النادرة",
+                gallery_item4_title: "🏆 أساتذة البوكيمون",
+                gallery_item4_desc: "تعرف على أعظم مدربي البوكيمون في التاريخ",
+                cards_title: "🎴 RARE CARDS",
+                card1_name: "🔥 تشاريزارد الذهبي النادر",
+                card2_name: "⚡ بيكاتشو اللامع المميز",
+                card3_name: "🧠 ميوتو الأسطوري",
+                card4_name: " بيكاتشو ياباني",
+                card5_name: "🌿 فينوسور الأخضر الإمبراطوري",
+                card6_name: "🐉 رايكوازا التنين الأسطوري",
+                buy_button: "💎 شراء فوري",
+                games_title: "🎮 POKEMON GAMES",
+                game1_name: "🔴 كرة البويكيمون",
+                game2_name: "🟣 أباجورة البوكيمون ",
+                game3_name: "⚡ بيكاتشو جنغار ",
+                game4_name: "⚔️ بوكيمون سورد",
+                game5_name: "🛡️ بوكيمون شيلد",
+                game6_name: "💎 بوكيمون برليانت دايموند",
+                buy_game_button: "🎮 شراء فوري",
+                shipping_title: "🚚 SHIPPING PARTNERS",
+                fedex_name: "فيدكس",
+                fedex_desc: "شحن سريع وآمن",
+                dhl_name: "دي إتش إل",
+                dhl_desc: "توصيل عالمي موثوق",
+                ups_name: "يو بي إس",
+                ups_desc: "خدمة توصيل متميزة",
+                aramex_name: "أرامكس",
+                aramex_desc: "شحن إقليمي سريع",
+                shipping_rates_title: "💰 رسوم الشحن",
+                standard_shipping: "الشحن العادي (7-14 يوم)",
+                express_shipping: "الشحن السريع (3-7 أيام)",
+                overnight_shipping: "الشحن الفوري (1-3 أيام)",
+                free_shipping: "مجاني",
+                free_shipping_condition: "للطلبات أكثر من $500",
+                shipping_guarantee: "🛡️ جميع الشحنات مؤمنة ومضمونة • 📦 تغليف احترافي يحافظ على البطاقات • 📍 تتبع الشحنة لحظة بلحظة",
+                payment_title: "💳 PAYMENT METHODS",
+                bank_transfer_title: "التحويل البنكي الآمن",
+                bank_transfer_desc: "ادفع بأمان تام عبر التحويل البنكي المباشر. نقبل جميع البنوك المحلية والدولية مع ضمان الحماية الكاملة.",
+                western_union_title: "ويسترن يونيون السريع",
+                western_union_desc: "تحويل سريع وآمن عبر ويسترن يونيون في جميع أنحاء العالم. استلام فوري وضمان 100%.",
+                crypto_title: "العملات الرقمية المتقدمة",
+                crypto_desc: "ندعم Bitcoin, Ethereum, USDT وجميع العملات الرقمية الرئيسية. دفع سريع وآمن بتقنية البلوك تشين.",
+                modal_title: "🛒 إتمام عملية الشراء",
+                selected_item_label: "🎴 المنتج المختار:",
+                price_label: "💰 السعر:",
+                full_name_label: "👤 الاسم الكامل:",
+                full_name_placeholder: "أدخل اسمك الكامل",
+                email_label: "📧 البريد الإلكتروني:",
+                phone_label: "📱 رقم الهاتف:",
+                shipping_method_label: "🚚 طريقة الشحن:",
+                choose_shipping: "اختر طريقة الشحن",
+                standard_option: "الشحن العادي (7-14 يوم) - $15",
+                express_option: "الشحن السريع (3-7 أيام) - $25",
+                overnight_option: "الشحن الفوري (1-3 أيام) - $45",
+                payment_method_label: "💳 طريقة الدفع:",
+                choose_payment: "اختر طريقة الدفع المناسبة",
+                bank_option: "🏦 التحويل البنكي",
+                western_option: "💸 ويسترن يونيون",
+                crypto_option: "₿ العملات الرقمية",
+                payment_details_label: "📝 تفاصيل الدفع:",
+                payment_details_placeholder: "أدخل تفاصيل الدفع هنا...",
+                address_label: "🏠 عنوان الشحن:",
+                address_placeholder: "أدخل عنوان الشحن الكامل مع رقم الهاتف",
+                total_amount_label: "💰 إجمالي المبلغ:",
+                submit_button: "✅ تأكيد الطلب والشراء الآن 🛒",
+                footer_copyright: "🎴 &copy; 2024 متجر بطاقات البوكيمون الملكي - جميع الحقوق محفوظة",
+                footer_contact: "📧 info@pokecards-royal.com | 📱 +97339517276 | 🌐 www.pokecards-royal.com",
+                footer_tagline: "⭐ أفضل متجر لبطاقات البوكيمون والألعاب في الشرق الأوسط ⭐"
+            },
+            en: {
+                logo: "🎴 POKÉCARDS",
+                nav_home: "Home",
+                nav_gallery: "Gallery",
+                nav_cards: "Cards",
+                nav_games: "Games",
+                nav_shipping: "Shipping",
+                nav_payment: "Payment",
+                nav_contact: "Contact",
+                language_label: "Language",
+                currency_label: "Currency",
+                audio_title: "🎵 Epic Original Pokemon Music",
+                audio_song: "Pokemon Theme Song",
+                audio_subtitle: "Gotta Catch 'Em All!",
+                audio_not_supported: "Your browser does not support audio playback",
+                hero_title: "POKÉMON ROYAL STORE",
+                hero_description: "Discover an amazing collection of rare Pokemon cards and premium games at the best prices in the Arab world",
+                hero_cta: "🛒 Shop Now and Get the Best Deals",
+                gallery_title: "🎬 GALLERY",
+                gallery_item1_title: "🌟 The Great Pokemon Adventure",
+                gallery_item1_desc: "Embark on an epic journey with the strongest Pokemon",
+                gallery_item2_title: "⚔️ Legendary Pokemon Battles",
+                gallery_item2_desc: "Watch the strongest battles and challenges",
+                gallery_item3_title: "🌍 The Magical Pokemon World",
+                gallery_item3_desc: "Explore amazing worlds and rare creatures",
+                gallery_item4_title: "🏆 Pokemon Masters",
+                gallery_item4_desc: "Meet the greatest Pokemon trainers in history",
+                cards_title: "🎴 RARE CARDS",
+                card1_name: "🔥 Rare Golden Charizard",
+                card2_name: "⚡ Special Shiny Pikachu",
+                card3_name: "🧠 Legendary Mewtwo",
+                card4_name: "POKEMON JPN PIKACHU",
+                card5_name: "🌿 Imperial Green Venusaur",
+                card6_name: "🐉 Legendary Dragon Rayquaza",
+                buy_button: "💎 Buy Now",
+                games_title: "🎮 POKEMON GAMES",
+                game1_name: "🔴 Pikachu Pokeball",
+                game2_name: "🟣 Pokémon Night Light",
+                game3_name: "⚡ Pokemon Gengar",
+                game4_name: "⚔️ Pokemon Sword",
+                game5_name: "🛡️ Pokemon Shield",
+                game6_name: "💎 Pokemon Brilliant Diamond",
+                buy_game_button: "🎮 Buy Game",
+                shipping_title: "🚚 SHIPPING PARTNERS",
+                fedex_name: "FedEx",
+                fedex_desc: "Fast and secure shipping",
+                dhl_name: "DHL",
+                dhl_desc: "Reliable global delivery",
+                ups_name: "UPS",
+                ups_desc: "Premium delivery service",
+                aramex_name: "Aramex",
+                aramex_desc: "Fast regional shipping",
+                shipping_rates_title: "💰 Shipping Rates",
+                standard_shipping: "Standard Shipping (7-14 days)",
+                express_shipping: "Express Shipping (3-7 days)",
+                overnight_shipping: "Overnight Shipping (1-3 days)",
+                free_shipping: "Free",
+                free_shipping_condition: "For orders over $500",
+                shipping_guarantee: "🛡️ All shipments are insured and guaranteed • 📦 Professional packaging protects cards • 📍 Real-time shipment tracking",
+                payment_title: "💳 PAYMENT METHODS",
+                bank_transfer_title: "Secure Bank Transfer",
+                bank_transfer_desc: "Pay safely through direct bank transfer. We accept all local and international banks with complete protection guarantee.",
+                western_union_title: "Fast Western Union",
+                western_union_desc: "Fast and secure transfer via Western Union worldwide. Instant receipt and 100% guarantee.",
+                crypto_title: "Advanced Cryptocurrencies",
+                crypto_desc: "We support Bitcoin, Ethereum, USDT and all major cryptocurrencies. Fast and secure payment with blockchain technology.",
+                modal_title: "🛒 Complete Purchase",
+                selected_item_label: "🎴 Selected Item:",
+                price_label: "💰 Price:",
+                full_name_label: "👤 Full Name:",
+                full_name_placeholder: "Enter your full name",
+                email_label: "📧 Email:",
+                phone_label: "📱 Phone Number:",
+                shipping_method_label: "🚚 Shipping Method:",
+                choose_shipping: "Choose shipping method",
+                standard_option: "Standard Shipping (7-14 days) - $15",
+                express_option: "Express Shipping (3-7 days) - $25",
+                overnight_option: "Overnight Shipping (1-3 days) - $45",
+                payment_method_label: "💳 Payment Method:",
+                choose_payment: "Choose suitable payment method",
+                bank_option: "🏦 Bank Transfer",
+                western_option: "💸 Western Union",
+                crypto_option: "₿ Cryptocurrencies",
+                payment_details_label: "📝 Payment Details:",
+                payment_details_placeholder: "Enter payment details here...",
+                address_label: "🏠 Shipping Address:",
+                address_placeholder: "Enter complete shipping address with phone number",
+                total_amount_label: "💰 Total Amount:",
+                submit_button: "✅ Confirm Order and Buy Now 🛒",
+                footer_copyright: "🎴 &copy; 2024 Pokemon Royal Store - All Rights Reserved",
+                footer_contact: "📧 info@pokecards-royal.com | 📱 +97339517276 | 🌐 www.pokecards-royal.com",
+                footer_tagline: "⭐ Best Pokemon Cards and Games Store in the Middle East ⭐"
+            },
+            fr: {
+                logo: "🎴 POKÉCARDS",
+                nav_home: "Accueil",
+                nav_gallery: "Galerie",
+                nav_cards: "Cartes",
+                nav_games: "Jeux",
+                nav_shipping: "Livraison",
+                nav_payment: "Paiement",
+                nav_contact: "Contact",
+                language_label: "Langue",
+                currency_label: "Devise",
+                audio_title: "🎵 Musique Pokémon Originale Épique",
+                audio_song: "Chanson Thème Pokémon",
+                audio_subtitle: "Attrapez-les Tous!",
+                audio_not_supported: "Votre navigateur ne supporte pas la lecture audio",
+                hero_title: "POKÉMON ROYAL STORE",
+                hero_description: "Découvrez une collection incroyable de cartes Pokémon rares et de jeux premium aux meilleurs prix du monde arabe",
+                hero_cta: "🛒 Achetez Maintenant et Obtenez les Meilleures Offres",
+                gallery_title: "🎬 GALERIE",
+                gallery_item1_title: "🌟 La Grande Aventure Pokémon",
+                gallery_item1_desc: "Embarquez dans un voyage épique avec les Pokémon les plus forts",
+                gallery_item2_title: "⚔️ Batailles Pokémon Légendaires",
+                gallery_item2_desc: "Regardez les batailles et défis les plus forts",
+                gallery_item3_title: "🌍 Le Monde Magique des Pokémon",
+                gallery_item3_desc: "Explorez des mondes incroyables et des créatures rares",
+                gallery_item4_title: "🏆 Maîtres Pokémon",
+                gallery_item4_desc: "Rencontrez les plus grands dresseurs Pokémon de l'histoire",
+                cards_title: "🎴 CARTES RARES",
+                card1_name: "🔥 Dracaufeu Doré Rare",
+                card2_name: "⚡ Pikachu Brillant Spécial",
+                card3_name: "🧠 Mewtwo Légendaire",
+                card4_name: "POKEMON JPN PIKACHU",
+                card5_name: "🌿 Florizarre Vert Impérial",
+                card6_name: "🐉 Dragon Légendaire Rayquaza",
+                buy_button: "💎 Acheter Maintenant",
+                games_title: "🎮 JEUX POKÉMON",
+                game1_name: "🔴 Pokéball Pikachu",
+                game2_name: "🟣 Veilleuse Pokémon",
+                game3_name: "⚡ Pokémon Gengar",
+                game4_name: "⚔️ Pokémon Épée",
+                game5_name: "🛡️ Pokémon Bouclier",
+                game6_name: "💎 Pokémon Diamant Étincelant",
+                buy_game_button: "🎮 Acheter le Jeu",
+                shipping_title: "🚚 PARTENAIRES DE LIVRAISON",
+                fedex_name: "FedEx",
+                fedex_desc: "Livraison rapide et sécurisée",
+                dhl_name: "DHL",
+                dhl_desc: "Livraison mondiale fiable",
+                ups_name: "UPS",
+                ups_desc: "Service de livraison premium",
+                aramex_name: "Aramex",
+                aramex_desc: "Livraison régionale rapide",
+                shipping_rates_title: "💰 Tarifs de Livraison",
+                standard_shipping: "Livraison Standard (7-14 jours)",
+                express_shipping: "Livraison Express (3-7 jours)",
+                overnight_shipping: "Livraison Nocturne (1-3 jours)",
+                free_shipping: "Gratuit",
+                free_shipping_condition: "Pour les commandes de plus de 500$",
+                shipping_guarantee: "🛡️ Tous les envois sont assurés et garantis • 📦 Emballage professionnel protège les cartes • 📍 Suivi d'envoi en temps réel",
+                payment_title: "💳 MÉTHODES DE PAIEMENT",
+                bank_transfer_title: "Virement Bancaire Sécurisé",
+                bank_transfer_desc: "Payez en toute sécurité par virement bancaire direct. Nous acceptons toutes les banques locales et internationales avec garantie de protection complète.",
+                western_union_title: "Western Union Rapide",
+                western_union_desc: "Transfert rapide et sécurisé via Western Union dans le monde entier. Réception instantanée et garantie 100%.",
+                crypto_title: "Cryptomonnaies Avancées",
+                crypto_desc: "Nous supportons Bitcoin, Ethereum, USDT et toutes les principales cryptomonnaies. Paiement rapide et sécurisé avec la technologie blockchain.",
+                modal_title: "🛒 Finaliser l'Achat",
+                selected_item_label: "🎴 Article Sélectionné:",
+                price_label: "💰 Prix:",
+                full_name_label: "👤 Nom Complet:",
+                full_name_placeholder: "Entrez votre nom complet",
+                email_label: "📧 Email:",
+                phone_label: "📱 Numéro de Téléphone:",
+                shipping_method_label: "🚚 Méthode de Livraison:",
+                choose_shipping: "Choisir la méthode de livraison",
+                standard_option: "Livraison Standard (7-14 jours) - 15$",
+                express_option: "Livraison Express (3-7 jours) - 25$",
+                overnight_option: "Livraison Nocturne (1-3 jours) - 45$",
+                payment_method_label: "💳 Méthode de Paiement:",
+                choose_payment: "Choisir la méthode de paiement appropriée",
+                bank_option: "🏦 Virement Bancaire",
+                western_option: "💸 Western Union",
+                crypto_option: "₿ Cryptomonnaies",
+                payment_details_label: "📝 Détails du Paiement:",
+                payment_details_placeholder: "Entrez les détails du paiement ici...",
+                address_label: "🏠 Adresse de Livraison:",
+                address_placeholder: "Entrez l'adresse de livraison complète avec numéro de téléphone",
+                total_amount_label: "💰 Montant Total:",
+                submit_button: "✅ Confirmer la Commande et Acheter Maintenant 🛒",
+                footer_copyright: "🎴 &copy; 2024 Magasin Royal Pokémon - Tous Droits Réservés",
+                footer_contact: "📧 info@pokecards-royal.com | 📱 +97339517276 | 🌐 www.pokecards-royal.com",
+                footer_tagline: "⭐ Meilleur Magasin de Cartes et Jeux Pokémon au Moyen-Orient ⭐"
+            },
+            ur: {
+                logo: "🎴 POKÉCARDS",
+                nav_home: "ہوم",
+                nav_gallery: "گیلری",
+                nav_cards: "کارڈز",
+                nav_games: "گیمز",
+                nav_shipping: "شپنگ",
+                nav_payment: "ادائیگی",
+                nav_contact: "رابطہ",
+                language_label: "زبان",
+                currency_label: "کرنسی",
+                audio_title: "🎵 اصل پوکیمون کی شاندار موسیقی",
+                audio_song: "پوکیمون تھیم سانگ",
+                audio_subtitle: "سب کو پکڑنا ہے!",
+                audio_not_supported: "آپ کا براؤزر آڈیو پلے بیک کو سپورٹ نہیں کرتا",
+                hero_title: "POKÉMON ROYAL STORE",
+                hero_description: "عرب دنیا میں بہترین قیمتوں پر نایاب پوکیمون کارڈز اور پریمیم گیمز کا حیرت انگیز مجموعہ دریافت کریں",
+                hero_cta: "🛒 ابھی خریداری کریں اور بہترین ڈیلز حاصل کریں",
+                gallery_title: "🎬 گیلری",
+                gallery_item1_title: "🌟 عظیم پوکیمون ایڈونچر",
+                gallery_item1_desc: "طاقتور ترین پوکیمون کے ساتھ شاندار سفر پر نکلیں",
+                gallery_item2_title: "⚔️ لیجنڈری پوکیمون بیٹلز",
+                gallery_item2_desc: "طاقتور ترین لڑائیاں اور چیلنجز دیکھیں",
+                gallery_item3_title: "🌍 پوکیمون کی جادوئی دنیا",
+                gallery_item3_desc: "حیرت انگیز دنیاؤں اور نایاب مخلوقات کو دریافت کریں",
+                gallery_item4_title: "🏆 پوکیمون ماسٹرز",
+                gallery_item4_desc: "تاریخ کے عظیم ترین پوکیمون ٹرینرز سے ملیں",
+                cards_title: "🎴 نایاب کارڈز",
+                card1_name: "🔥 نایاب سنہری چاریزارڈ",
+                card2_name: "⚡ خاص چمکدار پکاچو",
+                card3_name: "🧠 لیجنڈری میوٹو",
+                card4_name: "POKEMON JPN PIKACHU",
+                card5_name: "🌿 امپیریل گرین وینوسار",
+                card6_name: "🐉 لیجنڈری ڈریگن ریکواذا",
+                buy_button: "💎 ابھی خریدیں",
+                games_title: "🎮 پوکیمون گیمز",
+                game1_name: "🔴 پکاچو پوکی بال",
+                game2_name: "🟣 پوکی مون نائٹ لائٹ",
+                game3_name: "⚡ پوکیمون گینگر کا کھلونا ",
+                game4_name: "⚔️ پوکیمون سورڈ",
+                game5_name: "🛡️ پوکیمون شیلڈ",
+                game6_name: "💎 پوکیمون برلینٹ ڈائمنڈ",
+                buy_game_button: "🎮 گیم خریدیں",
+                shipping_title: "🚚 شپنگ پارٹنرز",
+                fedex_name: "فیڈکس",
+                fedex_desc: "تیز اور محفوظ شپنگ",
+                dhl_name: "ڈی ایچ ایل",
+                dhl_desc: "قابل اعتماد عالمی ڈیلیوری",
+                ups_name: "یو پی ایس",
+                ups_desc: "پریمیم ڈیلیوری سروس",
+                aramex_name: "آرامکس",
+                aramex_desc: "تیز علاقائی شپنگ",
+                shipping_rates_title: "💰 شپنگ ریٹس",
+                standard_shipping: "معیاری شپنگ (7-14 دن)",
+                express_shipping: "ایکسپریس شپنگ (3-7 دن)",
+                overnight_shipping: "راتوں رات شپنگ (1-3 دن)",
+                free_shipping: "مفت",
+                free_shipping_condition: "$500 سے زیادہ آرڈرز کے لیے",
+                shipping_guarantee: "🛡️ تمام شپمنٹس انشورڈ اور گارنٹی شدہ ہیں • 📦 پروفیشنل پیکیجنگ کارڈز کو محفوظ رکھتی ہے • 📍 ریئل ٹائم شپمنٹ ٹریکنگ",
+                payment_title: "💳 ادائیگی کے طریقے",
+                bank_transfer_title: "محفوظ بینک ٹرانسفر",
+                bank_transfer_desc: "براہ راست بینک ٹرانسفر کے ذریعے محفوظ طریقے سے ادائیگی کریں۔ ہم مکمل تحفظ کی گارنٹی کے ساتھ تمام مقامی اور بین الاقوامی بینکوں کو قبول کرتے ہیں۔",
+                western_union_title: "تیز ویسٹرن یونین",
+                western_union_desc: "دنیا بھر میں ویسٹرن یونین کے ذریعے تیز اور محفوظ ٹرانسفر۔ فوری رسید اور 100% گارنٹی۔",
+                crypto_title: "ایڈوانسڈ کرپٹو کرنسیز",
+                crypto_desc: "ہم Bitcoin, Ethereum, USDT اور تمام اہم کرپٹو کرنسیز کو سپورٹ کرتے ہیں۔ بلاک چین ٹیکنالوجی کے ساتھ تیز اور محفوظ ادائیگی۔",
+                modal_title: "🛒 خریداری مکمل کریں",
+                selected_item_label: "🎴 منتخب آئٹم:",
+                price_label: "💰 قیمت:",
+                full_name_label: "👤 پورا نام:",
+                full_name_placeholder: "اپنا پورا نام درج کریں",
+                email_label: "📧 ای میل:",
+                phone_label: "📱 فون نمبر:",
+                shipping_method_label: "🚚 شپنگ کا طریقہ:",
+                choose_shipping: "شپنگ کا طریقہ منتخب کریں",
+                standard_option: "معیاری شپنگ (7-14 دن) - $15",
+                express_option: "ایکسپریس شپنگ (3-7 دن) - $25",
+                overnight_option: "راتوں رات شپنگ (1-3 دن) - $45",
+                payment_method_label: "💳 ادائیگی کا طریقہ:",
+                choose_payment: "مناسب ادائیگی کا طریقہ منتخب کریں",
+                bank_option: "🏦 بینک ٹرانسفر",
+                western_option: "💸 ویسٹرن یونین",
+                crypto_option: "₿ کرپٹو کرنسیز",
+                payment_details_label: "📝 ادائیگی کی تفصیلات:",
+                payment_details_placeholder: "یہاں ادائیگی کی تفصیلات درج کریں...",
+                address_label: "🏠 شپنگ ایڈریس:",
+                address_placeholder: "فون نمبر کے ساتھ مکمل شپنگ ایڈریس درج کریں",
+                total_amount_label: "💰 کل رقم:",
+                submit_button: "✅ آرڈر کی تصدیق کریں اور ابھی خریدیں 🛒",
+                footer_copyright: "🎴 &copy; 2024 پوکیمون رائل اسٹور - تمام حقوق محفوظ ہیں",
+                footer_contact: "📧 info@pokecards-royal.com | 📱 +97339517276 | 🌐 www.pokecards-royal.com",
+                footer_tagline: "⭐ مشرق وسطیٰ میں بہترین پوکیمون کارڈز اور گیمز کا اسٹور ⭐"
+            },
+            zh: {
+                logo: "🎴 POKÉCARDS",
+                nav_home: "首页",
+                nav_gallery: "画廊",
+                nav_cards: "卡片",
+                nav_games: "游戏",
+                nav_shipping: "运输",
+                nav_payment: "付款",
+                nav_contact: "联系",
+                language_label: "语言",
+                currency_label: "货币",
+                audio_title: "🎵 史诗般的原版宝可梦音乐",
+                audio_song: "宝可梦主题曲",
+                audio_subtitle: "要全部抓住！",
+                audio_not_supported: "您的浏览器不支持音频播放",
+                hero_title: "宝可梦皇家商店",
+                hero_description: "在阿拉伯世界以最优惠的价格发现稀有宝可梦卡片和高级游戏的惊人收藏",
+                hero_cta: "🛒 立即购买并获得最优惠的价格",
+                gallery_title: "🎬 画廊",
+                gallery_item1_title: "🌟 伟大的宝可梦冒险",
+                gallery_item1_desc: "与最强的宝可梦踏上史诗般的旅程",
+                gallery_item2_title: "⚔️ 传奇宝可梦战斗",
+                gallery_item2_desc: "观看最强的战斗和挑战",
+                gallery_item3_title: "🌍 神奇的宝可梦世界",
+                gallery_item3_desc: "探索令人惊叹的世界和稀有生物",
+                gallery_item4_title: "🏆 宝可梦大师",
+                gallery_item4_desc: "认识历史上最伟大的宝可梦训练师",
+                cards_title: "🎴 稀有卡片",
+                card1_name: "🔥 稀有金色喷火龙",
+                card2_name: "⚡ 特殊闪亮皮卡丘",
+                card3_name: "🧠 传奇超梦",
+                card4_name: "POKEMON JPN PIKACHU",
+                card5_name: "🌿 帝国绿妙蛙花",
+                card6_name: "🐉 传奇龙烈空坐",
+                buy_button: "💎 立即购买",
+                games_title: "🎮 宝可梦游戏",
+                game1_name: "🔴 皮卡丘精灵球",
+                game2_name: "🟣 精灵宝可梦夜灯",
+                game3_name: "⚡宝可梦耿鬼模型玩具",
+                game4_name: "⚔️ 宝可梦剑",
+                game5_name: "🛡️ 宝可梦盾",
+                game6_name: "💎 宝可梦晶灿钻石",
+                buy_game_button: "🎮 购买游戏",
+                shipping_title: "🚚 运输合作伙伴",
+                fedex_name: "联邦快递",
+                fedex_desc: "快速安全的运输",
+                dhl_name: "DHL",
+                dhl_desc: "可靠的全球配送",
+                ups_name: "UPS",
+                ups_desc: "优质配送服务",
+                aramex_name: "Aramex",
+                aramex_desc: "快速区域运输",
+                shipping_rates_title: "💰 运输费率",
+                standard_shipping: "标准运输（7-14天）",
+                express_shipping: "快递运输（3-7天）",
+                overnight_shipping: "隔夜运输（1-3天）",
+                free_shipping: "免费",
+                free_shipping_condition: "订单超过500美元",
+                shipping_guarantee: "🛡️ 所有货物都有保险和保证 • 📦 专业包装保护卡片 • 📍 实时货物跟踪",
+                payment_title: "💳 付款方式",
+                bank_transfer_title: "安全银行转账",
+                bank_transfer_desc: "通过直接银行转账安全付款。我们接受所有本地和国际银行，并提供完全保护保证。",
+                western_union_title: "快速西联汇款",
+                western_union_desc: "通过西联汇款在全球范围内快速安全转账。即时收款和100%保证。",
+                crypto_title: "先进的加密货币",
+                crypto_desc: "我们支持比特币、以太坊、USDT和所有主要加密货币。使用区块链技术快速安全付款。",
+                modal_title: "🛒 完成购买",
+                selected_item_label: "🎴 选定商品：",
+                price_label: "💰 价格：",
+                full_name_label: "👤 全名：",
+                full_name_placeholder: "输入您的全名",
+                email_label: "📧 电子邮件：",
+                phone_label: "📱 电话号码：",
+                shipping_method_label: "🚚 运输方式：",
+                choose_shipping: "选择运输方式",
+                standard_option: "标准运输（7-14天）- 15美元",
+                express_option: "快递运输（3-7天）- 25美元",
+                overnight_option: "隔夜运输（1-3天）- 45美元",
+                payment_method_label: "💳 付款方式：",
+                choose_payment: "选择合适的付款方式",
+                bank_option: "🏦 银行转账",
+                western_option: "💸 西联汇款",
+                crypto_option: "₿ 加密货币",
+                payment_details_label: "📝 付款详情：",
+                payment_details_placeholder: "在此输入付款详情...",
+                address_label: "🏠 运输地址：",
+                address_placeholder: "输入完整的运输地址和电话号码",
+                total_amount_label: "💰 总金额：",
+                submit_button: "✅ 确认订单并立即购买 🛒",
+                footer_copyright: "🎴 &copy; 2024 宝可梦皇家商店 - 版权所有",
+                footer_contact: "📧 info@pokecards-royal.com | 📱 +97339517276 | 🌐 www.pokecards-royal.com",
+                footer_tagline: "⭐ 中东地区最好的宝可梦卡片和游戏商店 ⭐"
+            },
+            ja: {
+                logo: "🎴 POKÉCARDS",
+                nav_home: "ホーム",
+                nav_gallery: "ギャラリー",
+                nav_cards: "カード",
+                nav_games: "ゲーム",
+                nav_shipping: "配送",
+                nav_payment: "支払い",
+                nav_contact: "お問い合わせ",
+                language_label: "言語",
+                currency_label: "通貨",
+                audio_title: "🎵 壮大なオリジナルポケモン音楽",
+                audio_song: "ポケモンテーマソング",
+                audio_subtitle: "ゲットだぜ！",
+                audio_not_supported: "お使いのブラウザはオーディオ再生をサポートしていません",
+                hero_title: "ポケモンロイヤルストア",
+                hero_description: "アラブ世界で最高の価格でレアなポケモンカードとプレミアムゲームの素晴らしいコレクションを発見してください",
+                hero_cta: "🛒 今すぐ購入して最高のお得な情報を手に入れよう",
+                gallery_title: "🎬 ギャラリー",
+                gallery_item1_title: "🌟 偉大なポケモンアドベンチャー",
+                gallery_item1_desc: "最強のポケモンと壮大な旅に出発",
+                gallery_item2_title: "⚔️ 伝説のポケモンバトル",
+                gallery_item2_desc: "最強のバトルとチャレンジを見る",
+                gallery_item3_title: "🌍 魔法のポケモン世界",
+                gallery_item3_desc: "素晴らしい世界と珍しい生き物を探索",
+                gallery_item4_title: "🏆 ポケモンマスター",
+                gallery_item4_desc: "歴史上最も偉大なポケモントレーナーに会う",
+                cards_title: "🎴 レアカード",
+                card1_name: "🔥 レア金色リザードン",
+                card2_name: "⚡ 特別な光るピカチュウ",
+                card3_name: "🧠 伝説のミュウツー",
+                card4_name: "POKEMON JPN PIKACHU",
+                card5_name: "🌿 インペリアルグリーンフシギバナ",
+                card6_name: "🐉 伝説のドラゴンレックウザ",
+                buy_button: "💎 今すぐ購入",
+                games_title: "🎮 ポケモンゲーム",
+                game1_name: "🔴 ピカチュウポケボール",
+                game2_name: "🟣 ポケモンナイトライト",
+                game3_name: "⚡ ポケモン ゲンガー フィギュア トイ",
+                game4_name: "⚔️ ポケモンソード",
+                game5_name: "🛡️ ポケモンシールド",
+                game6_name: "💎 ポケモンブリリアントダイヤモンド",
+                buy_game_button: "🎮 ゲームを購入",
+                shipping_title: "🚚 配送パートナー",
+                fedex_name: "フェデックス",
+                fedex_desc: "迅速で安全な配送",
+                dhl_name: "DHL",
+                dhl_desc: "信頼できるグローバル配送",
+                ups_name: "UPS",
+                ups_desc: "プレミアム配送サービス",
+                aramex_name: "アラメックス",
+                aramex_desc: "迅速な地域配送",
+                shipping_rates_title: "💰 配送料金",
+                standard_shipping: "標準配送（7-14日）",
+                express_shipping: "速達配送（3-7日）",
+                overnight_shipping: "翌日配送（1-3日）",
+                free_shipping: "無料",
+                free_shipping_condition: "500ドル以上のご注文",
+                shipping_guarantee: "🛡️ すべての配送は保険付きで保証されています • 📦 プロの梱包がカードを保護 • 📍 リアルタイム配送追跡",
+                payment_title: "💳 支払い方法",
+                bank_transfer_title: "安全な銀行振込",
+                bank_transfer_desc: "直接銀行振込で安全にお支払いください。完全な保護保証付きで、すべての国内外の銀行を受け付けています。",
+                western_union_title: "迅速なウエスタンユニオン",
+                western_union_desc: "世界中でウエスタンユニオンを通じて迅速で安全な送金。即座の受領と100%保証。",
+                crypto_title: "先進的な暗号通貨",
+                crypto_desc: "ビットコイン、イーサリアム、USDTおよびすべての主要な暗号通貨をサポートしています。ブロックチェーン技術による迅速で安全な支払い。",
+                modal_title: "🛒 購入を完了",
+                selected_item_label: "🎴 選択されたアイテム：",
+                price_label: "💰 価格：",
+                full_name_label: "👤 フルネーム：",
+                full_name_placeholder: "フルネームを入力してください",
+                email_label: "📧 メール：",
+                phone_label: "📱 電話番号：",
+                shipping_method_label: "🚚 配送方法：",
+                choose_shipping: "配送方法を選択",
+                standard_option: "標準配送（7-14日）- 15ドル",
+                express_option: "速達配送（3-7日）- 25ドル",
+                overnight_option: "翌日配送（1-3日）- 45ドル",
+                payment_method_label: "💳 支払い方法：",
+                choose_payment: "適切な支払い方法を選択",
+                bank_option: "🏦 銀行振込",
+                western_option: "💸 ウエスタンユニオン",
+                crypto_option: "₿ 暗号通貨",
+                payment_details_label: "📝 支払い詳細：",
+                payment_details_placeholder: "ここに支払い詳細を入力...",
+                address_label: "🏠 配送先住所：",
+                address_placeholder: "電話番号付きの完全な配送先住所を入力",
+                total_amount_label: "💰 合計金額：",
+                submit_button: "✅ 注文を確認して今すぐ購入 🛒",
+                footer_copyright: "🎴 &copy; 2024 ポケモンロイヤルストア - 全著作権所有",
+                footer_contact: "📧 info@pokecards-royal.com | 📱 +97339517276 | 🌐 www.pokecards-royal.com",
+                footer_tagline: "⭐ 中東で最高のポケモンカードとゲームストア ⭐"
+            },
+            ko: {
+                logo: "🎴 POKÉCARDS",
+                nav_home: "홈",
+                nav_gallery: "갤러리",
+                nav_cards: "카드",
+                nav_games: "게임",
+                nav_shipping: "배송",
+                nav_payment: "결제",
+                nav_contact: "연락처",
+                language_label: "언어",
+                currency_label: "통화",
+                audio_title: "🎵 장대한 오리지널 포켓몬 음악",
+                audio_song: "포켓몬 테마송",
+                audio_subtitle: "모두 잡아라!",
+                audio_not_supported: "브라우저가 오디오 재생을 지원하지 않습니다",
+                hero_title: "포켓몬 로얄 스토어",
+                hero_description: "아랍 세계에서 최고의 가격으로 희귀한 포켓몬 카드와 프리미엄 게임의 놀라운 컬렉션을 발견하세요",
+                hero_cta: "🛒 지금 쇼핑하고 최고의 딜을 받으세요",
+                gallery_title: "🎬 갤러리",
+                gallery_item1_title: "🌟 위대한 포켓몬 어드벤처",
+                gallery_item1_desc: "가장 강한 포켓몬과 함께 장대한 여행을 떠나세요",
+                gallery_item2_title: "⚔️ 전설의 포켓몬 배틀",
+                gallery_item2_desc: "가장 강한 배틀과 도전을 보세요",
+                gallery_item3_title: "🌍 마법의 포켓몬 세계",
+                gallery_item3_desc: "놀라운 세계와 희귀한 생물들을 탐험하세요",
+                gallery_item4_title: "🏆 포켓몬 마스터",
+                gallery_item4_desc: "역사상 가장 위대한 포켓몬 트레이너들을 만나보세요",
+                cards_title: "🎴 희귀 카드",
+                card1_name: "🔥 희귀 골든 리자몽",
+                card2_name: "⚡ 특별한 반짝이는 피카츄",
+                card3_name: "🧠 전설의 뮤츠",
+                card4_name: "POKEMON JPN PIKACHU",
+                card5_name: "🌿 임페리얼 그린 이상해꽃",
+                card6_name: "🐉 전설의 드래곤 레쿠쟈",
+                buy_button: "💎 지금 구매",
+                games_title: "🎮 포켓몬 게임",
+                game1_name: "🔴 피카츄 포켓볼",
+                game2_name: "🟣 포켓몬 무드등",
+                game3_name: "⚡ 포켓몬 겐가 피규어 장난감",
+                game4_name: "⚔️ 포켓몬 소드",
+                game5_name: "🛡️ 포켓몬 실드",
+                game6_name: "💎 포켓몬 브릴리언트 다이아몬드",
+                buy_game_button: "🎮 게임 구매",
+                shipping_title: "🚚 배송 파트너",
+                fedex_name: "페덱스",
+                fedex_desc: "빠르고 안전한 배송",
+                dhl_name: "DHL",
+                dhl_desc: "신뢰할 수 있는 글로벌 배송",
+                ups_name: "UPS",
+                ups_desc: "프리미엄 배송 서비스",
+                aramex_name: "아라멕스",
+                aramex_desc: "빠른 지역 배송",
+                shipping_rates_title: "💰 배송 요금",
+                standard_shipping: "표준 배송 (7-14일)",
+                express_shipping: "특급 배송 (3-7일)",
+                overnight_shipping: "익일 배송 (1-3일)",
+                free_shipping: "무료",
+                free_shipping_condition: "$500 이상 주문시",
+                shipping_guarantee: "🛡️ 모든 배송은 보험 및 보장됩니다 • 📦 전문 포장으로 카드 보호 • 📍 실시간 배송 추적",
+                payment_title: "💳 결제 방법",
+                bank_transfer_title: "안전한 은행 송금",
+                bank_transfer_desc: "직접 은행 송금을 통해 안전하게 결제하세요. 완전한 보호 보장과 함께 모든 국내외 은행을 받습니다.",
+                western_union_title: "빠른 웨스턴 유니온",
+                western_union_desc: "전 세계 웨스턴 유니온을 통한 빠르고 안전한 송금. 즉시 수령 및 100% 보장.",
+                crypto_title: "고급 암호화폐",
+                crypto_desc: "비트코인, 이더리움, USDT 및 모든 주요 암호화폐를 지원합니다. 블록체인 기술로 빠르고 안전한 결제.",
+                modal_title: "🛒 구매 완료",
+                selected_item_label: "🎴 선택된 아이템:",
+                price_label: "💰 가격:",
+                full_name_label: "👤 전체 이름:",
+                full_name_placeholder: "전체 이름을 입력하세요",
+                email_label: "📧 이메일:",
+                phone_label: "📱 전화번호:",
+                shipping_method_label: "🚚 배송 방법:",
+                choose_shipping: "배송 방법 선택",
+                standard_option: "표준 배송 (7-14일) - $15",
+                express_option: "특급 배송 (3-7일) - $25",
+                overnight_option: "익일 배송 (1-3일) - $45",
+                payment_method_label: "💳 결제 방법:",
+                choose_payment: "적절한 결제 방법 선택",
+                bank_option: "🏦 은행 송금",
+                western_option: "💸 웨스턴 유니온",
+                crypto_option: "₿ 암호화폐",
+                payment_details_label: "📝 결제 세부사항:",
+                payment_details_placeholder: "여기에 결제 세부사항을 입력하세요...",
+                address_label: "🏠 배송 주소:",
+                address_placeholder: "전화번호와 함께 완전한 배송 주소를 입력하세요",
+                total_amount_label: "💰 총 금액:",
+                submit_button: "✅ 주문 확인 및 지금 구매 🛒",
+                footer_copyright: "🎴 &copy; 2024 포켓몬 로얄 스토어 - 모든 권리 보유",
+                footer_contact: "📧 info@pokecards-royal.com | 📱 +97339517276 | 🌐 www.pokecards-royal.com",
+                footer_tagline: "⭐ 중동 최고의 포켓몬 카드 및 게임 스토어 ⭐"
+            }
+        };
+
+        // Currency exchange rates (base: USD)
+        const exchangeRates = {
+            USD: 1,
+            SAR: 3.75,
+            KWD: 0.31,
+            BHD: 0.38,
+            EUR: 0.85,
+            QAR: 3.64,
+            OMR: 0.38,
+            AED: 3.67,
+            GBP: 0.79
+        };
+
+        // Currency symbols
+        const currencySymbols = {
+            USD: '$',
+            SAR: '﷼',
+            KWD: 'د.ك',
+            BHD: 'د.ب',
+            EUR: '€',
+            QAR: '﷼',
+            OMR: '﷼',
+            AED: 'د.إ',
+            GBP: '£'
+        };
+
+        let currentLanguage = 'ar';
+        let currentCurrency = 'USD';
         let isPlaying = false;
         const audio = document.getElementById('pokemonAudio');
         const playBtn = document.getElementById('playBtn');
-        let currentCardPrice = 0;
+        let currentItemPrice = 0;
+        let currentItemType = '';
+
+        // Language and Currency functions
+        function changeLanguage() {
+            const selectedLanguage = document.getElementById('languageSelect').value;
+            currentLanguage = selectedLanguage;
+            
+            // Update text direction and language
+            document.documentElement.lang = selectedLanguage;
+            if (selectedLanguage === 'ar' || selectedLanguage === 'ur') {
+                document.documentElement.dir = 'rtl';
+            } else {
+                document.documentElement.dir = 'ltr';
+            }
+            
+            // Update all translatable elements
+            updateTranslations();
+        }
+
+        function changeCurrency() {
+            const selectedCurrency = document.getElementById('currencySelect').value;
+            currentCurrency = selectedCurrency;
+            updatePrices();
+        }
+
+        function updateTranslations() {
+            const elements = document.querySelectorAll('[data-translate]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
+                }
+            });
+
+            // Update placeholders
+            const placeholderElements = document.querySelectorAll('[data-translate-placeholder]');
+            placeholderElements.forEach(element => {
+                const key = element.getAttribute('data-translate-placeholder');
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    element.placeholder = translations[currentLanguage][key];
+                }
+            });
+        }
+
+        function updatePrices() {
+            const priceElements = document.querySelectorAll('[data-price]');
+            priceElements.forEach(element => {
+                const usdPrice = parseFloat(element.getAttribute('data-price'));
+                const convertedPrice = (usdPrice * exchangeRates[currentCurrency]).toFixed(2);
+                const symbol = currencySymbols[currentCurrency];
+                element.textContent = `${symbol}${convertedPrice}`;
+            });
+
+            const shippingPriceElements = document.querySelectorAll('[data-shipping-price]');
+            shippingPriceElements.forEach(element => {
+                const usdPrice = parseFloat(element.getAttribute('data-shipping-price'));
+                const convertedPrice = (usdPrice * exchangeRates[currentCurrency]).toFixed(2);
+                const symbol = currencySymbols[currentCurrency];
+                element.textContent = `${symbol}${convertedPrice}`;
+            });
+        }
+
+        function convertPrice(usdPrice) {
+            const convertedPrice = (usdPrice * exchangeRates[currentCurrency]).toFixed(2);
+            const symbol = currencySymbols[currentCurrency];
+            return `${symbol}${convertedPrice}`;
+        }
 
         // Create neon particles
         function createNeonParticles() {
@@ -1355,10 +2317,11 @@
         }
 
         // Modal functionality
-        function openModal(cardName, price) {
-            currentCardPrice = price;
-            document.getElementById('selectedCard').value = cardName;
-            document.getElementById('cardPrice').value = '$' + price;
+        function openModal(itemName, price, type) {
+            currentItemPrice = price;
+            currentItemType = type;
+            document.getElementById('selectedItem').value = itemName;
+            document.getElementById('itemPrice').value = convertPrice(price);
             updateTotalAmount();
             document.getElementById('purchaseModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
@@ -1379,7 +2342,7 @@
             const shippingMethod = document.getElementById('shippingMethod').value;
             let shippingCost = 0;
             
-            if (currentCardPrice >= 500) {
+            if (currentItemPrice >= 500) {
                 shippingCost = 0;
             } else {
                 switch(shippingMethod) {
@@ -1395,13 +2358,13 @@
                 }
             }
             
-            const total = currentCardPrice + shippingCost;
+            const total = currentItemPrice + shippingCost;
             const totalField = document.getElementById('totalAmount');
             if (totalField) {
-                if (currentCardPrice >= 500 && shippingCost === 0) {
-                    totalField.value = `$${total} (شحن مجاني!)`;
+                if (currentItemPrice >= 500 && shippingCost === 0) {
+                    totalField.value = `${convertPrice(total)} (${translations[currentLanguage].free_shipping}!)`;
                 } else {
-                    totalField.value = `$${total} (المنتج: $${currentCardPrice} + الشحن: $${shippingCost})`;
+                    totalField.value = `${convertPrice(total)} (${translations[currentLanguage].selected_item_label.replace('🎴 ', '').replace(':', '')}: ${convertPrice(currentItemPrice)} + ${translations[currentLanguage].shipping_method_label.replace('🚚 ', '').replace(':', '')}: ${convertPrice(shippingCost)})`;
                 }
             }
         }
@@ -1414,31 +2377,76 @@
             if (paymentMethod) {
                 paymentDetails.style.display = 'block';
                 
+                let placeholder = '';
                 switch(paymentMethod) {
                     case 'bank':
-                        paymentInfo.placeholder = `🏦 أدخل تفاصيل التحويل البنكي:
-📋 اسم البنك:
-🔢 رقم الحساب:
-👤 اسم صاحب الحساب:
-🏛️ رمز البنك (SWIFT):`;
+                        placeholder = `🏦 ${translations[currentLanguage].bank_transfer_title}:\n📋 ${translations[currentLanguage].bank_transfer_title}:\n🔢 Account Number:\n👤 Account Holder Name:\n🏛️ SWIFT Code:`;
                         break;
                     case 'western':
-                        paymentInfo.placeholder = `💸 أدخل تفاصيل ويسترن يونيون:
-🔢 رقم التحويل (MTCN):
-👤 اسم المرسل:
-🌍 البلد:
-📱 رقم هاتف المرسل:`;
+                        placeholder = `💸 ${translations[currentLanguage].western_union_title}:\n🔢 Transfer Number (MTCN):\n👤 Sender Name:\n🌍 Country:\n📱 Sender Phone:`;
                         break;
                     case 'crypto':
-                        paymentInfo.placeholder = `₿ أدخل تفاصيل العملة الرقمية:
-💰 نوع العملة (Bitcoin, Ethereum, USDT):
-🏦 عنوان المحفظة:
-🔗 معرف المعاملة (Transaction ID):
-⏰ وقت الإرسال:`;
+                        placeholder = `₿ ${translations[currentLanguage].crypto_title}:\n💰 Currency Type (Bitcoin, Ethereum, USDT):\n🏦 Wallet Address:\n🔗 Transaction ID:\n⏰ Send Time:`;
                         break;
                 }
+                paymentInfo.placeholder = placeholder;
             } else {
                 paymentDetails.style.display = 'none';
+            }
+        }
+
+        // WhatsApp message function
+        function sendWhatsAppMessage(formData) {
+            const phoneNumber = '97339517276';
+            const itemTypeArabic = currentItemType === 'card' ? 'بطاقة' : 'لعبة';
+            
+            const message = `🎴 *طلب جديد من متجر البوكيمون الملكي* 🎴
+
+📦 *تفاصيل المنتج:*
+🎯 النوع: ${itemTypeArabic}
+🏷️ اسم المنتج: ${formData.item}
+💰 السعر: ${formData.price}
+
+👤 *بيانات العميل:*
+📝 الاسم: ${formData.name}
+📧 البريد الإلكتروني: ${formData.email}
+📱 رقم الهاتف: ${formData.phone}
+
+🚚 *تفاصيل الشحن:*
+📦 طريقة الشحن: ${getShippingMethodArabic(formData.shipping)}
+🏠 العنوان: ${formData.address}
+
+💳 *تفاصيل الدفع:*
+💰 طريقة الدفع: ${getPaymentMethodArabic(formData.paymentMethod)}
+📝 تفاصيل الدفع: ${formData.paymentInfo || 'لم يتم إدخال تفاصيل'}
+
+💵 *إجمالي المبلغ: ${formData.total}*
+
+⏰ تاريخ الطلب: ${new Date().toLocaleString('ar-SA')}
+
+🌟 شكراً لاختيارك متجر البوكيمون الملكي!`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            
+            window.open(whatsappURL, '_blank');
+        }
+
+        function getShippingMethodArabic(method) {
+            switch(method) {
+                case 'standard': return 'الشحن العادي (7-14 يوم)';
+                case 'express': return 'الشحن السريع (3-7 أيام)';
+                case 'overnight': return 'الشحن الفوري (1-3 أيام)';
+                default: return method;
+            }
+        }
+
+        function getPaymentMethodArabic(method) {
+            switch(method) {
+                case 'bank': return 'التحويل البنكي';
+                case 'western': return 'ويسترن يونيون';
+                case 'crypto': return 'العملات الرقمية';
+                default: return method;
             }
         }
 
@@ -1448,8 +2456,8 @@
             
             // Collect form data
             const formData = {
-                card: document.getElementById('selectedCard').value,
-                price: document.getElementById('cardPrice').value,
+                item: document.getElementById('selectedItem').value,
+                price: document.getElementById('itemPrice').value,
                 name: document.getElementById('fullName').value,
                 email: document.getElementById('email').value,
                 phone: document.getElementById('phone').value,
@@ -1462,23 +2470,19 @@
             
             // Success animation
             const submitBtn = document.querySelector('.submit-button');
-            submitBtn.innerHTML = '✅ تم إرسال الطلب بنجاح!';
+            submitBtn.innerHTML = '✅ جاري إرسال الطلب...';
             submitBtn.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
             
             setTimeout(() => {
-                alert(`🎉 تم إرسال طلبك بنجاح!
+                // Send WhatsApp message
+                sendWhatsAppMessage(formData);
                 
-🎴 البطاقة: ${formData.card}
-💰 إجمالي المبلغ: ${formData.total}
-👤 الاسم: ${formData.name}
-📧 البريد الإلكتروني: ${formData.email}
-
-📞 سنتواصل معك خلال 24 ساعة لتأكيد الطلب وتفاصيل الشحن.
-🚚 سيتم شحن طلبك عبر الطريقة المختارة
-📦 تغليف احترافي يحافظ على البطاقات في أفضل حالة
-
-شكراً لثقتك في متجر بطاقات البوكيمون الملكي! 🌟`);
-                closeModal();
+                // Show success message
+                submitBtn.innerHTML = '✅ تم إرسال الطلب بنجاح!';
+                
+                setTimeout(() => {
+                    closeModal();
+                }, 2000);
             }, 1000);
         });
 
@@ -1506,12 +2510,16 @@
 
         // Initialize animations and effects
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize translations and prices
+            updateTranslations();
+            updatePrices();
+            
             // Create neon particles continuously
             createNeonParticles();
             setInterval(createNeonParticle, 2000);
 
             // Add loading animation to cards
-            const cards = document.querySelectorAll('.card-item');
+            const cards = document.querySelectorAll('.card-item, .game-item');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(30px)';
