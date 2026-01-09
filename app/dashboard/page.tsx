@@ -1,345 +1,635 @@
-import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
-import { Briefcase, FileText, DollarSign, Users, CheckCircle, TrendingUp, Link2, Target } from "lucide-react"
-import { handleSignOut } from "@/lib/auth" // Import handleSignOut function
+"use client";
 
-export default async function DashboardPage() {
-  const supabase = await createClient()
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
+import {
+  Briefcase,
+  DollarSign,
+  Users,
+  TrendingUp,
+  FileText,
+  MessageSquare,
+  Bell,
+  Clock,
+  CheckCircle,
+} from "lucide-react";
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  const { data: profile, error: profileError } = await supabase.from("profiles").select("*").eq("id", user.id).single()
-
-  // If profile doesn't exist, create it from user metadata
-  if (profileError || !profile) {
-    const { data: newProfile } = await supabase
-      .from("profiles")
-      .insert({
-        id: user.id,
-        full_name: user.email?.split("@")[0] || "مستخدم جديد",
-        role: "freelancer",
-      })
-      .select()
-      .single()
-
-    if (newProfile) {
-      redirect("/dashboard")
-    } else {
-      // If still can't create, redirect to signup
-      redirect("/auth/signup")
-    }
-  }
-
-  const stats = {
+export default function DashboardPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [stats, setStats] = useState({
+    totalProjects: 0,
     activeProjects: 0,
-    totalBids: 0,
     totalEarnings: 0,
-    completedProjects: 0,
-    receivedBids: 0,
-    totalSpent: 0,
-    referrals: 0,
-    commissionEarnings: 0,
+    pendingBids: 0,
+  });
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const supabase = createClient();
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/auth/login");
+        return;
+      }
+
+      // Get user profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      setUserProfile(profile);
+
+      // Load statistics based on user role
+      if (profile.role === "client") {
+        const { data: projects } = await supabase
+          .from("projects")
+          .select("*")
+          .eq("client_id", user.id);
+
+        const { data: bids } = await supabase
+          .from("bids")
+          .select("*")
+          .in("project_id", projects?.map((p) => p.id) || []);
+
+        setStats({
+          totalProjects: projects?.length || 0,
+          activeProjects:
+            projects?.filter((p) => p.status === "in_progress").length || 0,
+          totalEarnings: 0, // Clients don't earn
+          pendingBids: bids?.filter((b) => b.status === "pending").length || 0,
+        });
+      } else if (profile.role === "freelancer") {
+        const { data: bids } = await supabase
+          .from("bids")
+          .select("*")
+          .eq("freelancer_id", user.id);
+
+        const { data: transactions } = await supabase
+          .from("transactions")
+          .select("amount")
+          .eq("user_id", user.id)
+          .eq("status", "completed")
+          .eq("type", "commission");
+
+        const totalEarnings =
+          transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+
+        setStats({
+          totalProjects:
+            bids?.filter((b) => b.status === "accepted").length || 0,
+          activeProjects:
+            bids?.filter((b) => b.status === "accepted").length || 0,
+          totalEarnings,
+          pendingBids: bids?.filter((b) => b.status === "pending").length || 0,
+        });
+      } else if (profile.role === "affiliate") {
+        const { data: affiliate } = await supabase
+          .from("affiliates")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
+        setStats({
+          totalProjects: affiliate?.total_referrals || 0,
+          activeProjects: 0,
+          totalEarnings: affiliate?.total_earnings || 0,
+          pendingBids: 0,
+        });
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4">جاري تحميل لوحة التحكم...</p>
+        </div>
+      </div>
+    );
   }
 
-  if (profile?.role === "freelancer") {
-    // إحصائيات المستقل
-    const { count: bidsCount } = await supabase
-      .from("bids")
-      .select("*", { count: "exact", head: true })
-      .eq("freelancer_id", user.id)
-
-    const { count: activeProjectsCount } = await supabase
-      .from("bids")
-      .select("*", { count: "exact", head: true })
-      .eq("freelancer_id", user.id)
-      .eq("status", "accepted")
-
-    const { data: transactions } = await supabase
-      .from("transactions")
-      .select("amount")
-      .eq("user_id", user.id)
-      .eq("type", "earning")
-
-    stats.totalBids = bidsCount || 0
-    stats.activeProjects = activeProjectsCount || 0
-    stats.totalEarnings = transactions?.reduce((sum, t) => sum + t.amount, 0) || 0
-  } else if (profile?.role === "business_owner") {
-    // إحصائيات صاحب العمل
-    const { count: projectsCount } = await supabase
-      .from("projects")
-      .select("*", { count: "exact", head: true })
-      .eq("client_id", user.id)
-
-    const { count: completedCount } = await supabase
-      .from("projects")
-      .select("*", { count: "exact", head: true })
-      .eq("client_id", user.id)
-      .eq("status", "completed")
-
-    const { data: projectIds } = await supabase.from("projects").select("id").eq("client_id", user.id)
-
-    if (projectIds && projectIds.length > 0) {
-      const { count: bidsCount } = await supabase
-        .from("bids")
-        .select("*", { count: "exact", head: true })
-        .in(
-          "project_id",
-          projectIds.map((p) => p.id),
-        )
-
-      stats.receivedBids = bidsCount || 0
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case "client":
+        return <Briefcase className="h-6 w-6 text-blue-600" />;
+      case "freelancer":
+        return <Users className="h-6 w-6 text-green-600" />;
+      case "affiliate":
+        return <DollarSign className="h-6 w-6 text-purple-600" />;
+      default:
+        return <Users className="h-6 w-6 text-gray-600" />;
     }
+  };
 
-    const { data: transactions } = await supabase
-      .from("transactions")
-      .select("amount")
-      .eq("user_id", user.id)
-      .eq("type", "payment")
-
-    stats.activeProjects = projectsCount || 0
-    stats.completedProjects = completedCount || 0
-    stats.totalSpent = transactions?.reduce((sum, t) => sum + t.amount, 0) || 0
-  } else if (profile?.role === "affiliate") {
-    // إحصائيات المسوق
-    const { data: affiliate } = await supabase.from("affiliates").select("*").eq("user_id", user.id).single()
-
-    if (affiliate) {
-      const { count: referralsCount } = await supabase
-        .from("referrals")
-        .select("*", { count: "exact", head: true })
-        .eq("affiliate_id", affiliate.id)
-
-      const { data: transactions } = await supabase
-        .from("transactions")
-        .select("amount")
-        .eq("user_id", user.id)
-        .eq("type", "commission")
-
-      stats.referrals = referralsCount || 0
-      stats.commissionEarnings = transactions?.reduce((sum, t) => sum + t.amount, 0) || 0
+  const getRoleName = (role: string) => {
+    switch (role) {
+      case "client":
+        return "صاحب عمل";
+      case "freelancer":
+        return "مستقل";
+      case "affiliate":
+        return "مسوق عمولة";
+      default:
+        return "مستخدم";
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-xl">W</span>
-            </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-slate-900">WorkHub</h1>
-              <p className="text-xs text-slate-500">لوحة التحكم</p>
+              <h1 className="text-3xl font-bold text-gray-900">لوحة التحكم</h1>
+              <p className="text-gray-600 mt-2">
+                مرحباً بك، {userProfile?.full_name}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg">
+                {getRoleIcon(userProfile?.role)}
+                <span className="font-medium">
+                  {getRoleName(userProfile?.role)}
+                </span>
+              </div>
+              <Link href="/profile">
+                <Button variant="outline">الملف الشخصي</Button>
+              </Link>
             </div>
           </div>
-          <form action={handleSignOut}>
-            <Button variant="outline" type="submit" size="sm">
-              تسجيل الخروج
-            </Button>
-          </form>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <Card className="border-none shadow-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
-            <CardHeader>
-              <CardTitle className="text-3xl">مرحباً، {profile?.full_name} 👋</CardTitle>
-              <p className="text-blue-100 mt-2">
-                {profile?.role === "freelancer" && "ابحث عن مشاريع جديدة وابدأ العمل"}
-                {profile?.role === "business_owner" && "أنشر مشاريعك واحصل على أفضل العروض"}
-                {profile?.role === "affiliate" && "شارك رابطك واحصل على عمولة 10%"}
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-3">
-                {profile?.role === "business_owner" && (
-                  <>
-                    <Link href="/projects/new">
-                      <Button size="lg" variant="secondary" className="bg-white text-blue-700 hover:bg-blue-50">
-                        <FileText className="mr-2 h-5 w-5" />
-                        نشر مشروع جديد
-                      </Button>
-                    </Link>
-                    <Link href="/projects">
-                      <Button size="lg" variant="ghost" className="text-white border-white/30 hover:bg-white/10">
-                        عرض مشاريعي
-                      </Button>
-                    </Link>
-                  </>
-                )}
-                {profile?.role === "freelancer" && (
-                  <>
-                    <Link href="/projects">
-                      <Button size="lg" variant="secondary" className="bg-white text-blue-700 hover:bg-blue-50">
-                        <Briefcase className="mr-2 h-5 w-5" />
-                        تصفح المشاريع
-                      </Button>
-                    </Link>
-                    <Link href="/transactions">
-                      <Button size="lg" variant="ghost" className="text-white border-white/30 hover:bg-white/10">
-                        الأرباح
-                      </Button>
-                    </Link>
-                  </>
-                )}
-                {profile?.role === "affiliate" && (
-                  <>
-                    <Link href="/affiliate/dashboard">
-                      <Button size="lg" variant="secondary" className="bg-white text-blue-700 hover:bg-blue-50">
-                        <Link2 className="mr-2 h-5 w-5" />
-                        لوحة الأفلييت
-                      </Button>
-                    </Link>
-                    <Link href="/transactions">
-                      <Button size="lg" variant="ghost" className="text-white border-white/30 hover:bg-white/10">
-                        أرباح العمولة
-                      </Button>
-                    </Link>
-                  </>
-                )}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">المشاريع الكلية</p>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {stats.totalProjects}
+                  </h3>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Briefcase className="h-6 w-6 text-blue-600" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {profile?.role === "freelancer" && (
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">العروض المقدمة</CardTitle>
-                  <FileText className="h-5 w-5 text-blue-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">{stats.totalBids}</div>
-                  <p className="text-xs text-slate-500 mt-1">إجمالي العروض</p>
-                </CardContent>
-              </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">المشاريع النشطة</p>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {stats.activeProjects}
+                  </h3>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">المشاريع النشطة</CardTitle>
-                  <Briefcase className="h-5 w-5 text-green-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">{stats.activeProjects}</div>
-                  <p className="text-xs text-slate-500 mt-1">مشاريع قيد التنفيذ</p>
-                </CardContent>
-              </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">إجمالي الأرباح</p>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    ${stats.totalEarnings}
+                  </h3>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">الأرباح الكلية</CardTitle>
-                  <DollarSign className="h-5 w-5 text-purple-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">${stats.totalEarnings.toFixed(2)}</div>
-                  <p className="text-xs text-slate-500 mt-1">إجمالي الأرباح</p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {profile?.role === "business_owner" && (
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">مشاريعي النشطة</CardTitle>
-                  <Briefcase className="h-5 w-5 text-blue-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">{stats.activeProjects}</div>
-                  <p className="text-xs text-slate-500 mt-1">مشروع منشور</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">العروض المستلمة</CardTitle>
-                  <Users className="h-5 w-5 text-green-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">{stats.receivedBids}</div>
-                  <p className="text-xs text-slate-500 mt-1">عرض من مستقلين</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">المشاريع المكتملة</CardTitle>
-                  <CheckCircle className="h-5 w-5 text-purple-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">{stats.completedProjects}</div>
-                  <p className="text-xs text-slate-500 mt-1">مشروع منجز</p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {profile?.role === "affiliate" && (
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">عدد الإحالات</CardTitle>
-                  <Users className="h-5 w-5 text-blue-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">{stats.referrals}</div>
-                  <p className="text-xs text-slate-500 mt-1">إحالة ناجحة</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">أرباح العمولة</CardTitle>
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">${stats.commissionEarnings.toFixed(2)}</div>
-                  <p className="text-xs text-slate-500 mt-1">عمولة 10%</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">معدل التحويل</CardTitle>
-                  <Target className="h-5 w-5 text-purple-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">{stats.referrals > 0 ? "100%" : "0%"}</div>
-                  <p className="text-xs text-slate-500 mt-1">نسبة النجاح</p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <Card className="border-none shadow-md">
-            <CardHeader>
-              <CardTitle>النشاط الأخير</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-slate-500">
-                <p>لا يوجد نشاط حديث</p>
-                <p className="text-sm mt-2">
-                  {profile?.role === "freelancer" && "ابدأ بتقديم عروضك على المشاريع"}
-                  {profile?.role === "business_owner" && "انشر مشروعك الأول لتبدأ"}
-                  {profile?.role === "affiliate" && "شارك رابط الإحالة الخاص بك"}
-                </p>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">العروض المعلقة</p>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {stats.pendingBids}
+                  </h3>
+                </div>
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-orange-600" />
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
-      </main>
+
+        {/* Main Content */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full md:w-auto grid-cols-3">
+            <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
+            <TabsTrigger value="quick-actions">إجراءات سريعة</TabsTrigger>
+            <TabsTrigger value="recent">النشاط الأخير</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            {/* Role Specific Dashboard */}
+            {userProfile?.role === "client" && (
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Briefcase className="h-5 w-5" />
+                      مشاريعي
+                    </CardTitle>
+                    <CardDescription>
+                      إدارة المشاريع التي نشرتها
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Link href="/projects/new">
+                        <Button className="w-full">نشر مشروع جديد</Button>
+                      </Link>
+                      <Link href="/my-projects">
+                        <Button variant="outline" className="w-full">
+                          عرض جميع المشاريع
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5" />
+                      العروض الواردة
+                    </CardTitle>
+                    <CardDescription>
+                      عروض المستقلين على مشاريعك
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Link href="/my-bids">
+                        <Button className="w-full">عرض جميع العروض</Button>
+                      </Link>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-500">
+                          لديك {stats.pendingBids} عرض معلق
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {userProfile?.role === "freelancer" && (
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      المشاريع المتاحة
+                    </CardTitle>
+                    <CardDescription>
+                      ابحث عن مشاريع تناسب مهاراتك
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Link href="/projects">
+                        <Button className="w-full">تصفح المشاريع</Button>
+                      </Link>
+                      <Link href="/my-bids">
+                        <Button variant="outline" className="w-full">
+                          عروضي المقدمة
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <DollarSign className="h-5 w-5" />
+                      أرباحي
+                    </CardTitle>
+                    <CardDescription>
+                      تتبع أرباحك من المشاريع المكتملة
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center space-y-4">
+                      <div className="text-3xl font-bold text-green-600">
+                        ${stats.totalEarnings}
+                      </div>
+                      <p className="text-sm text-gray-500">إجمالي الأرباح</p>
+                      <Link href="/transactions">
+                        <Button variant="outline" className="w-full">
+                          عرض المعاملات
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {userProfile?.role === "affiliate" && (
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      برنامج المسوقين
+                    </CardTitle>
+                    <CardDescription>إدارة كود الإحالة وأرباحك</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Link href="/affiliate">
+                        <Button className="w-full">لوحة المسوقين</Button>
+                      </Link>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-500">
+                          لديك {stats.totalProjects} إحالة
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      أرباح الإحالة
+                    </CardTitle>
+                    <CardDescription>
+                      تحصل على 10% من كل مشروع عبر رابطك
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center space-y-4">
+                      <div className="text-3xl font-bold text-purple-600">
+                        ${stats.totalEarnings}
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        إجمالي أرباح الإحالة
+                      </p>
+                      <Link href="/transactions">
+                        <Button variant="outline" className="w-full">
+                          سحب الأرباح
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="quick-actions" className="space-y-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {userProfile?.role === "client" && (
+                <>
+                  <Link href="/projects/new">
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <FileText className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <h3 className="font-semibold">نشر مشروع جديد</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          ابدأ مشروعك بحد أدنى 300$
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                  <Link href="/my-bids">
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <CheckCircle className="h-6 w-6 text-green-600" />
+                        </div>
+                        <h3 className="font-semibold">مراجعة العروض</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          قبول أو رفض عروض المستقلين
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                  <Link href="/profile">
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Users className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <h3 className="font-semibold">تعديل الملف الشخصي</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          حدث معلومات التواصل الخاصة بك
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </>
+              )}
+
+              {userProfile?.role === "freelancer" && (
+                <>
+                  <Link href="/projects">
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Briefcase className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <h3 className="font-semibold">تصفح المشاريع</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          ابحث عن مشاريع تناسب مهاراتك
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                  <Link href="/my-bids">
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <FileText className="h-6 w-6 text-green-600" />
+                        </div>
+                        <h3 className="font-semibold">عروضي</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          عرض وتعديل العروض المقدمة
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                  <Link href="/transactions">
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <DollarSign className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <h3 className="font-semibold">أرباحي</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          تتبع ونسحب أرباحك (20% عمولة)
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </>
+              )}
+
+              {userProfile?.role === "affiliate" && (
+                <>
+                  <Link href="/affiliate">
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <DollarSign className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <h3 className="font-semibold">كود الإحالة</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          شارك رابطك واحصل على 10% عمولة
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                  <Link href="/transactions">
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <TrendingUp className="h-6 w-6 text-green-600" />
+                        </div>
+                        <h3 className="font-semibold">سحب الأرباح</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          انسحب أرباح الإحالة الخاصة بك
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                  <Link href="/profile">
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Users className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <h3 className="font-semibold">الملف الشخصي</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          حدث معلوماتك الشخصية
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="recent">
+            <Card>
+              <CardHeader>
+                <CardTitle>النشاط الأخير</CardTitle>
+                <CardDescription>آخر التحديثات في حسابك</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 border rounded-lg">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Bell className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">مرحباً بك في المنصة</p>
+                      <p className="text-sm text-gray-500">
+                        تم إنشاء حسابك بنجاح
+                      </p>
+                    </div>
+                    <span className="text-sm text-gray-500">الآن</span>
+                  </div>
+
+                  {userProfile?.role === "freelancer" && (
+                    <div className="flex items-center gap-3 p-3 border rounded-lg">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <DollarSign className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">يمكنك البدء بالربح</p>
+                        <p className="text-sm text-gray-500">
+                          احصل على 20% عمولة من كل مشروع
+                        </p>
+                      </div>
+                      <span className="text-sm text-gray-500">منذ قليل</span>
+                    </div>
+                  )}
+
+                  {userProfile?.role === "affiliate" && (
+                    <div className="flex items-center gap-3 p-3 border rounded-lg">
+                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                        <TrendingUp className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">ابدأ بالتسويق</p>
+                        <p className="text-sm text-gray-500">
+                          احصل على 10% عمولة على كل إحالة
+                        </p>
+                      </div>
+                      <span className="text-sm text-gray-500">منذ قليل</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
-  )
+  );
 }
