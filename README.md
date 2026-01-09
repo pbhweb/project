@@ -1,18 +1,120 @@
-# project # My Home Business Order Status and Feedback Page
+# WorkHub - منصة العمل الحر الاحترافية
 
-## Introduction
-Welcome to the Order Status and Feedback page for my home business. This page is designed to provide my clients with easy access to review the status of their orders and leave feedback. Additionally, it allows clients of my friends to view their reputation through positive or negative feedback and ratings. 
+منصة شاملة تربط بين أصحاب الأعمال والمستقلين مع نظام عمولة للمسوقين.
 
-## Order Status
-The Order Status section provides my clients with real-time updates on the progress of their orders. By logging in with their credentials, clients can view the current status of their orders, including order processing, shipping, and delivery updates. This helps to ensure transparency and keep my clients informed about each step of the order fulfillment process.
+## المميزات الرئيسية
 
-## Feedback and Reputation
-The Feedback and Reputation section plays a crucial role in maintaining a strong and reliable network of home businesses. Clients of my friends can browse and review their reputation and feedback left by previous customers. This allows potential clients to make informed decisions based on the experiences of others. Positive or negative ratings and comments contribute to promoting trust and building a strong business community.
+### لأصحاب الأعمال
+- ✅ نشر المشاريع بميزانية تبدأ من 300 دولار
+- ✅ تحديد ساعات العمل المتوقعة والموعد النهائي
+- ✅ استقبال العروض من المستقلين
+- ✅ قبول العروض وإدارة المشاريع
+- ✅ تقييم المستقلين بعد إتمام المشروع
+- ✅ استخدام كود إحالة للحصول على خصومات
 
-## Privacy and Security
-Protecting the privacy and security of my clients and their feedback is of utmost importance. All personal and sensitive information is handled with the utmost confidentiality and stored securely. User authentication and access controls are implemented to ensure that only authorized individuals can view the status of their orders and submit feedback.
+### للمستقلين
+- ✅ تصفح المشاريع المتاحة
+- ✅ تقديم العروض (حد أدنى 300 دولار)
+- ✅ تحديد مدة التسليم بالأيام
+- ✅ متابعة حالة العروض (قيد المراجعة / مقبول / مرفوض)
+- ✅ تنفيذ المشاريع المقبولة
+- ✅ الحصول على تقييمات من العملاء
 
-## Conclusion
-The Order Status and Feedback page provides a convenient platform for my clients to stay updated on their orders and enables potential clients to make informed decisions about working with my friends' businesses. By prioritizing transparency, open communication, and a secure environment, this page aims to enhance trust, reputation, and customer satisfaction.
+### نظام الأفلييت (التسويق بالعمولة)
+- ✅ الحصول على كود إحالة فريد
+- ✅ مشاركة رابط الإحالة مع أصحاب الأعمال
+- ✅ الحصول على 10% عمولة من كل مشروع
+- ✅ تتبع الإحالات والأرباح
+- ✅ حساب العمولة تلقائياً عند إتمام المشروع
 
-Thank you for being a valued client and for contributing to the reputation and success of my home business and my friends' businesses. Please reach out if you have any questions, concerns, or suggestions for improvement.
+## الأمان والحماية
+
+### منع معلومات التواصل
+- ❌ ممنوع وضع أرقام الهواتف
+- ❌ ممنوع وضع البريد الإلكتروني
+- ❌ ممنوع وضع حسابات وسائل التواصل
+- ✅ النظام يرفض تلقائياً أي محتوى يحتوي على معلومات تواصل
+
+### Row Level Security (RLS)
+- ✅ كل مستخدم يرى بياناته فقط
+- ✅ أصحاب المشاريع يرون مشاريعهم والعروض عليها
+- ✅ المستقلون يرون عروضهم فقط
+- ✅ المسوقون يرون إحالاتهم وأرباحهم
+
+## التقنيات المستخدمة
+
+- **Next.js 16** - إطار العمل الرئيسي
+- **React 19** - واجهة المستخدم
+- **Supabase** - قاعدة البيانات والمصادقة
+- **Tailwind CSS v4** - التصميم
+- **TypeScript** - لغة البرمجة
+- **shadcn/ui** - مكونات الواجهة
+
+## البدء
+
+### المتطلبات
+- Node.js 18+
+- حساب Supabase
+
+### التثبيت
+
+1. قم بتشغيل سكريبتات قاعدة البيانات بالترتيب:
+   - `001_create_database_schema.sql`
+   - `002_seed_sample_data.sql`
+   - `003_create_helper_functions.sql`
+   - `004_add_missing_features.sql`
+   - `005_fix_rpc_functions.sql`
+
+2. تأكد من إعداد متغيرات البيئة في Vercel
+
+3. انشر المشروع على Vercel
+
+## طريقة الاستخدام
+
+### لأصحاب الأعمال
+1. سجل حساب جديد واختر "صاحب عمل"
+2. اذهب إلى "المشاريع" → "نشر مشروع جديد"
+3. املأ تفاصيل المشروع (العنوان، الوصف، الميزانية، الموعد النهائي)
+4. يمكنك إدخال كود إحالة إن وجد
+5. انتظر العروض من المستقلين
+6. اقبل العرض المناسب
+7. بعد إتمام العمل، قم بتقييم المستقل
+
+### للمستقلين
+1. سجل حساب جديد واختر "مستقل"
+2. تصفح المشاريع المتاحة
+3. اختر مشروعاً واقرأ تفاصيله
+4. قدم عرضك (المبلغ، مدة التسليم، تفاصيل العرض)
+5. انتظر رد صاحب المشروع
+6. إذا تم قبول عرضك، ابدأ العمل
+7. سلم العمل في الموعد المحدد
+
+### للمسوقين
+1. سجل حساب جديد واختر "مسوق بالعمولة"
+2. اذهب إلى "لوحة تحكم الأفلييت"
+3. أنشئ حساب أفلييت للحصول على كودك
+4. انسخ رابط الإحالة أو الكود
+5. شارك الرابط مع أصحاب الأعمال المحتملين
+6. عندما يسجلون وينشرون مشروعاً، تحصل على 10%
+7. تابع إحالاتك وأرباحك من اللوحة
+
+## كيف يعمل نظام العمولة؟
+
+1. المسوق يحصل على كود إحالة فريد (مثال: ABC123XY)
+2. المسوق يشارك الرابط: `workhub.space/auth/signup?ref=ABC123XY`
+3. صاحب العمل يسجل من خلال الرابط
+4. صاحب العمل ينشر مشروعاً (مثلاً بميزانية 500 دولار)
+5. النظام يربط المشروع بكود الإحالة تلقائياً
+6. عندما يكتمل المشروع، المسوق يحصل على 50 دولار (10%)
+7. العمولة تظهر في حساب المسوق فوراً
+
+## الدعم
+
+إذا واجهت أي مشكلة:
+1. تحقق من أن جميع سكريبتات قاعدة البيانات تم تشغيلها
+2. تأكد من إعداد متغيرات البيئة بشكل صحيح
+3. راجع logs المشروع في Vercel
+
+## الترخيص
+
+جميع الحقوق محفوظة © 2026
