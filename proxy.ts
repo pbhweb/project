@@ -9,12 +9,10 @@ export async function middleware(req: NextRequest) {
     const supabase = createMiddlewareClient({ req, res })
     const { data: { session } } = await supabase.auth.getSession()
 
-    // حماية المسارات التي تحتاج مصادقة
     if (req.nextUrl.pathname.startsWith('/dashboard') && !session) {
       return NextResponse.redirect(new URL('/auth/login', req.url))
     }
 
-    // إذا كان المستخدم مسجلاً بالفعل، إعادة توجيهه من صفحات المصادقة
     if (req.nextUrl.pathname.startsWith('/auth') && session) {
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
