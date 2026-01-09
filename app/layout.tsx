@@ -1,46 +1,38 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import "./globals.css"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import Navbar from "@/components/navbar";
+import { Toaster } from "@/components/ui/sonner";
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "WorkHub - منصة العمل الحر الاحترافية",
-  description: "منصة احترافية تربط بين أصحاب الأعمال والمستقلين مع نظام أفلييت بعمولة 10%. العروض تبدأ من 300 دولار.",
-  generator: "v0.app",
-  icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
-  },
-}
+  title: "منصة العمل الحر - ربط أصحاب العمل مع المستقلين",
+  description: "منصة متكاملة للعمل الحر مع نظام إحالة وعمولات",
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={`font-sans antialiased`}>
-        {children}
-        <Analytics />
+      <body className={inter.className}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+            {children}
+          </main>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
