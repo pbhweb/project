@@ -2,11 +2,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import AuthButtons from "./auth-buttons"
 
-// ❌ غير من (إذا كان default):
-export default function Navbar() { ... }
+// ❌ غير من:
+// export function Navbar() { ... }
 
 // ✅ إلى:
-export function Navbar() {
+export default function Navbar() {
   return (
     <header className="border-b bg-white dark:bg-gray-900 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
