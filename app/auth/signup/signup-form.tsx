@@ -46,7 +46,7 @@ export default function SignupForm() {
         sessionStorage.setItem("pending_referral_code", referralCode.trim().toUpperCase())
       }
 
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -58,10 +58,13 @@ export default function SignupForm() {
         },
       })
 
-      if (error) throw error
+      if (signUpError) throw signUpError
+
+      console.log("[v0] User created:", signUpData.user?.id)
 
       setSuccess(true)
     } catch (err: any) {
+      console.error("[v0] Signup error:", err)
       setError(err.message || "حدث خطأ أثناء التسجيل")
     } finally {
       setLoading(false)
