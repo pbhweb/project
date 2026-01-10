@@ -1,22 +1,18 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import {
   DollarSign,
   Clock,
@@ -28,47 +24,43 @@ import {
   Briefcase,
   Download,
   Eye,
-} from "lucide-react";
-import Link from "next/link";
+} from "lucide-react"
+import Link from "next/link"
 
 export default function ProjectDetailsPage() {
-  const params = useParams();
-  const router = useRouter();
-  const projectId = params.id as string;
+  const params = useParams()
+  const router = useRouter()
+  const projectId = params.id as string
 
-  const [project, setProject] = useState<any>(null);
-  const [client, setClient] = useState<any>(null);
-  const [bids, setBids] = useState<any[]>([]);
-  const [files, setFiles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [showBidForm, setShowBidForm] = useState(false);
-  const [bidAmount, setBidAmount] = useState("");
-  const [bidDays, setBidDays] = useState("");
-  const [bidProposal, setBidProposal] = useState("");
-  const [submittingBid, setSubmittingBid] = useState(false);
+  const [project, setProject] = useState<any>(null)
+  const [client, setClient] = useState<any>(null)
+  const [bids, setBids] = useState<any[]>([])
+  const [files, setFiles] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
+  const [showBidForm, setShowBidForm] = useState(false)
+  const [bidAmount, setBidAmount] = useState("")
+  const [bidDays, setBidDays] = useState("")
+  const [bidProposal, setBidProposal] = useState("")
+  const [submittingBid, setSubmittingBid] = useState(false)
 
   useEffect(() => {
-    loadProjectData();
-  }, [projectId]);
+    loadProjectData()
+  }, [projectId])
 
   const loadProjectData = async () => {
     try {
-      const supabase = createClient();
+      const supabase = createClient()
 
       // Get current user
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getUser()
 
       if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-        setUserProfile(profile);
+        const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+        setUserProfile(profile)
       }
 
       // Load project
@@ -78,15 +70,15 @@ export default function ProjectDetailsPage() {
           `
           *,
           profiles:client_id (*)
-        `
+        `,
         )
         .eq("id", projectId)
-        .single();
+        .single()
 
-      if (projectError) throw projectError;
+      if (projectError) throw projectError
 
-      setProject(projectData);
-      setClient(projectData.profiles);
+      setProject(projectData)
+      setClient(projectData.profiles)
 
       // Load bids
       const { data: bidsData } = await supabase
@@ -96,98 +88,97 @@ export default function ProjectDetailsPage() {
           *,
           profiles:freelancer_id (*),
           reviews (rating)
-        `
+        `,
         )
         .eq("project_id", projectId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
 
-      setBids(bidsData || []);
+      setBids(bidsData || [])
 
       // Load files
       const { data: filesData } = await supabase
         .from("project_files")
         .select("*")
         .eq("project_id", projectId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
 
-      setFiles(filesData || []);
+      setFiles(filesData || [])
     } catch (err: any) {
-      setError(err.message || "حدث خطأ أثناء تحميل بيانات المشروع");
+      setError(err.message || "حدث خطأ أثناء تحميل بيانات المشروع")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmitBid = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmittingBid(true);
-    setError(null);
+    e.preventDefault()
+    setSubmittingBid(true)
+    setError(null)
 
     try {
-      const supabase = createClient();
+      const supabase = createClient()
 
-      // Get current user
       const {
         data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("يجب تسجيل الدخول");
+      } = await supabase.auth.getUser()
+      if (!user) throw new Error("يجب تسجيل الدخول")
 
-      // Validate user is freelancer
       if (userProfile?.role !== "freelancer") {
-        throw new Error("يجب أن تكون مستقل لتقديم عروض");
+        throw new Error("يجب أن تكون مستقل لتقديم عروض")
       }
 
-      // Validate bid amount
-      const amount = parseFloat(bidAmount);
+      const amount = Number.parseFloat(bidAmount)
       if (amount < 300) {
-        throw new Error("قيمة العرض يجب أن تكون 300$ على الأقل");
+        throw new Error("قيمة العرض يجب أن تكون 300$ على الأقل")
       }
       if (amount < project.budget_min) {
-        throw new Error("قيمة العرض أقل من الميزانية الدنيا للمشروع");
+        throw new Error("قيمة العرض أقل من الميزانية الدنيا للمشروع")
       }
 
-      // Check if proposal contains contact info
       const containsContact =
-        bidProposal.match(/\d{10,}/) || // Phone numbers
-        bidProposal.match(/@[A-Za-z0-9._%+-]+\.[A-Za-z]{2,}/) || // Emails
-        bidProposal.match(/(whatsapp|telegram|signal|viber)/i); // Messaging apps
+        bidProposal.match(/\d{10,}/) ||
+        bidProposal.match(/@[A-Za-z0-9._%+-]+\.[A-Za-z]{2,}/) ||
+        bidProposal.match(/(whatsapp|telegram|signal|viber)/i)
 
       if (containsContact) {
-        throw new Error("لا يمكن إضافة معلومات اتصال في وصف العرض");
+        throw new Error("لا يمكن إضافة معلومات اتصال في وصف العرض")
       }
 
-      // Submit bid
-      const { error: bidError } = await supabase.rpc("create_bid", {
+      const { data, error: bidError } = await supabase.rpc("create_bid", {
         p_project_id: projectId,
         p_freelancer_id: user.id,
         p_amount: amount,
-        p_delivery_days: parseInt(bidDays),
+        p_delivery_days: Number.parseInt(bidDays),
         p_proposal: bidProposal,
-      });
+      })
 
-      if (bidError) throw bidError;
+      if (bidError) {
+        console.error("[v0] Bid error:", bidError)
+        throw new Error(bidError.message || "فشل تقديم العرض")
+      }
 
-      // Refresh data
-      await loadProjectData();
-      setShowBidForm(false);
-      setBidAmount("");
-      setBidDays("");
-      setBidProposal("");
+      console.log("[v0] Bid created successfully:", data)
+
+      await loadProjectData()
+      setShowBidForm(false)
+      setBidAmount("")
+      setBidDays("")
+      setBidProposal("")
+
+      alert("✓ تم تقديم عرضك بنجاح!")
     } catch (err: any) {
-      setError(err.message);
+      console.error("[v0] Submit bid error:", err)
+      setError(err.message || "حدث خطأ أثناء تقديم العرض")
     } finally {
-      setSubmittingBid(false);
+      setSubmittingBid(false)
     }
-  };
+  }
 
   const calculateAverageRating = (reviews: any[]) => {
-    if (!reviews || reviews.length === 0) return 0;
-    const sum = reviews.reduce(
-      (total, review) => total + (review.rating || 0),
-      0
-    );
-    return sum / reviews.length;
-  };
+    if (!reviews || reviews.length === 0) return 0
+    const sum = reviews.reduce((total, review) => total + (review.rating || 0), 0)
+    return sum / reviews.length
+  }
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -195,9 +186,9 @@ export default function ProjectDetailsPage() {
       in_progress: "bg-blue-100 text-blue-800",
       completed: "bg-gray-100 text-gray-800",
       cancelled: "bg-red-100 text-red-800",
-    };
-    return colors[status] || "bg-gray-100 text-gray-800";
-  };
+    }
+    return colors[status] || "bg-gray-100 text-gray-800"
+  }
 
   if (loading) {
     return (
@@ -207,7 +198,7 @@ export default function ProjectDetailsPage() {
           <p className="mt-4">جاري تحميل بيانات المشروع...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (!project) {
@@ -220,13 +211,13 @@ export default function ProjectDetailsPage() {
           <Button>عودة إلى قائمة المشاريع</Button>
         </Link>
       </div>
-    );
+    )
   }
 
   const canBid =
     project.status === "open" &&
     userProfile?.role === "freelancer" &&
-    !bids.some((bid) => bid.freelancer_id === userProfile?.id);
+    !bids.some((bid) => bid.freelancer_id === userProfile?.id)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -250,12 +241,8 @@ export default function ProjectDetailsPage() {
                 {project.category === "programming" && "برمجة"}
               </Badge>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {project.title}
-            </h1>
-            <p className="text-gray-600">
-              نشر {new Date(project.created_at).toLocaleDateString("ar-SA")}
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.title}</h1>
+            <p className="text-gray-600">نشر {new Date(project.created_at).toLocaleDateString("ar-SA")}</p>
           </div>
 
           {project.client_id === userProfile?.id ? (
@@ -298,9 +285,7 @@ export default function ProjectDetailsPage() {
             <div>
               <p className="text-sm text-gray-500">الوقت المقدر</p>
               <p className="font-bold text-lg">
-                {project.estimated_hours
-                  ? `${project.estimated_hours} ساعة`
-                  : "غير محدد"}
+                {project.estimated_hours ? `${project.estimated_hours} ساعة` : "غير محدد"}
               </p>
             </div>
           </div>
@@ -322,9 +307,7 @@ export default function ProjectDetailsPage() {
             <div>
               <p className="text-sm text-gray-500">الموعد النهائي</p>
               <p className="font-bold text-lg">
-                {project.deadline
-                  ? new Date(project.deadline).toLocaleDateString("ar-SA")
-                  : "غير محدد"}
+                {project.deadline ? new Date(project.deadline).toLocaleDateString("ar-SA") : "غير محدد"}
               </p>
             </div>
           </div>
@@ -377,12 +360,8 @@ export default function ProjectDetailsPage() {
                 <Card>
                   <CardContent className="py-8 text-center">
                     <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                      لا توجد عروض حتى الآن
-                    </h3>
-                    <p className="text-gray-500">
-                      كن أول من يقدم عرضاً على هذا المشروع
-                    </p>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">لا توجد عروض حتى الآن</h3>
+                    <p className="text-gray-500">كن أول من يقدم عرضاً على هذا المشروع</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -396,21 +375,14 @@ export default function ProjectDetailsPage() {
                               <User className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
-                              <h4 className="font-bold">
-                                {bid.profiles?.full_name}
-                              </h4>
+                              <h4 className="font-bold">{bid.profiles?.full_name}</h4>
                               <div className="flex items-center gap-2">
                                 <div className="flex items-center">
                                   {[1, 2, 3, 4, 5].map((star) => (
                                     <svg
                                       key={star}
                                       className={`h-4 w-4 ${
-                                        star <=
-                                        Math.round(
-                                          calculateAverageRating(
-                                            bid.reviews || []
-                                          )
-                                        )
+                                        star <= Math.round(calculateAverageRating(bid.reviews || []))
                                           ? "text-yellow-400 fill-yellow-400"
                                           : "text-gray-300"
                                       }`}
@@ -422,47 +394,31 @@ export default function ProjectDetailsPage() {
                                   ))}
                                 </div>
                                 <span className="text-sm text-gray-600">
-                                  {calculateAverageRating(
-                                    bid.reviews || []
-                                  ).toFixed(1)}
+                                  {calculateAverageRating(bid.reviews || []).toFixed(1)}
                                 </span>
                               </div>
                             </div>
                           </div>
 
                           <div className="mb-4">
-                            <p className="text-gray-700 whitespace-pre-line">
-                              {bid.proposal}
-                            </p>
+                            <p className="text-gray-700 whitespace-pre-line">{bid.proposal}</p>
                           </div>
 
                           <div className="flex flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                               <DollarSign className="h-4 w-4 text-green-600" />
-                              <span className="font-bold text-green-600">
-                                ${bid.amount}
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                قيمة العرض
-                              </span>
+                              <span className="font-bold text-green-600">${bid.amount}</span>
+                              <span className="text-sm text-gray-500">قيمة العرض</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Clock className="h-4 w-4 text-blue-600" />
-                              <span className="font-bold">
-                                {bid.delivery_days} يوم
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                مدة التسليم
-                              </span>
+                              <span className="font-bold">{bid.delivery_days} يوم</span>
+                              <span className="text-sm text-gray-500">مدة التسليم</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Briefcase className="h-4 w-4 text-purple-600" />
-                              <span className="font-bold text-purple-600">
-                                ${(bid.amount * 0.2).toFixed(2)}
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                عمولة المستقل (20%)
-                              </span>
+                              <span className="font-bold text-purple-600">${(bid.amount * 0.2).toFixed(2)}</span>
+                              <span className="text-sm text-gray-500">عمولة المستقل (20%)</span>
                             </div>
                           </div>
                         </div>
@@ -470,11 +426,7 @@ export default function ProjectDetailsPage() {
                         <div className="flex flex-col gap-2">
                           <Badge
                             variant={
-                              bid.status === "accepted"
-                                ? "default"
-                                : bid.status === "pending"
-                                ? "outline"
-                                : "secondary"
+                              bid.status === "accepted" ? "default" : bid.status === "pending" ? "outline" : "secondary"
                             }
                           >
                             {bid.status === "pending" && "⏳ معلق"}
@@ -483,15 +435,11 @@ export default function ProjectDetailsPage() {
                             {bid.status === "withdrawn" && "↩️ مسحوب"}
                           </Badge>
 
-                          {project.client_id === userProfile?.id &&
-                            bid.status === "pending" && (
-                              <Button
-                                size="sm"
-                                className="bg-gradient-to-r from-green-600 to-emerald-600"
-                              >
-                                قبول العرض
-                              </Button>
-                            )}
+                          {project.client_id === userProfile?.id && bid.status === "pending" && (
+                            <Button size="sm" className="bg-gradient-to-r from-green-600 to-emerald-600">
+                              قبول العرض
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -505,12 +453,8 @@ export default function ProjectDetailsPage() {
                 <Card>
                   <CardContent className="py-8 text-center">
                     <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                      لا توجد ملفات مرفقة
-                    </h3>
-                    <p className="text-gray-500">
-                      لم يرفع الناشر أي ملفات للمشروع
-                    </p>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">لا توجد ملفات مرفقة</h3>
+                    <p className="text-gray-500">لم يرفع الناشر أي ملفات للمشروع</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -526,9 +470,7 @@ export default function ProjectDetailsPage() {
                             <h4 className="font-medium">{file.file_name}</h4>
                             <p className="text-sm text-gray-500">
                               {(file.file_size / 1024).toFixed(1)} كيلوبايت •{" "}
-                              {new Date(file.created_at).toLocaleDateString(
-                                "ar-SA"
-                              )}
+                              {new Date(file.created_at).toLocaleDateString("ar-SA")}
                             </p>
                           </div>
                         </div>
@@ -578,9 +520,7 @@ export default function ProjectDetailsPage() {
                             </svg>
                           ))}
                         </div>
-                        <span className="text-sm text-gray-600">
-                          4.8 (24 تقييم)
-                        </span>
+                        <span className="text-sm text-gray-600">4.8 (24 تقييم)</span>
                       </div>
                     </div>
                   </div>
@@ -593,11 +533,7 @@ export default function ProjectDetailsPage() {
                       <div>
                         <p className="text-sm text-gray-500">تاريخ الانضمام</p>
                         <p className="font-medium">
-                          {client?.created_at
-                            ? new Date(client.created_at).toLocaleDateString(
-                                "ar-SA"
-                              )
-                            : "غير متوفر"}
+                          {client?.created_at ? new Date(client.created_at).toLocaleDateString("ar-SA") : "غير متوفر"}
                         </p>
                       </div>
                     </div>
@@ -607,9 +543,7 @@ export default function ProjectDetailsPage() {
                         <Briefcase className="h-5 w-5 text-green-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">
-                          المشاريع المنشورة
-                        </p>
+                        <p className="text-sm text-gray-500">المشاريع المنشورة</p>
                         <p className="font-medium">12 مشروع</p>
                       </div>
                     </div>
@@ -617,12 +551,9 @@ export default function ProjectDetailsPage() {
                     {userProfile?.id === project.client_id && (
                       <Alert className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
                         <AlertDescription>
-                          رقم هاتفك:{" "}
-                          <span className="font-bold">{client?.phone}</span>
+                          رقم هاتفك: <span className="font-bold">{client?.phone}</span>
                           <br />
-                          <span className="text-sm">
-                            سيظهر فقط للمستقل المقبول
-                          </span>
+                          <span className="text-sm">سيظهر فقط للمستقل المقبول</span>
                         </AlertDescription>
                       </Alert>
                     )}
@@ -639,9 +570,7 @@ export default function ProjectDetailsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>تقديم عرض جديد</CardTitle>
-                <CardDescription>
-                  املأ النموذج لتقديم عرضك على المشروع
-                </CardDescription>
+                <CardDescription>املأ النموذج لتقديم عرضك على المشروع</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmitBid} className="space-y-4">
@@ -657,9 +586,7 @@ export default function ProjectDetailsPage() {
                       required
                       placeholder="يجب أن تكون 300$ على الأقل"
                     />
-                    <p className="text-xs text-gray-500">
-                      الحد الأدنى: ${project.budget_min}
-                    </p>
+                    <p className="text-xs text-gray-500">الحد الأدنى: ${project.budget_min}</p>
                   </div>
 
                   <div className="space-y-3">
@@ -686,24 +613,17 @@ export default function ProjectDetailsPage() {
                       required
                       placeholder="صف عرضك بالتفصيل وكيف ستقوم بإنجاز المشروع..."
                     />
-                    <p className="text-xs text-gray-500">
-                      ⚠️ لا تضف معلومات اتصال في وصف العرض
-                    </p>
+                    <p className="text-xs text-gray-500">⚠️ لا تضف معلومات اتصال في وصف العرض</p>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
                       <span className="text-sm font-medium">عمولتك:</span>
                       <span className="font-bold text-green-600">
-                        $
-                        {bidAmount
-                          ? (parseFloat(bidAmount) * 0.2).toFixed(2)
-                          : "0.00"}
+                        ${bidAmount ? (Number.parseFloat(bidAmount) * 0.2).toFixed(2) : "0.00"}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 text-center">
-                      تحصل على 20% عمولة من قيمة المشروع
-                    </p>
+                    <p className="text-xs text-gray-500 text-center">تحصل على 20% عمولة من قيمة المشروع</p>
                   </div>
 
                   <div className="flex gap-2">
@@ -714,11 +634,7 @@ export default function ProjectDetailsPage() {
                     >
                       {submittingBid ? "جاري الإرسال..." : "تقديم العرض"}
                     </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setShowBidForm(false)}
-                    >
+                    <Button type="button" variant="outline" onClick={() => setShowBidForm(false)}>
                       إلغاء
                     </Button>
                   </div>
@@ -737,9 +653,7 @@ export default function ProjectDetailsPage() {
                   </div>
                   <div>
                     <p className="font-medium">عمولة 20%</p>
-                    <p className="text-sm text-gray-600">
-                      تحصل على 20% من قيمة المشروع كعمولة
-                    </p>
+                    <p className="text-sm text-gray-600">تحصل على 20% من قيمة المشروع كعمولة</p>
                   </div>
                 </div>
 
@@ -749,9 +663,7 @@ export default function ProjectDetailsPage() {
                   </div>
                   <div>
                     <p className="font-medium">حماية المعلومات</p>
-                    <p className="text-sm text-gray-600">
-                      رقم هاتف الناشر يظهر فقط للعرض المقبول
-                    </p>
+                    <p className="text-sm text-gray-600">رقم هاتف الناشر يظهر فقط للعرض المقبول</p>
                   </div>
                 </div>
 
@@ -761,9 +673,7 @@ export default function ProjectDetailsPage() {
                   </div>
                   <div>
                     <p className="font-medium">تقييمات المستقل</p>
-                    <p className="text-sm text-gray-600">
-                      يمكنك رؤية تقييمات المستقلين السابقة
-                    </p>
+                    <p className="text-sm text-gray-600">يمكنك رؤية تقييمات المستقلين السابقة</p>
                   </div>
                 </div>
 
@@ -779,10 +689,7 @@ export default function ProjectDetailsPage() {
                 {!userProfile && (
                   <Alert>
                     <AlertDescription>
-                      <Link
-                        href="/auth/login"
-                        className="font-medium text-blue-600 hover:underline"
-                      >
+                      <Link href="/auth/login" className="font-medium text-blue-600 hover:underline">
                         سجل الدخول
                       </Link>{" "}
                       لتقديم عرض على المشروع
@@ -805,21 +712,13 @@ export default function ProjectDetailsPage() {
                   <span className="font-medium">${project.budget_min}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">
-                    عمولة المستقل (20%):
-                  </span>
-                  <span className="font-bold text-green-600">
-                    ${(project.budget_min * 0.2).toFixed(2)}
-                  </span>
+                  <span className="text-sm text-gray-600">عمولة المستقل (20%):</span>
+                  <span className="font-bold text-green-600">${(project.budget_min * 0.2).toFixed(2)}</span>
                 </div>
                 {project.referral_code && (
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">
-                      عمولة المسوق (10%):
-                    </span>
-                    <span className="font-bold text-purple-600">
-                      ${(project.budget_min * 0.1).toFixed(2)}
-                    </span>
+                    <span className="text-sm text-gray-600">عمولة المسوق (10%):</span>
+                    <span className="font-bold text-purple-600">${(project.budget_min * 0.1).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="pt-3 border-t">
@@ -841,5 +740,5 @@ export default function ProjectDetailsPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
