@@ -1,8 +1,10 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import AuthButtons from "./auth-buttons"
 
-export default function Navbar() {
+export function Navbar() {
   return (
     <header className="border-b bg-white dark:bg-gray-900 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -24,8 +26,7 @@ export default function Navbar() {
               المشاريع
             </Button>
           </Link>
-          
-          {/* Client Component للـ Auth */}
+
           <AuthButtons />
         </nav>
       </div>
