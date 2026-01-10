@@ -31,7 +31,6 @@ export default function AuthButtons() {
 
     getUser()
 
-    // استمع لتغييرات حالة المصادقة
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null)
