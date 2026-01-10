@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata } from "next";  // ✅ أضف type
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import Navbar from "@/components/navbar";
+import { Navbar } from "@/components/navbar";  // ✅ غير إلى named import
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={inter.className}>
+      <body className={`${inter.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -27,7 +27,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Navbar />
-          <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+          <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
             {children}
           </main>
           <Toaster />
