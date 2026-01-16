@@ -34,22 +34,17 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<"client" | "freelancer" | "affiliate">(
-    "client"
-  );
+  const [role, setRole] = useState<"business_owner" | "freelancer" | "affiliate">("business_owner"); // تم التعديل
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const roleParam = searchParams.get("role") as
-      | "client"
-      | "freelancer"
-      | "affiliate";
+    const roleParam = searchParams.get("role") as "business_owner" | "freelancer" | "affiliate"; // تم التعديل
     if (
       roleParam &&
-      ["client", "freelancer", "affiliate"].includes(roleParam)
+      ["business_owner", "freelancer", "affiliate"].includes(roleParam) // تم التعديل
     ) {
       setRole(roleParam);
     }
@@ -59,6 +54,15 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    // === إضافة التحقق من رقم الهاتف ===
+    const phoneRegex = /^\+\d{1,3}\s?\d{5,14}$/;
+    if (!phoneRegex.test(phone)) {
+      setError("رقم الهاتف يجب أن يبدأ بكود الدولة (مثل +966)");
+      setLoading(false);
+      return;
+    }
+    // === نهاية التحقق ===
 
     try {
       const supabase = createClient();
@@ -180,19 +184,17 @@ export default function SignupPage() {
               <Label>أنا</Label>
               <RadioGroup
                 value={role}
-                onValueChange={(value) =>
-                  setRole(value as "client" | "freelancer" | "affiliate")
-                }
+                onValueChange={(value) => setRole(value as "business_owner" | "freelancer" | "affiliate")} // تم التعديل
                 className="grid grid-cols-3 gap-3"
               >
                 <div>
                   <RadioGroupItem
-                    value="client"
-                    id="client"
+                    value="business_owner" // تم التعديل
+                    id="business_owner" // تم التعديل
                     className="peer sr-only"
                   />
                   <Label
-                    htmlFor="client"
+                    htmlFor="business_owner" // تم التعديل
                     className="flex flex-col items-center justify-between rounded-md border-2 border-gray-200 bg-white p-4 hover:bg-gray-50 hover:text-gray-900 peer-data-[state=checked]:border-blue-600 peer-data-[state=checked]:bg-blue-50 cursor-pointer"
                   >
                     <Briefcase className="h-6 w-6 mb-2" />
@@ -244,16 +246,17 @@ export default function SignupPage() {
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="phone">رقم الهاتف</Label>
+                <Label htmlFor="phone">رقم الهاتف (مع كود الدولة)</Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
-                  placeholder="05XXXXXXXX"
+                  placeholder="+966 5X XXX XXXX"
                   dir="ltr"
                 />
+                <p className="text-xs text-gray-500">مثال: +966501234567</p>
               </div>
             </div>
 
