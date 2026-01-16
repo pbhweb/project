@@ -34,17 +34,20 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<"business_owner" | "freelancer" | "affiliate">("business_owner"); // تم التعديل
+  // تم تغيير "client" إلى "business_owner" في جميع الأماكن
+  const [role, setRole] = useState<"business_owner" | "freelancer" | "affiliate">("business_owner");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const roleParam = searchParams.get("role") as "business_owner" | "freelancer" | "affiliate"; // تم التعديل
+    // تم تغيير "client" إلى "business_owner"
+    const roleParam = searchParams.get("role") as "business_owner" | "freelancer" | "affiliate";
     if (
       roleParam &&
-      ["business_owner", "freelancer", "affiliate"].includes(roleParam) // تم التعديل
+      // تم تغيير "client" إلى "business_owner"
+      ["business_owner", "freelancer", "affiliate"].includes(roleParam)
     ) {
       setRole(roleParam);
     }
@@ -55,7 +58,7 @@ export default function SignupPage() {
     setError(null);
     setLoading(true);
 
-    // === إضافة التحقق من رقم الهاتف ===
+    // === إضافة التحقق من رقم الهاتف مع كود الدولة ===
     const phoneRegex = /^\+\d{1,3}\s?\d{5,14}$/;
     if (!phoneRegex.test(phone)) {
       setError("رقم الهاتف يجب أن يبدأ بكود الدولة (مثل +966)");
@@ -68,35 +71,36 @@ export default function SignupPage() {
       const supabase = createClient();
 
       // تسجيل المستخدم الجديد
-      const { data: authData, error: signUpError } = await supabase.auth.signUp(
-        {
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-            },
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
           },
-        }
-      );
+        },
+      });
 
       if (signUpError) throw signUpError;
 
       if (!authData.user) throw new Error("فشل إنشاء الحساب");
 
-      // إنشاء الملف الشخصي
-      const { error: profileError } = await supabase.from("profiles").insert({
+      // === إصلاح خطأ المفتاح المكرر باستخدام upsert ===
+      // إنشاء أو تحديث الملف الشخصي
+      const { error: profileError } = await supabase.from("profiles").upsert({
         id: authData.user.id,
         full_name: fullName,
         phone: phone,
         role: role,
+      }, {
+        onConflict: 'id' // إذا كان الـ id موجوداً، قم بتحديث السجل
       });
+      // === نهاية الإصلاح ===
 
       if (profileError) throw profileError;
 
       // إذا كان هناك كود إحالة، تسجيل الإحالة
       if (referralCode) {
-        // البحث عن المسوق باستخدام كود الإحالة
         const { data: affiliateData } = await supabase
           .from("affiliates")
           .select("id")
@@ -184,17 +188,15 @@ export default function SignupPage() {
               <Label>أنا</Label>
               <RadioGroup
                 value={role}
-                onValueChange={(value) => setRole(value as "business_owner" | "freelancer" | "affiliate")} // تم التعديل
+                // تم تغيير "client" إلى "business_owner"
+                onValueChange={(value) => setRole(value as "business_owner" | "freelancer" | "affiliate")}
                 className="grid grid-cols-3 gap-3"
               >
                 <div>
-                  <RadioGroupItem
-                    value="business_owner" // تم التعديل
-                    id="business_owner" // تم التعديل
-                    className="peer sr-only"
-                  />
+                  {/* تم تغيير "client" إلى "business_owner" */}
+                  <RadioGroupItem value="business_owner" id="business_owner" className="peer sr-only" />
                   <Label
-                    htmlFor="business_owner" // تم التعديل
+                    htmlFor="business_owner"
                     className="flex flex-col items-center justify-between rounded-md border-2 border-gray-200 bg-white p-4 hover:bg-gray-50 hover:text-gray-900 peer-data-[state=checked]:border-blue-600 peer-data-[state=checked]:bg-blue-50 cursor-pointer"
                   >
                     <Briefcase className="h-6 w-6 mb-2" />
