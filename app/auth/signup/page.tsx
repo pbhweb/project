@@ -65,62 +65,25 @@ export default function SignupPage() {
     try {
       const supabase = createClient();
 
-      // === بداية التشخيص ===
-      console.log("=== Starting Signup Process ===");
-      // === نهاية التشخيص ===
-
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+      // تسجيل المستخدم الجديد. قاعدة البيانات ستقوم بإنشاء الملف الشخصي تلقائياً.
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
+            phone: phone, // <-- إرسال رقم الهاتف
+            role: role,   // <-- إرسال نوع المستخدم
           },
         },
       });
 
       if (signUpError) throw signUpError;
 
-      if (!authData.user) throw new Error("فشل إنشاء الحساب");
-
-      // === بداية التشخيص ===
-      console.log("Sign up successful. User object:", authData.user);
-      console.log("User ID from signUp:", authData.user.id);
-      // === نهاية التشخيص ===
-
-      // === بداية التشخيص ===
-      // نحصل على المستخدم الحالي للتأكد من أن الجلسة نشطة
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-      console.log("Current authenticated user (auth.getUser()):", currentUser);
-      console.log("Current user ID:", currentUser?.id);
-      console.log("Error getting current user:", userError);
-      // === نهاية التشخيص ===
-
-      const profileDataToUpsert = {
-        id: authData.user.id,
-        full_name: fullName,
-        phone: phone,
-        role: role,
-      };
-
-      // === بداية التشخيص ===
-      console.log("Data being sent to profiles.upsert:", profileDataToUpsert);
-      // === نهاية التشخيص ===
-
-      const { error: profileError } = await supabase.from("profiles").upsert(profileDataToUpsert, {
-        onConflict: 'id'
-      });
-
-      if (profileError) {
-        // === بداية التشخيص ===
-        console.error("=== PROFILE UPSERT ERROR ===");
-        console.error("Error details:", profileError);
-        // === نهاية التشخيص ===
-        throw profileError;
-      }
-
       // إذا كان هناك كود إحالة، تسجيل الإحالة
-      if (referralCode) {
+      // ننتظر قليلاً للتأكد من أن المُحفِّز (trigger) في قاعدة البيانات قد أنشأ الملف الشخصي
+      if (referralCode && data.user) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // انتظار ثانية واحدة
         const { data: affiliateData } = await supabase
           .from("affiliates")
           .select("id")
@@ -130,7 +93,7 @@ export default function SignupPage() {
         if (affiliateData) {
           await supabase.from("referrals").insert({
             affiliate_id: affiliateData.id,
-            referred_user_id: authData.user.id,
+            referred_user_id: data.user.id,
             referral_code: referralCode,
             status: "pending",
           });
@@ -139,7 +102,7 @@ export default function SignupPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/auth/login"); // توجيه المستخدم لتسجيل الدخول بعد التأكيد
       }, 3000);
     } catch (err: any) {
       setError(err.message || "حدث خطأ أثناء إنشاء الحساب");
@@ -162,7 +125,7 @@ export default function SignupPage() {
               تم إنشاء حسابك بنجاح! 🎉
             </CardTitle>
             <CardDescription>
-              مرحباً بك في منصة العمل الحر. يتم توجيهك إلى لوحة التحكم...
+              يرجى تأكيد بريدك الإلكتروني. يتم توجيهك إلى صفحة تسجيل الدخول...
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
