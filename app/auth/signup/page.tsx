@@ -34,7 +34,6 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  // تم تغيير "client" إلى "business_owner" في جميع الأماكن
   const [role, setRole] = useState<"business_owner" | "freelancer" | "affiliate">("business_owner");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,11 +41,9 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    // تم تغيير "client" إلى "business_owner"
     const roleParam = searchParams.get("role") as "business_owner" | "freelancer" | "affiliate";
     if (
       roleParam &&
-      // تم تغيير "client" إلى "business_owner"
       ["business_owner", "freelancer", "affiliate"].includes(roleParam)
     ) {
       setRole(roleParam);
@@ -58,19 +55,20 @@ export default function SignupPage() {
     setError(null);
     setLoading(true);
 
-    // === إضافة التحقق من رقم الهاتف مع كود الدولة ===
     const phoneRegex = /^\+\d{1,3}\s?\d{5,14}$/;
     if (!phoneRegex.test(phone)) {
       setError("رقم الهاتف يجب أن يبدأ بكود الدولة (مثل +966)");
       setLoading(false);
       return;
     }
-    // === نهاية التحقق ===
 
     try {
       const supabase = createClient();
 
-      // تسجيل المستخدم الجديد
+      // === بداية التشخيص ===
+      console.log("=== Starting Signup Process ===");
+      // === نهاية التشخيص ===
+
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -85,19 +83,41 @@ export default function SignupPage() {
 
       if (!authData.user) throw new Error("فشل إنشاء الحساب");
 
-      // === إصلاح خطأ المفتاح المكرر باستخدام upsert ===
-      // إنشاء أو تحديث الملف الشخصي
-      const { error: profileError } = await supabase.from("profiles").upsert({
+      // === بداية التشخيص ===
+      console.log("Sign up successful. User object:", authData.user);
+      console.log("User ID from signUp:", authData.user.id);
+      // === نهاية التشخيص ===
+
+      // === بداية التشخيص ===
+      // نحصل على المستخدم الحالي للتأكد من أن الجلسة نشطة
+      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+      console.log("Current authenticated user (auth.getUser()):", currentUser);
+      console.log("Current user ID:", currentUser?.id);
+      console.log("Error getting current user:", userError);
+      // === نهاية التشخيص ===
+
+      const profileDataToUpsert = {
         id: authData.user.id,
         full_name: fullName,
         phone: phone,
         role: role,
-      }, {
-        onConflict: 'id' // إذا كان الـ id موجوداً، قم بتحديث السجل
-      });
-      // === نهاية الإصلاح ===
+      };
 
-      if (profileError) throw profileError;
+      // === بداية التشخيص ===
+      console.log("Data being sent to profiles.upsert:", profileDataToUpsert);
+      // === نهاية التشخيص ===
+
+      const { error: profileError } = await supabase.from("profiles").upsert(profileDataToUpsert, {
+        onConflict: 'id'
+      });
+
+      if (profileError) {
+        // === بداية التشخيص ===
+        console.error("=== PROFILE UPSERT ERROR ===");
+        console.error("Error details:", profileError);
+        // === نهاية التشخيص ===
+        throw profileError;
+      }
 
       // إذا كان هناك كود إحالة، تسجيل الإحالة
       if (referralCode) {
@@ -188,12 +208,10 @@ export default function SignupPage() {
               <Label>أنا</Label>
               <RadioGroup
                 value={role}
-                // تم تغيير "client" إلى "business_owner"
                 onValueChange={(value) => setRole(value as "business_owner" | "freelancer" | "affiliate")}
                 className="grid grid-cols-3 gap-3"
               >
                 <div>
-                  {/* تم تغيير "client" إلى "business_owner" */}
                   <RadioGroupItem value="business_owner" id="business_owner" className="peer sr-only" />
                   <Label
                     htmlFor="business_owner"
