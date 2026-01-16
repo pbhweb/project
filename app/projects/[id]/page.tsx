@@ -82,18 +82,12 @@ export default function ProjectDetailsPage() {
 
       // Load bids
       const { data: bidsData } = await supabase
-        .from("bids")
-        .select(
-          `
-          *,
-          profiles:freelancer_id (*),
-          reviews (rating)
-        `,
-        )
-        .eq("project_id", projectId)
-        .order("created_at", { ascending: false })
+  .from("bids")
+  .select("*") // <-- لا نجلب أي بيانات من جداول أخرى
+  .eq("project_id", projectId)
+  .order("created_at", { ascending: false })
 
-      setBids(bidsData || [])
+setBids(bidsData || [])
 
       // Load files
       const { data: filesData } = await supabase
