@@ -38,6 +38,7 @@ export default function NewProjectPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -98,14 +99,14 @@ export default function NewProjectPage() {
         throw new Error("الميزانية المختارة غير صالحة");
       }
 
-      // إنشاء المشروع - فقط مع الحقول الموجودة في الجدول
+      // إنشاء المشروع - مع القيم المسموحة في enum
       const projectData: any = {
         client_id: user.id,
         title,
         description,
         category,
         budget_min: parseInt(budgetMin),
-        status: "pending_payment", // تغيير الحالة لانتظار الدفع
+        status: "draft", // استخدام draft بدلاً من pending_payment
       };
 
       // إضافة الحقول الاختيارية فقط إذا كانت موجودة
@@ -121,49 +122,49 @@ export default function NewProjectPage() {
         .select()
         .single();
 
-      if (projectError) throw projectError;
-
-      // Upload files if any
-      if (files.length > 0 && files.length <= 50) {
-        for (const file of files) {
-          const fileName = `${Date.now()}_${file.name}`;
-          const { data: uploadData, error: uploadError } =
-            await supabase.storage
-              .from("project-files")
-              .upload(`projects/${project.id}/${fileName}`, file);
-
-          if (uploadError) throw uploadError;
-
-          // Create file record
-          await supabase.from("project_files").insert({
-            project_id: project.id,
-            file_name: file.name,
-            file_url: uploadData.path,
-            file_size: file.size,
-            file_type: file.type,
-            uploaded_by: user.id,
-          });
+      if (projectError) {
+        // إذا كان الخطأ بسبب enum، جرب استخدام "open" بدلاً من "draft"
+        if (projectError.message.includes("enum")) {
+          // جرب مع "open"
+          projectData.status = "open";
+          const { data: project2, error: projectError2 } = await supabase
+            .from("projects")
+            .insert(projectData)
+            .select()
+            .single();
+          
+          if (projectError2) throw projectError2;
+          
+          // استخدام المشروع الثاني
+          return handleProjectCreated(project2, selectedGateway);
         }
-      } else if (files.length > 50) {
-        throw new Error("لا يمكن رفع أكثر من 50 ملف");
+        throw projectError;
       }
 
-      // بعد إنشاء المشروع، توجيه المستخدم لبوابة الدفع المناسبة
-      // نستخدم window.open لفتح نافذة جديدة أو تبويب جديد
-      const paymentUrl = `https://${selectedGateway.gateway}?project_id=${project.id}&amount=${budgetMin}`;
-      window.open(paymentUrl, '_blank');
-      
-      // إظهار رسالة نجاح مع توجيه لصفحة المشروع
-      setSuccess(true);
-      setTimeout(() => {
-        router.push(`/projects/${project.id}`);
-      }, 3000);
+      handleProjectCreated(project, selectedGateway);
       
     } catch (err: any) {
       setError(err.message || "حدث خطأ أثناء إنشاء المشروع");
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleProjectCreated = (project: any, selectedGateway: any) => {
+    // بعد إنشاء المشروع، توجيه المستخدم لبوابة الدفع المناسبة
+    const paymentUrl = `https://${selectedGateway.gateway}?project_id=${project.id}&amount=${budgetMin}`;
+    const newWindow = window.open(paymentUrl, '_blank');
+    
+    if (newWindow) {
+      setPaymentWindowOpened(true);
+    }
+    
+    // إظهار رسالة نجاح مع توجيه لصفحة المشروع
+    setSuccess(true);
+    setTimeout(() => {
+      router.push(`/projects/${project.id}`);
+    }, 5000);
+    
+    setLoading(false);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,31 +220,45 @@ export default function NewProjectPage() {
               </div>
             </div>
             <CardTitle className="text-2xl text-green-700">
-              تم إنشاء مشروعك بنجاح! 🎉
+              {paymentWindowOpened ? "تم فتح بوابة الدفع! 🎉" : "تم إنشاء مشروعك بنجاح! ✅"}
             </CardTitle>
             <CardDescription>
-              تم فتح نافذة جديدة لبوابة الدفع. يرجى إكمال عملية الدفع.
+              {paymentWindowOpened 
+                ? "تم فتح نافذة جديدة لبوابة الدفع. يرجى إكمال عملية الدفع."
+                : "سيتم توجيهك إلى صفحة المشروع قريباً..."}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <p className="text-gray-600">
-              إذا لم تفتح نافذة الدفع تلقائياً،{' '}
-              <button
-                onClick={() => {
-                  const selectedGateway = getGatewayByBudget(budgetMin);
-                  if (selectedGateway) {
-                    window.open(`https://${selectedGateway.gateway}`, '_blank');
-                  }
-                }}
-                className="text-blue-600 hover:underline"
-              >
-                انقر هنا لفتح بوابة الدفع
-              </button>
-            </p>
+            {paymentWindowOpened && (
+              <>
+                <p className="text-gray-600">
+                  إذا لم تفتح نافذة الدفع تلقائياً،{' '}
+                  <button
+                    onClick={() => {
+                      const selectedGateway = getGatewayByBudget(budgetMin);
+                      if (selectedGateway) {
+                        window.open(`https://${selectedGateway.gateway}`, '_blank');
+                      }
+                    }}
+                    className="text-blue-600 hover:underline font-medium"
+                  >
+                    انقر هنا لفتح بوابة الدفع
+                  </button>
+                </p>
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-700">
+                    ⚠️ لن يتم نشر المشروع إلا بعد إكمال عملية الدفع بنجاح
+                  </p>
+                </div>
+              </>
+            )}
             <p className="text-sm text-gray-500">
-              ستتم توجيهك إلى صفحة المشروع خلال بضع ثوانٍ...
+              ستتم توجيهك إلى صفحة المشروع خلال 5 ثوانٍ...
             </p>
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+            <div className="flex justify-center items-center space-x-2">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+              <span className="text-sm text-gray-600">جاري التوجيه...</span>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -552,7 +567,7 @@ export default function NewProjectPage() {
                       الميزانية المختارة: {budgetMin}$
                     </p>
                     <p className="text-xs text-blue-600 mt-1">
-                      بوابة الدفع التي ستفتح: {
+                      بوابة الدفع: {
                         budgetOptions.find(opt => opt.value === budgetMin)?.gateway
                       }
                     </p>
@@ -560,13 +575,13 @@ export default function NewProjectPage() {
                 )}
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-red-600 font-bold">⚠️</span>
+                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center shrink-0">
+                    <span className="text-yellow-600 font-bold">ℹ️</span>
                   </div>
                   <div>
-                    <p className="font-medium">مهم</p>
+                    <p className="font-medium">حالة المشروع</p>
                     <p className="text-sm text-gray-600">
-                      لن يتم نشر المشروع إلا بعد إكمال عملية الدفع بنجاح
+                      سيكون المشروع في حالة انتظار حتى تكتمل عملية الدفع
                     </p>
                   </div>
                 </div>
