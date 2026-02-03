@@ -50,13 +50,13 @@ export default function NewProjectPage() {
   const [referralCode, setReferralCode] = useState("");
   const [files, setFiles] = useState<File[]>([]);
 
-  // خيارات الميزانية الثابتة
+  // خيارات الميزانية الثابتة مرتبطة ببوابات الدفع
   const budgetOptions = [
-    { value: "300", label: "300$ - مشروع صغير/مبدئي", gateway: "digital.workshub.space", gatewayName: "بوابة أساسية" },
-    { value: "600", label: "600$ - مشروع رقمي بسيط", gateway: "digitals.workshub.space", gatewayName: "بوابة رقمية" },
-    { value: "900", label: "900$ - مشروع متوسط", gateway: "solution.workshub.space", gatewayName: "بوابة حل" },
-    { value: "1200", label: "1200$ - مشروع حلول متكاملة", gateway: "solutions.workshub.space", gatewayName: "بوابة حلول" },
-    { value: "1500", label: "1500$ - مشروع كبير/معقد", gateway: "professional.workshub.space", gatewayName: "بوابة احترافية" },
+    { value: "300", label: "300$ - مشروع صغير/مبدئي", gateway: "digital.workshub.space" },
+    { value: "600", label: "600$ - مشروع رقمي بسيط", gateway: "digitals.workshub.space" },
+    { value: "900", label: "900$ - مشروع متوسط", gateway: "solution.workshub.space" },
+    { value: "1200", label: "1200$ - مشروع حلول متكاملة", gateway: "solutions.workshub.space" },
+    { value: "1500", label: "1500$ - مشروع كبير/معقد", gateway: "professional.workshub.space" },
   ];
 
   const getGatewayByBudget = (budget: string) => {
@@ -98,23 +98,26 @@ export default function NewProjectPage() {
         throw new Error("الميزانية المختارة غير صالحة");
       }
 
+      // إنشاء المشروع - فقط مع الحقول الموجودة في الجدول
+      const projectData: any = {
+        client_id: user.id,
+        title,
+        description,
+        category,
+        budget_min: parseInt(budgetMin),
+        status: "pending_payment", // تغيير الحالة لانتظار الدفع
+      };
+
+      // إضافة الحقول الاختيارية فقط إذا كانت موجودة
+      if (budgetMax) projectData.budget_max = parseFloat(budgetMax);
+      if (estimatedHours) projectData.estimated_hours = parseInt(estimatedHours);
+      if (deadline) projectData.deadline = deadline;
+      if (referralCode) projectData.referral_code = referralCode;
+
       // Create project
       const { data: project, error: projectError } = await supabase
         .from("projects")
-        .insert({
-          client_id: user.id,
-          title,
-          description,
-          category,
-          budget_min: parseInt(budgetMin),
-          budget_max: budgetMax ? parseFloat(budgetMax) : null,
-          estimated_hours: estimatedHours ? parseInt(estimatedHours) : null,
-          deadline: deadline || null,
-          referral_code: referralCode || null,
-          payment_gateway: selectedGateway.gateway,
-          gateway_name: selectedGateway.gatewayName,
-          status: "pending_payment",
-        })
+        .insert(projectData)
         .select()
         .single();
 
@@ -145,11 +148,20 @@ export default function NewProjectPage() {
         throw new Error("لا يمكن رفع أكثر من 50 ملف");
       }
 
-      // توجيه المستخدم لصفحة الدفع مع معلومات المشروع
-      router.push(`/payment/${project.id}`);
+      // بعد إنشاء المشروع، توجيه المستخدم لبوابة الدفع المناسبة
+      // نستخدم window.open لفتح نافذة جديدة أو تبويب جديد
+      const paymentUrl = `https://${selectedGateway.gateway}?project_id=${project.id}&amount=${budgetMin}`;
+      window.open(paymentUrl, '_blank');
+      
+      // إظهار رسالة نجاح مع توجيه لصفحة المشروع
+      setSuccess(true);
+      setTimeout(() => {
+        router.push(`/projects/${project.id}`);
+      }, 3000);
       
     } catch (err: any) {
       setError(err.message || "حدث خطأ أثناء إنشاء المشروع");
+    } finally {
       setLoading(false);
     }
   };
@@ -207,13 +219,30 @@ export default function NewProjectPage() {
               </div>
             </div>
             <CardTitle className="text-2xl text-green-700">
-              تم نشر مشروعك بنجاح! 🎉
+              تم إنشاء مشروعك بنجاح! 🎉
             </CardTitle>
             <CardDescription>
-              سيتم توجيهك إلى صفحة المشروع لتلقي العروض من المستقلين
+              تم فتح نافذة جديدة لبوابة الدفع. يرجى إكمال عملية الدفع.
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center">
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
+              إذا لم تفتح نافذة الدفع تلقائياً،{' '}
+              <button
+                onClick={() => {
+                  const selectedGateway = getGatewayByBudget(budgetMin);
+                  if (selectedGateway) {
+                    window.open(`https://${selectedGateway.gateway}`, '_blank');
+                  }
+                }}
+                className="text-blue-600 hover:underline"
+              >
+                انقر هنا لفتح بوابة الدفع
+              </button>
+            </p>
+            <p className="text-sm text-gray-500">
+              ستتم توجيهك إلى صفحة المشروع خلال بضع ثوانٍ...
+            </p>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
           </CardContent>
         </Card>
@@ -510,33 +539,34 @@ export default function NewProjectPage() {
                     <span className="text-green-600 font-bold">💰</span>
                   </div>
                   <div>
-                    <p className="font-medium">اختيار الميزانية</p>
+                    <p className="font-medium">نظام الدفع</p>
                     <p className="text-sm text-gray-600">
-                      اختر الميزانية المناسبة لمشروعك وسيتم فتح بوابة الدفع المناسبة تلقائياً
+                      بعد النشر، سيتم فتح بوابة الدفع المناسبة تلقائياً حسب الميزانية المختارة
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-blue-600 font-bold">⚡</span>
-                  </div>
-                  <div>
-                    <p className="font-medium">دفع آمن</p>
-                    <p className="text-sm text-gray-600">
-                      جميع عمليات الدفع مؤمنة ومشفرة لحماية معلوماتك
+                {budgetMin && (
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm font-medium text-blue-700">
+                      الميزانية المختارة: {budgetMin}$
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      بوابة الدفع التي ستفتح: {
+                        budgetOptions.find(opt => opt.value === budgetMin)?.gateway
+                      }
                     </p>
                   </div>
-                </div>
+                )}
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-purple-600 font-bold">🔄</span>
+                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+                    <span className="text-red-600 font-bold">⚠️</span>
                   </div>
                   <div>
-                    <p className="font-medium">استرداد الأموال</p>
+                    <p className="font-medium">مهم</p>
                     <p className="text-sm text-gray-600">
-                      يمكنك استرداد المبلغ في حال لم يتم اختيار مستقل للمشروع
+                      لن يتم نشر المشروع إلا بعد إكمال عملية الدفع بنجاح
                     </p>
                   </div>
                 </div>
@@ -550,16 +580,16 @@ export default function NewProjectPage() {
                   <Button
                     type="submit"
                     className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                    disabled={loading}
+                    disabled={loading || !budgetMin}
                     size="lg"
                   >
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        جاري نشر المشروع...
+                        جاري إنشاء المشروع...
                       </>
                     ) : (
-                      "نشر المشروع والانتقال للدفع"
+                      "نشر المشروع وفتح بوابة الدفع"
                     )}
                   </Button>
                   <p className="text-xs text-gray-500 text-center mt-3">
@@ -572,15 +602,10 @@ export default function NewProjectPage() {
                     </Link>
                   </p>
                   
-                  {budgetMin && (
-                    <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm font-medium text-center text-gray-700">
-                        الميزانية المختارة:{" "}
-                        <span className="text-green-600 font-bold">
-                          {budgetMin}$
-                        </span>
-                      </p>
-                    </div>
+                  {!budgetMin && (
+                    <p className="text-center text-amber-600 text-sm mt-2">
+                      ⚠️ الرجاء اختيار الميزانية أولاً
+                    </p>
                   )}
                 </CardContent>
               </Card>
