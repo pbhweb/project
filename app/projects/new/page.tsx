@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Upload, X } from "lucide-react";
+import { CalendarIcon, Upload, X, CreditCard } from "lucide-react";
 import Link from "next/link";
 
 export default function NewProjectPage() {
@@ -38,6 +38,8 @@ export default function NewProjectPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showPaymentGateways, setShowPaymentGateways] = useState(false);
+  const [selectedGateway, setSelectedGateway] = useState<string>("");
 
   // Form state
   const [title, setTitle] = useState("");
@@ -50,9 +52,98 @@ export default function NewProjectPage() {
   const [referralCode, setReferralCode] = useState("");
   const [files, setFiles] = useState<File[]>([]);
 
+  // بوابات الدفع مع الأسعار
+  const paymentGateways = [
+    {
+      id: "gateway1",
+      url: "professional.workshub.space",
+      price: 1500,
+      label: "بوابة احترافية",
+      description: "مناسبة للمشاريع الكبيرة والمعقدة",
+      color: "from-purple-600 to-indigo-600"
+    },
+    {
+      id: "gateway2",
+      url: "solutions.workshub.space",
+      price: 1200,
+      label: "بوابة حلول",
+      description: "لمشاريع الحلول المتكاملة",
+      color: "from-blue-600 to-cyan-600"
+    },
+    {
+      id: "gateway3",
+      url: "solution.workshub.space",
+      price: 900,
+      label: "بوابة حل",
+      description: "مناسبة للمشاريع المتوسطة",
+      color: "from-green-600 to-emerald-600"
+    },
+    {
+      id: "gateway4",
+      url: "digitals.workshub.space",
+      price: 600,
+      label: "بوابة رقمية",
+      description: "للمشاريع الرقمية البسيطة",
+      color: "from-orange-600 to-amber-600"
+    },
+    {
+      id: "gateway5",
+      url: "digital.workshub.space",
+      price: 300,
+      label: "بوابة أساسية",
+      description: "للمشاريع الصغيرة والمبدئية",
+      color: "from-gray-600 to-slate-600"
+    }
+  ];
+
+  const validateForm = () => {
+    if (!title || !description || !category || !budgetMin) {
+      setError("جميع الحقول المطلوبة (*) يجب ملؤها");
+      return false;
+    }
+
+    const minBudget = parseFloat(budgetMin);
+    if (minBudget < 300) {
+      setError("الميزانية الدنيا يجب أن تكون 300$ على الأقل");
+      return false;
+    }
+
+    if (budgetMax) {
+      const maxBudget = parseFloat(budgetMax);
+      if (maxBudget < minBudget) {
+        setError("الميزانية القصوى يجب أن تكون أكبر من أو تساوي الميزانية الدنيا");
+        return false;
+      }
+    }
+
+    // Check if description contains contact info
+    const containsContact =
+      description.match(/\d{10,}/) || // Phone numbers
+      description.match(/@[A-Za-z0-9._%+-]+\.[A-Za-z]{2,}/) || // Emails
+      description.match(/(whatsapp|telegram|signal|viber)/i); // Messaging apps
+
+    if (containsContact) {
+      setError("لا يمكن إضافة معلومات اتصال في وصف المشروع");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setShowPaymentGateways(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePaymentGatewaySelection = async (gatewayId: string) => {
+    setSelectedGateway(gatewayId);
     setLoading(true);
 
     try {
@@ -64,23 +155,10 @@ export default function NewProjectPage() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("يجب تسجيل الدخول");
 
-      // Validate budget
-      const minBudget = parseFloat(budgetMin);
-      if (minBudget < 300) {
-        throw new Error("الميزانية الدنيا يجب أن تكون 300$ على الأقل");
-      }
+      const selectedGatewayData = paymentGateways.find(g => g.id === gatewayId);
+      if (!selectedGatewayData) throw new Error("بوابة الدفع غير موجودة");
 
-      // Check if description contains contact info
-      const containsContact =
-        description.match(/\d{10,}/) || // Phone numbers
-        description.match(/@[A-Za-z0-9._%+-]+\.[A-Za-z]{2,}/) || // Emails
-        description.match(/(whatsapp|telegram|signal|viber)/i); // Messaging apps
-
-      if (containsContact) {
-        throw new Error("لا يمكن إضافة معلومات اتصال في وصف المشروع");
-      }
-
-      // Create project
+      // Create project with payment gateway info
       const { data: project, error: projectError } = await supabase
         .from("projects")
         .insert({
@@ -88,12 +166,14 @@ export default function NewProjectPage() {
           title,
           description,
           category,
-          budget_min: minBudget,
+          budget_min: parseFloat(budgetMin),
           budget_max: budgetMax ? parseFloat(budgetMax) : null,
           estimated_hours: estimatedHours ? parseInt(estimatedHours) : null,
           deadline: deadline || null,
           referral_code: referralCode || null,
-          status: "open",
+          payment_gateway: selectedGatewayData.url,
+          gateway_price: selectedGatewayData.price,
+          status: "pending_payment",
         })
         .select()
         .single();
@@ -125,13 +205,11 @@ export default function NewProjectPage() {
         throw new Error("لا يمكن رفع أكثر من 50 ملف");
       }
 
-      setSuccess(true);
-      setTimeout(() => {
-        router.push(`/projects/${project.id}`);
-      }, 2000);
+      // بعد اختيار بوابة الدفع، توجيه المستخدم للدفع
+      router.push(`/payment/${project.id}?gateway=${gatewayId}`);
+      
     } catch (err: any) {
       setError(err.message || "حدث خطأ أثناء إنشاء المشروع");
-    } finally {
       setLoading(false);
     }
   };
@@ -204,7 +282,7 @@ export default function NewProjectPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           نشر مشروع جديد
@@ -214,8 +292,97 @@ export default function NewProjectPage() {
         </p>
       </div>
 
+      {showPaymentGateways && (
+        <div className="mb-8">
+          <Card className="border-2 border-blue-200">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <CreditCard className="h-6 w-6" />
+                اختر بوابة الدفع المناسبة
+              </CardTitle>
+              <CardDescription>
+                اختر إحدى بوابات الدفع الخمسة حسب ميزانيتك واحتياجات مشروعك
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {paymentGateways.map((gateway) => (
+                  <div
+                    key={gateway.id}
+                    className={cn(
+                      "border-2 rounded-xl p-4 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg",
+                      selectedGateway === gateway.id
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    )}
+                    onClick={() => setSelectedGateway(gateway.id)}
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-lg">{gateway.label}</h3>
+                        <p className="text-sm text-gray-600">{gateway.description}</p>
+                      </div>
+                      <div className={`bg-gradient-to-r ${gateway.color} text-white px-3 py-1 rounded-full text-sm font-bold`}>
+                        ${gateway.price}
+                      </div>
+                    </div>
+                    <div className="text-xs font-mono bg-gray-100 p-2 rounded text-center">
+                      {gateway.url}
+                    </div>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-sm text-gray-500">
+                        ميزانية المشروع: ${budgetMin}{budgetMax ? ` - $${budgetMax}` : '+'}
+                      </span>
+                      {selectedGateway === gateway.id && (
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-4 justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowPaymentGateways(false)}
+                  className="px-8"
+                >
+                  رجوع لتعديل المشروع
+                </Button>
+                <Button
+                  type="button"
+                  disabled={!selectedGateway || loading}
+                  onClick={() => handlePaymentGatewaySelection(selectedGateway)}
+                  className="px-8 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      جاري التوجيه للدفع...
+                    </>
+                  ) : (
+                    "التالي للدفع"
+                  )}
+                </Button>
+              </div>
+
+              {!selectedGateway && (
+                <p className="text-center text-amber-600 mt-4">
+                  ⚠️ الرجاء اختيار بوابة دفع للمتابعة
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className={cn("grid md:grid-cols-3 gap-8", showPaymentGateways && "opacity-50 pointer-events-none")}>
           {/* Left Column - Main Info */}
           <div className="md:col-span-2 space-y-6">
             <Card>
@@ -224,7 +391,7 @@ export default function NewProjectPage() {
                 <CardDescription>أدخل تفاصيل مشروعك بشكل واضح</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {error && (
+                {error && !showPaymentGateways && (
                   <Alert variant="destructive">
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
@@ -479,43 +646,29 @@ export default function NewProjectPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>معلومات مهمة</CardTitle>
+                <CardTitle>بوابات الدفع المتاحة</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-green-600 font-bold">$</span>
+                {paymentGateways.map((gateway) => (
+                  <div key={gateway.id} className="flex items-start gap-3">
+                    <div className={`w-8 h-8 bg-gradient-to-r ${gateway.color} rounded-full flex items-center justify-center shrink-0`}>
+                      <span className="text-white font-bold">$</span>
+                    </div>
+                    <div>
+                      <p className="font-medium">{gateway.label}</p>
+                      <p className="text-sm text-gray-600">{gateway.url}</p>
+                      <p className="text-xs font-bold text-green-600">
+                        {gateway.price}$
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">عمولة المستقلين</p>
-                    <p className="text-sm text-gray-600">
-                      يحصل المستقلون على 20% عمولة من قيمة المشروع
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-purple-600 font-bold">%</span>
-                  </div>
-                  <div>
-                    <p className="font-medium">عمولة المسوقين</p>
-                    <p className="text-sm text-gray-600">
-                      إذا كان هناك كود إحالة، يحصل المسوق على 10% عمولة
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-red-600 font-bold">!</span>
-                  </div>
-                  <div>
-                    <p className="font-medium">حماية المعلومات</p>
-                    <p className="text-sm text-gray-600">
-                      رقم هاتفك يظهر فقط للمستقل المقبول
-                    </p>
-                  </div>
+                ))}
+                
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-gray-600">
+                    بعد إكمال النموذج، سيُطلب منك اختيار إحدى بوابات الدفع هذه
+                    حسب ميزانيتك واحتياجات مشروعك
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -533,10 +686,10 @@ export default function NewProjectPage() {
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        جاري نشر المشروع...
+                        جاري التحقق...
                       </>
                     ) : (
-                      "نشر المشروع"
+                      "التالي لاختيار بوابة الدفع"
                     )}
                   </Button>
                   <p className="text-xs text-gray-500 text-center mt-3">
