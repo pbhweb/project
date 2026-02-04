@@ -43,6 +43,7 @@ function NewProjectForm() {
   const [success, setSuccess] = useState(false);
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [createdProject, setCreatedProject] = useState<any>(null); // لحفظ بيانات المشروع الذي تم إنشاؤه
 
   // Form state
   const [title, setTitle] = useState("");
@@ -66,21 +67,14 @@ function NewProjectForm() {
     { value: "1500", label: "1500$ - مشروع كبير/معقد", gateway: "professional.workshub.space" },
   ];
 
-  // جلب كود الإحالة من مصادر متعددة
+  // جلب كود الإحالة من مصادر متعددة والتحقق من المصادقة
   useEffect(() => {
     const checkAuth = async () => {
       const supabase = createClient();
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (authError) {
-        console.error("❌ خطأ في المصادقة:", authError);
-        setIsLoggedIn(false);
-        const currentParams = new URLSearchParams(window.location.search);
-        router.push(`/auth/login?redirect=/projects/new&${currentParams.toString()}`);
-        return;
-      }
-      
-      if (!user) {
+      if (authError || !user) {
+        console.error("❌ خطأ في المصادقة أو المستخدم غير موجود:", authError);
         setIsLoggedIn(false);
         const currentParams = new URLSearchParams(window.location.search);
         router.push(`/auth/login?redirect=/projects/new&${currentParams.toString()}`);
@@ -93,29 +87,19 @@ function NewProjectForm() {
     
     checkAuth();
 
-    // المصدر 1: من query parameters مباشرة
+    // جلب كود الإحالة من مصادر متعددة
     const refFromUrl = searchParams.get("ref");
-    
-    // المصدر 2: من localStorage (إذا جاء من تسجيل جديد)
     const refFromStorage = localStorage.getItem("user_referral_code");
-    
-    // المصدر 3: من sessionStorage
     const refFromSession = sessionStorage.getItem("pending_referral_code");
     
-    // تحديد أولوية المصادر
     let finalRefCode = refFromUrl || refFromStorage || refFromSession;
     
     if (finalRefCode && !referralLoaded) {
       setReferralCode(finalRefCode.toUpperCase());
       setReferralLoaded(true);
       
-      // تنظيف التخزين المحلي بعد الاستخدام
-      if (refFromStorage) {
-        localStorage.removeItem("user_referral_code");
-      }
-      if (refFromSession) {
-        sessionStorage.removeItem("pending_referral_code");
-      }
+      if (refFromStorage) localStorage.removeItem("user_referral_code");
+      if (refFromSession) sessionStorage.removeItem("pending_referral_code");
       
       setError(null);
     }
@@ -125,122 +109,54 @@ function NewProjectForm() {
     return budgetOptions.find(option => option.value === budget);
   };
 
-  // دالة مساعدة لتحديث إحصائيات المسوق
-  const updateAffiliateStats = async (affiliateId: string, commissionAmount: number) => {
-    const supabase = createClient();
-    
-    try {
-      console.log("📊 تحديث إحصائيات المسوق ID:", affiliateId);
-      
-      // الطريقة الآمنة: استخدام transaction ضمني
-      const { data: currentAffiliate, error: fetchError } = await supabase
-        .from("affiliates")
-        .select("total_referrals, total_earnings")
-        .eq("id", affiliateId)
-        .single();
-
-      if (fetchError) {
-        console.error("❌ خطأ في جلب بيانات المسوق:", fetchError);
-        return { success: false, error: fetchError };
-      }
-
-      if (currentAffiliate) {
-        const newReferrals = (currentAffiliate.total_referrals || 0) + 1;
-        const newEarnings = parseFloat(((currentAffiliate.total_earnings || 0) + commissionAmount).toFixed(2));
-        
-        const { error: updateError } = await supabase
-          .from("affiliates")
-          .update({
-            total_referrals: newReferrals,
-            total_earnings: newEarnings,
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", affiliateId);
-
-        if (updateError) {
-          console.error("❌ خطأ في تحديث المسوق:", updateError);
-          return { success: false, error: updateError };
-        } else {
-          console.log(`✅ تم تحديث إحصائيات المسوق: ${newReferrals} إحالات، ${newEarnings}$ أرباح`);
-          return { success: true };
-        }
-      } else {
-        console.error("❌ لم يتم العثور على بيانات المسوق");
-        return { success: false, error: new Error("المسوق غير موجود") };
-      }
-      
-    } catch (statsError: any) {
-      console.error("⚠️ خطأ في تحديث إحصائيات المسوق:", statsError.message);
-      return { success: false, error: statsError };
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    setCreatedProject(null); // إعادة تعيين المشروع عند كل محاولة جديدة
 
     try {
       const supabase = createClient();
 
-      // التحقق من المصادقة
-      const {
-        data: { user },
-        error: authError
-      } = await supabase.auth.getUser();
-      
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) {
-        console.error("❌ خطأ في المصادقة:", authError);
-        const redirectUrl = `/auth/login?redirect=/projects/new&ref=${referralCode || ""}`;
-        router.push(redirectUrl);
-        return;
+        throw new Error("يجب تسجيل الدخول لإنشاء مشروع.");
       }
 
-      // التحقق من الحقول المطلوبة
       if (!title || !description || !category || !budgetMin) {
         throw new Error("جميع الحقول المطلوبة (*) يجب ملؤها");
       }
 
-      // التحقق من عدم وجود معلومات اتصال
-      const containsContact =
-        description.match(/\d{10,}/) || // Phone numbers
-        description.match(/@[A-Za-z0-9._%+-]+\.[A-Za-z]{2,}/) || // Emails
-        description.match(/(whatsapp|telegram|signal|viber)/i); // Messaging apps
+      // === تحسين أمني: التحقق من معلومات الاتصال في قاعدة البيانات ===
+      const { data: isValid, error: validationError } = await supabase.rpc('validate_no_contact_info', {
+        text_content: description
+      });
 
-      if (containsContact) {
-        throw new Error("لا يمكن إضافة معلومات اتصال في وصف المشروع");
+      if (validationError || !isValid) {
+        throw new Error("وصف المشروع يحتوي على معلومات اتصال محظورة.");
       }
 
-      // الحصول على بوابة الدفع المناسبة
       const selectedGateway = getGatewayByBudget(budgetMin);
       if (!selectedGateway) {
         throw new Error("الميزانية المختارة غير صالحة");
       }
 
-      // التحقق من صحة كود الإحالة إذا كان موجوداً
+      // التحقق من صحة كود الإحالة
       let validMarketerId = null;
-      let validMarketerData = null;
-      
       if (referralCode) {
         console.log("🔍 التحقق من كود الإحالة:", referralCode);
-        
-        try {
-          const { data: marketer, error: marketerError } = await supabase
-            .from("affiliates")
-            .select("id, user_id, referral_code, is_active, total_referrals, total_earnings")
-            .eq("referral_code", referralCode.trim())
-            .eq("is_active", true)
-            .single();
+        const { data: marketer, error: marketerError } = await supabase
+          .from("affiliates")
+          .select("id, user_id, referral_code, is_active")
+          .eq("referral_code", referralCode.trim())
+          .eq("is_active", true)
+          .single();
 
-          if (!marketerError && marketer) {
-            validMarketerId = marketer.id;
-            validMarketerData = marketer;
-            console.log("✅ كود الإحالة صالح للمسوق:", marketer.referral_code);
-          } else {
-            console.log("⚠️ كود الإحالة غير صالح أو المسوق غير نشط:", marketerError?.message);
-          }
-        } catch (marketerErr: any) {
-          console.log("⚠️ خطأ في التحقق من كود الإحالة:", marketerErr.message);
+        if (!marketerError && marketer) {
+          validMarketerId = marketer.id;
+          console.log("✅ كود الإحالة صالح للمسوق:", marketer.referral_code);
+        } else {
+          console.log("⚠️ كود الإحالة غير صالح أو المسوق غير نشط:", marketerError?.message);
         }
       }
 
@@ -251,11 +167,9 @@ function NewProjectForm() {
         description,
         category,
         budget_min: parseInt(budgetMin),
-        status: "pending_payment", // تغيير الحالة إلى pending_payment
+        status: "pending_payment",
         referral_code: referralCode || null,
       };
-
-      // إضافة الحقول الاختيارية
       if (budgetMax) projectData.budget_max = parseFloat(budgetMax);
       if (estimatedHours) projectData.estimated_hours = parseInt(estimatedHours);
       if (deadline) projectData.deadline = deadline;
@@ -271,17 +185,15 @@ function NewProjectForm() {
         console.error("❌ خطأ في إنشاء المشروع:", projectError);
         throw projectError;
       }
-
+      
+      setCreatedProject(project); // حفظ بيانات المشروع للاستخدام لاحقًا
       console.log("✅ تم إنشاء المشروع بنجاح:", project.id);
 
-      // تسجيل الإحالة إذا كان الكود صالحاً
+      // تسجيل الإحالة وتحديث الإحصائيات بطريقة آمنة
       if (validMarketerId && project.id) {
         try {
           const commissionAmount = parseFloat(((parseInt(budgetMin) * 10) / 100).toFixed(2));
           
-          console.log("📝 تسجيل الإحالة...");
-          
-          // تسجيل الإحالة
           const { error: referralError } = await supabase
             .from("referrals")
             .insert({
@@ -290,30 +202,33 @@ function NewProjectForm() {
               referral_code: referralCode,
               project_id: project.id,
               commission_amount: commissionAmount,
-              status: "pending_payment", // تغيير الحالة
-              created_at: new Date().toISOString()
+              status: "pending_payment",
             });
 
           if (referralError) {
             console.error("❌ خطأ في تسجيل الإحالة:", referralError);
-            // لا نوقف العملية إذا فشل تسجيل الإحالة
           } else {
             console.log("✅ تم تسجيل الإحالة بنجاح");
             
-            // تحديث إحصائيات المسوق (فقط التسجيل، بدون عمولة بعد)
-            const statsResult = await updateAffiliateStats(validMarketerId, 0);
-            if (!statsResult.success) {
-              console.error("⚠️ فشل تحديث إحصائيات المسوق:", statsResult.error);
+            // === إصلاح حرج: استخدام دالة قاعدة البيانات الآمنة لتحديث الإحصائيات ===
+            const { error: statsError } = await supabase.rpc('increment_affiliate_stats', {
+              p_affiliate_id: validMarketerId,
+              p_referral_increment: 1,
+              p_earnings_increment: 0 // لا تضيف عمولة حتى يتم الدفع
+            });
+
+            if (statsError) {
+              console.error("⚠️ فشل تحديث إحصائيات المسوق (باستخدام RPC):", statsError);
+            } else {
+              console.log("✅ تم تحديث إحصائيات المسوق بنجاح (باستخدام RPC)");
             }
           }
-          
         } catch (referralErr: any) {
           console.error("❌ خطأ في تسجيل الإحالة:", referralErr.message);
-          // نستمر لأن المشروع تم إنشاؤه بنجاح
         }
       }
 
-      // رفع الملفات إذا وجدت
+      // رفع الملفات (يتطلب جدول project_files)
       if (files.length > 0 && files.length <= 50) {
         console.log("📤 رفع الملفات...");
         for (const file of files) {
@@ -324,10 +239,9 @@ function NewProjectForm() {
 
           if (uploadError) {
             console.error("❌ خطأ في رفع الملف:", uploadError);
-            continue; // نستمر مع الملفات الأخرى
+            continue;
           }
 
-          // تسجيل الملف في قاعدة البيانات
           await supabase.from("project_files").insert({
             project_id: project.id,
             file_name: file.name,
@@ -346,24 +260,12 @@ function NewProjectForm() {
       
       if (newWindow) {
         setPaymentWindowOpened(true);
-        // إغلاق النافذة بعد 2 ثانية للتأكد من فتحها
-        setTimeout(() => {
-          if (newWindow && !newWindow.closed) {
-            console.log("✅ تم فتح نافذة الدفع بنجاح");
-          }
-        }, 2000);
       } else {
-        console.error("❌ فشل فتح نافذة الدفع");
-        throw new Error("فشل فتح بوابة الدفع. يرجى التحقق من إعدادات المنع النافذة المنبثقة.");
+        throw new Error("فشل فتح بوابة الدفع. يرجى التحقق من إعدادات منع النوافذ المنبثقة.");
       }
       
-      // إظهار رسالة النجاح
       setSuccess(true);
-      
-      // إعادة التوجيه بعد 8 ثوانٍ (وقت أطول لإكمال الدفع)
-      setTimeout(() => {
-        router.push(`/projects/${project.id}`);
-      }, 8000);
+      setTimeout(() => router.push(`/projects/${project.id}`), 8000);
       
     } catch (err: any) {
       console.error("❌ خطأ أثناء إنشاء المشروع:", err);
@@ -376,13 +278,11 @@ function NewProjectForm() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
-
     const newFiles = Array.from(selectedFiles);
     if (files.length + newFiles.length > 50) {
       setError("لا يمكن رفع أكثر من 50 ملف");
       return;
     }
-
     setFiles([...files, ...newFiles]);
   };
 
@@ -391,19 +291,13 @@ function NewProjectForm() {
   };
 
   const categories = [
-    { value: "web-design", label: "تصميم مواقع" },
-    { value: "mobile-app", label: "تطبيقات جوال" },
-    { value: "graphic-design", label: "تصميم جرافيك" },
-    { value: "writing", label: "كتابة ومحتوى" },
-    { value: "marketing", label: "تسويق" },
-    { value: "programming", label: "برمجة" },
-    { value: "consulting", label: "استشارات" },
-    { value: "translation", label: "ترجمة" },
-    { value: "video-editing", label: "مونتاج فيديو" },
-    { value: "other", label: "أخرى" },
+    { value: "web-design", label: "تصميم مواقع" }, { value: "mobile-app", label: "تطبيقات جوال" },
+    { value: "graphic-design", label: "تصميم جرافيك" }, { value: "writing", label: "كتابة ومحتوى" },
+    { value: "marketing", label: "تسويق" }, { value: "programming", label: "برمجة" },
+    { value: "consulting", label: "استشارات" }, { value: "translation", label: "ترجمة" },
+    { value: "video-editing", label: "مونتاج فيديو" }, { value: "other", label: "أخرى" },
   ];
-
-  // عرض إشعار إذا تم تحميل كود إحالة تلقائياً
+  
   const showReferralNotice = referralCode && referralLoaded;
 
   if (!isLoggedIn) {
@@ -424,28 +318,14 @@ function NewProjectForm() {
           <CardHeader className="text-center">
             <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                <svg
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </div>
             </div>
             <CardTitle className="text-2xl text-green-700">
               {paymentWindowOpened ? "تم فتح بوابة الدفع! 🎉" : "تم إنشاء مشروعك بنجاح! ✅"}
             </CardTitle>
             <CardDescription>
-              {paymentWindowOpened 
-                ? "تم فتح نافذة جديدة لبوابة الدفع. يرجى إكمال عملية الدفع."
-                : "سيتم توجيهك إلى صفحة المشروع قريباً..."}
+              {paymentWindowOpened ? "تم فتح نافذة جديدة لبوابة الدفع. يرجى إكمال عملية الدفع." : "سيتم توجيهك إلى صفحة المشروع قريباً..."}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
@@ -459,9 +339,11 @@ function NewProjectForm() {
                       إذا لم تفتح نافذة الدفع تلقائياً،{' '}
                       <button
                         onClick={() => {
-                          const selectedGateway = getGatewayByBudget(budgetMin);
-                          if (selectedGateway) {
-                            window.open(`https://${selectedGateway.gateway}?project_id=&amount=${budgetMin}&user_id=${userId}`, '_blank');
+                          if (createdProject) {
+                            const selectedGateway = getGatewayByBudget(budgetMin);
+                            if (selectedGateway) {
+                              window.open(`https://${selectedGateway.gateway}?project_id=${createdProject.id}&amount=${budgetMin}&user_id=${userId}`, '_blank');
+                            }
                           }
                         }}
                         className="text-blue-600 hover:underline font-medium"
@@ -471,43 +353,25 @@ function NewProjectForm() {
                     </p>
                   </AlertDescription>
                 </Alert>
-                
                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-700">
-                    ⚠️ <strong>مهم:</strong> لن يتم نشر المشروع إلا بعد إكمال عملية الدفع بنجاح
-                  </p>
-                  <p className="text-xs text-yellow-600 mt-1">
-                    سيتم تحديث حالة المشروع تلقائياً بعد الدفع
-                  </p>
+                  <p className="text-sm text-yellow-700">⚠️ <strong>مهم:</strong> لن يتم نشر المشروع إلا بعد إكمال عملية الدفع بنجاح</p>
+                  <p className="text-xs text-yellow-600 mt-1">سيتم تحديث حالة المشروع تلقائياً بعد الدفع</p>
                 </div>
               </>
             )}
-            
             {referralCode && (
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-700">
-                  ✅ <strong>كود الإحالة:</strong> {referralCode}
-                </p>
-                <p className="text-xs text-green-600 mt-1">
-                  سيحصل المسوق على عمولة 10% بعد إتمام عملية الدفع
-                </p>
+                <p className="text-sm text-green-700">✅ <strong>كود الإحالة:</strong> {referralCode}</p>
+                <p className="text-xs text-green-600 mt-1">سيحصل المسوق على عمولة 10% بعد إتمام عملية الدفع</p>
               </div>
             )}
-            
             <div className="pt-4 border-t">
-              <p className="text-sm text-gray-500">
-                ستتم توجيهك إلى صفحة المشروع خلال 8 ثوانٍ...
-              </p>
+              <p className="text-sm text-gray-500">ستتم توجيهك إلى صفحة المشروع خلال 8 ثوانٍ...</p>
               <div className="flex justify-center items-center space-x-2 mt-2">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                 <span className="text-sm text-gray-600">جاري التوجيه...</span>
               </div>
-              
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => router.push('/dashboard/projects')}
-              >
+              <Button variant="outline" className="mt-4" onClick={() => router.push('/dashboard/projects')}>
                 الذهاب إلى لوحة التحكم الآن
               </Button>
             </div>
@@ -520,24 +384,16 @@ function NewProjectForm() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          نشر مشروع جديد
-        </h1>
-        <p className="text-gray-600">
-          املأ التفاصيل أدناه لبدء تلقي عروض من المستقلين المحترفين
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">نشر مشروع جديد</h1>
+        <p className="text-gray-600">املأ التفاصيل أدناه لبدء تلقي عروض من المستقلين المحترفين</p>
       </div>
 
       {showReferralNotice && (
         <Alert className="mb-6 border-green-200 bg-green-50">
           <Gift className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-700 space-y-2">
-            <div>
-              ✅ <strong>كود الإحالة مفعل:</strong> {referralCode}
-            </div>
-            <div className="text-sm text-green-600">
-              تحصل على خصم 10% وسيحصل المسوق على عمولة عند إتمام المشروع
-            </div>
+            <div>✅ <strong>كود الإحالة مفعل:</strong> {referralCode}</div>
+            <div className="text-sm text-green-600">تحصل على خصم 10% وسيحصل المسوق على عمولة عند إتمام المشروع</div>
           </AlertDescription>
         </Alert>
       )}
@@ -561,116 +417,45 @@ function NewProjectForm() {
 
                 <div className="space-y-3">
                   <Label htmlFor="title">عنوان المشروع *</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                    placeholder="مثال: تصميم موقع إلكتروني لشركة تجارية"
-                    className="focus:ring-2 focus:ring-purple-500"
-                  />
+                  <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="مثال: تصميم موقع إلكتروني لشركة تجارية" className="focus:ring-2 focus:ring-purple-500" />
                 </div>
 
                 <div className="space-y-3">
                   <Label htmlFor="description">وصف المشروع *</Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                    rows={6}
-                    placeholder="صف مشروعك بالتفصيل، بما في ذلك المتطلبات والنتائج المتوقعة..."
-                    className="resize-none focus:ring-2 focus:ring-purple-500"
-                  />
-                  <p className="text-sm text-gray-500">
-                    ⚠️ لا تضف معلومات اتصال (أرقام هواتف، إيميلات، حسابات تواصل
-                    اجتماعي)
-                  </p>
+                  <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required rows={6} placeholder="صف مشروعك بالتفصيل، بما في ذلك المتطلبات والنتائج المتوقعة..." className="resize-none focus:ring-2 focus:ring-purple-500" />
+                  <p className="text-sm text-gray-500">⚠️ لا تضف معلومات اتصال (أرقام هواتف، إيميلات، حسابات تواصل اجتماعي)</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <Label htmlFor="category">التصنيف *</Label>
-                    <Select
-                      value={category}
-                      onValueChange={setCategory}
-                      required
-                    >
-                      <SelectTrigger className="focus:ring-2 focus:ring-purple-500">
-                        <SelectValue placeholder="اختر التصنيف" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.value} value={cat.value}>
-                            {cat.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                    <Select value={category} onValueChange={setCategory} required>
+                      <SelectTrigger className="focus:ring-2 focus:ring-purple-500"><SelectValue placeholder="اختر التصنيف" /></SelectTrigger>
+                      <SelectContent>{categories.map((cat) => (<SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>))}</SelectContent>
                     </Select>
                   </div>
-
                   <div className="space-y-3">
                     <Label htmlFor="estimatedHours">الوقت المقدر (ساعات)</Label>
-                    <Input
-                      id="estimatedHours"
-                      type="number"
-                      min="1"
-                      value={estimatedHours}
-                      onChange={(e) => setEstimatedHours(e.target.value)}
-                      placeholder="مثال: 40"
-                      className="focus:ring-2 focus:ring-purple-500"
-                    />
+                    <Input id="estimatedHours" type="number" min="1" value={estimatedHours} onChange={(e) => setEstimatedHours(e.target.value)} placeholder="مثال: 40" className="focus:ring-2 focus:ring-purple-500" />
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <Label htmlFor="budgetMin">الميزانية الدنيا *</Label>
-                    <Select
-                      value={budgetMin}
-                      onValueChange={setBudgetMin}
-                      required
-                    >
-                      <SelectTrigger className="focus:ring-2 focus:ring-purple-500">
-                        <SelectValue placeholder="اختر الميزانية" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {budgetOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                    <Select value={budgetMin} onValueChange={setBudgetMin} required>
+                      <SelectTrigger className="focus:ring-2 focus:ring-purple-500"><SelectValue placeholder="اختر الميزانية" /></SelectTrigger>
+                      <SelectContent>{budgetOptions.map((option) => (<SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>))}</SelectContent>
                     </Select>
-                    <p className="text-xs text-gray-500">
-                      سيتم فتح بوابة الدفع المناسبة تلقائياً بناءً على اختيارك
-                    </p>
+                    <p className="text-xs text-gray-500">سيتم فتح بوابة الدفع المناسبة تلقائياً بناءً على اختيارك</p>
                   </div>
-
                   <div className="space-y-3">
-                    <Label htmlFor="budgetMax">
-                      الميزانية القصوى (اختياري)
-                    </Label>
+                    <Label htmlFor="budgetMax">الميزانية القصوى (اختياري)</Label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                        $
-                      </span>
-                      <Input
-                        id="budgetMax"
-                        type="number"
-                        min={budgetMin || "300"}
-                        step="50"
-                        value={budgetMax}
-                        onChange={(e) => setBudgetMax(e.target.value)}
-                        className="pl-10 focus:ring-2 focus:ring-purple-500"
-                        placeholder="اختياري"
-                      />
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                      <Input id="budgetMax" type="number" min={budgetMin || "300"} step="50" value={budgetMax} onChange={(e) => setBudgetMax(e.target.value)} className="pl-10 focus:ring-2 focus:ring-purple-500" placeholder="اختياري" />
                     </div>
-                    {budgetMin && (
-                      <p className="text-xs text-gray-500">
-                        الحد الأدنى المحدد: {budgetMin}$
-                      </p>
-                    )}
+                    {budgetMin && <p className="text-xs text-gray-500">الحد الأدنى المحدد: {budgetMin}$</p>}
                   </div>
                 </div>
               </CardContent>
@@ -680,71 +465,28 @@ function NewProjectForm() {
             <Card>
               <CardHeader>
                 <CardTitle>الملفات المرفقة</CardTitle>
-                <CardDescription>
-                  يمكنك رفع حتى 50 ملف (صور، مستندات، إلخ)
-                </CardDescription>
+                <CardDescription>يمكنك رفع حتى 50 ملف (صور، مستندات، إلخ)</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
                   <Upload className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-sm text-gray-600 mb-3">
-                    اسحب وأفلت الملفات أو انقر للرفع
-                  </p>
-                  <input
-                    type="file"
-                    id="file-upload"
-                    multiple
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <label htmlFor="file-upload">
-                    <Button type="button" variant="outline" className="hover:bg-purple-50">
-                      اختيار الملفات
-                    </Button>
-                  </label>
-                  <p className="text-xs text-gray-500 mt-3">
-                    الملفات المدعومة: صور، PDF، Word، Excel، ZIP (بحد أقصى 50 ملف)
-                  </p>
+                  <p className="text-sm text-gray-600 mb-3">اسحب وأفلت الملفات أو انقر للرفع</p>
+                  <input type="file" id="file-upload" multiple onChange={handleFileUpload} className="hidden" />
+                  <label htmlFor="file-upload"><Button type="button" variant="outline" className="hover:bg-purple-50">اختيار الملفات</Button></label>
+                  <p className="text-xs text-gray-500 mt-3">الملفات المدعومة: صور، PDF، Word، Excel، ZIP (بحد أقصى 50 ملف)</p>
                 </div>
-
                 {files.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">
-                      الملفات المختارة ({files.length}/50)
-                    </p>
-                    <div className="space-y-2">
-                      {files.map((file, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-                              <span className="text-xs font-medium">
-                                {file.name.split(".").pop()?.toUpperCase()}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium truncate max-w-xs">
-                                {file.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {(file.size / 1024).toFixed(1)} كيلوبايت
-                              </p>
-                            </div>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeFile(index)}
-                            className="hover:bg-red-50 hover:text-red-600"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
+                    <p className="text-sm font-medium">الملفات المختارة ({files.length}/50)</p>
+                    <div className="space-y-2">{files.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center"><span className="text-xs font-medium">{file.name.split(".").pop()?.toUpperCase()}</span></div>
+                          <div><p className="text-sm font-medium truncate max-w-xs">{file.name}</p><p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} كيلوبايت</p></div>
                         </div>
-                      ))}
-                    </div>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => removeFile(index)} className="hover:bg-red-50 hover:text-red-600"><X className="h-4 w-4" /></Button>
+                      </div>
+                    ))}</div>
                   </div>
                 )}
               </CardContent>
@@ -754,163 +496,43 @@ function NewProjectForm() {
           {/* Right Column - Additional Info */}
           <div className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>إعدادات إضافية</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle>إعدادات إضافية</CardTitle></CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-3">
                   <Label>الموعد النهائي (اختياري)</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal hover:bg-gray-50",
-                          !deadline && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="ml-2 h-4 w-4" />
-                        {deadline
-                          ? format(deadline, "yyyy-MM-dd")
-                          : "اختر تاريخ"}
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal hover:bg-gray-50", !deadline && "text-muted-foreground")}>
+                        <CalendarIcon className="ml-2 h-4 w-4" />{deadline ? format(deadline, "yyyy-MM-dd") : "اختر تاريخ"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={deadline}
-                        onSelect={setDeadline}
-                        initialFocus
-                        className="rounded-md border"
-                      />
+                      <Calendar mode="single" selected={deadline} onSelect={setDeadline} initialFocus className="rounded-md border" />
                     </PopoverContent>
                   </Popover>
                 </div>
-
                 <div className="space-y-3">
-                  <Label htmlFor="referralCode" className="flex items-center gap-2">
-                    <UserPlus className="h-4 w-4" />
-                    كود الإحالة (اختياري)
-                  </Label>
+                  <Label htmlFor="referralCode" className="flex items-center gap-2"><UserPlus className="h-4 w-4" />كود الإحالة (اختياري)</Label>
                   <div className="relative">
-                    <Input
-                      id="referralCode"
-                      value={referralCode}
-                      onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                      placeholder="أدخل كود الإحالة"
-                      className={cn(
-                        "focus:ring-2 focus:ring-purple-500",
-                        referralLoaded ? "border-green-500 bg-green-50" : ""
-                      )}
-                    />
-                    {referralLoaded && (
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      </div>
-                    )}
+                    <Input id="referralCode" value={referralCode} onChange={(e) => setReferralCode(e.target.value.toUpperCase())} placeholder="أدخل كود الإحالة" className={cn("focus:ring-2 focus:ring-purple-500", referralLoaded ? "border-green-500 bg-green-50" : "")} />
+                    {referralLoaded && (<div className="absolute right-3 top-1/2 transform -translate-y-1/2"><div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center"><svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg></div></div></div>}
                   </div>
-                  <p className="text-xs text-gray-500">
-                    إذا كنت قد سجلت عبر رابط مسوق، أدخل الكود هنا أو استخدم رابط مثل:
-                    <code className="block mt-1 bg-gray-100 p-1 rounded text-xs font-mono">
-                      https://workshub.space/projects/new?ref=ABCD
-                    </code>
-                  </p>
+                  <p className="text-xs text-gray-500">إذا كنت قد سجلت عبر رابط مسوق، أدخل الكود هنا أو استخدم رابط مثل: <code className="block mt-1 bg-gray-100 p-1 rounded text-xs font-mono">https://workshub.space/projects/new?ref=ABCD</code></p>
                 </div>
-
                 <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-100">
-                  <h3 className="font-semibold text-blue-700 mb-2 flex items-center gap-2">
-                    <span>💡</span> نصائح للنشر
-                  </h3>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500">•</span>
-                      <span>كن واضحاً في وصف المتطلبات</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500">•</span>
-                      <span>حدد ميزانية واقعية</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500">•</span>
-                      <span>أرفع ملفات توضيحية إن أمكن</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500">•</span>
-                      <span>حدد موعداً نهائياً مناسباً</span>
-                    </li>
-                  </ul>
+                  <h3 className="font-semibold text-blue-700 mb-2 flex items-center gap-2"><span>💡</span> نصائح للنشر</h3>
+                  <ul className="text-sm text-gray-600 space-y-1"><li className="flex items-start gap-2"><span className="text-blue-500">•</span><span>كن واضحاً في وصف المتطلبات</span></li><li className="flex items-start gap-2"><span className="text-blue-500">•</span><span>حدد ميزانية واقعية</span></li><li className="flex items-start gap-2"><span className="text-blue-500">•</span><span>أرفق ملفات توضيحية إن أمكن</span></li><li className="flex items-start gap-2"><span className="text-blue-500">•</span><span>حدد موعداً نهائياً مناسباً</span></li></ul>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>معلومات الدفع والإحالة</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle>معلومات الدفع والإحالة</CardTitle></CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-green-600 font-bold">💰</span>
-                  </div>
-                  <div>
-                    <p className="font-medium">نظام الدفع</p>
-                    <p className="text-sm text-gray-600">
-                      بعد النشر، سيتم فتح بوابة الدفع المناسبة تلقائياً حسب الميزانية المختارة
-                    </p>
-                  </div>
-                </div>
-
-                {budgetMin && (
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-sm font-medium text-blue-700">
-                      الميزانية المختارة: <span className="font-bold">{budgetMin}$</span>
-                    </p>
-                    <p className="text-xs text-blue-600 mt-1">
-                      بوابة الدفع: <span className="font-mono">{getGatewayByBudget(budgetMin)?.gateway}</span>
-                    </p>
-                  </div>
-                )}
-
-                {referralCode && (
-                  <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Gift className="h-4 w-4 text-purple-600" />
-                      <p className="text-sm font-medium text-purple-700">
-                        مزايا كود الإحالة
-                      </p>
-                    </div>
-                    <div className="space-y-1 text-xs">
-                      <p className="text-purple-600 flex items-center gap-1">
-                        <span>🎁</span>
-                        <span><strong>خصم 10%</strong> على نشر المشروع</span>
-                      </p>
-                      <p className="text-purple-600 flex items-center gap-1">
-                        <span>👥</span>
-                        <span>المسوق يحصل على <strong>10% عمولة</strong></span>
-                      </p>
-                      <p className="text-purple-600 flex items-center gap-1">
-                        <span>📊</span>
-                        <span><strong>تتبع الأرباح</strong> في لوحة تحكم المسوق</span>
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-yellow-600 font-bold">🎁</span>
-                  </div>
-                  <div>
-                    <p className="font-medium">مكافأة الإحالة</p>
-                    <p className="text-sm text-gray-600">
-                      استخدم كود إحالة للحصول على خصومات وعروض خاصة
-                    </p>
-                  </div>
-                </div>
+                <div className="flex items-start gap-3"><div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0"><span className="text-green-600 font-bold">💰</span></div><div><p className="font-medium">نظام الدفع</p><p className="text-sm text-gray-600">بعد النشر، سيتم فتح بوابة الدفع المناسبة تلقائياً حسب الميزانية المختارة</p></div></div>
+                {budgetMin && (<div className="p-3 bg-blue-50 rounded-lg border border-blue-200"><p className="text-sm font-medium text-blue-700">الميزانية المختارة: <span className="font-bold">{budgetMin}$</span></p><p className="text-xs text-blue-600 mt-1">بوابة الدفع: <span className="font-mono">{getGatewayByBudget(budgetMin)?.gateway}</span></p></div>)}
+                {referralCode && (<div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200"><div className="flex items-center gap-2 mb-2"><Gift className="h-4 w-4 text-purple-600" /><p className="text-sm font-medium text-purple-700">مزايا كود الإحالة</p></div><div className="space-y-1 text-xs"><p className="text-purple-600 flex items-center gap-1"><span>🎁</span><span><strong>خصم 10%</strong> على نشر المشروع</span></p><p className="text-purple-600 flex items-center gap-1"><span>👥</span><span>المسوق يحصل على <strong>10% عمولة</strong></span></p><p className="text-purple-600 flex items-center gap-1"><span>📊</span><span><strong>تتبع الأرباح</strong> في لوحة تحكم المسوق</span></p></div></div>)}
+                <div className="flex items-start gap-3"><div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center shrink-0"><span className="text-yellow-600 font-bold">🎁</span></div><div><p className="font-medium">مكافأة الإحالة</p><p className="text-sm text-gray-600">استخدم كود إحالة للحصول على خصومات وعروض خاصة</p></div></div>
               </CardContent>
             </Card>
 
@@ -918,61 +540,13 @@ function NewProjectForm() {
             <div className="sticky top-6">
               <Card>
                 <CardContent className="pt-6">
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all"
-                    disabled={loading || !budgetMin}
-                    size="lg"
-                  >
-                    {loading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        جاري إنشاء المشروع...
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="ml-2 h-5 w-5" />
-                        نشر المشروع وفتح بوابة الدفع
-                      </>
-                    )}
+                  <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all" disabled={loading || !budgetMin} size="lg">
+                    {loading ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>جاري إنشاء المشروع...</>) : (<><CreditCard className="ml-2 h-5 w-5" />نشر المشروع وفتح بوابة الدفع</>)}
                   </Button>
-                  
-                  {referralCode && (
-                    <div className="mt-3 p-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
-                      <p className="text-xs text-center text-green-700">
-                        ✅ كود الإحالة <strong>{referralCode}</strong> مفعل - تحصل على خصم 10%
-                      </p>
-                    </div>
-                  )}
-
-                  <p className="text-xs text-gray-500 text-center mt-3">
-                    بالنشر، فإنك توافق على{" "}
-                    <Link
-                      href="/terms"
-                      className="text-blue-600 hover:underline font-medium"
-                    >
-                      الشروط والأحكام
-                    </Link>
-                  </p>
-                  
-                  {!budgetMin && (
-                    <p className="text-center text-amber-600 text-sm mt-2 flex items-center justify-center gap-1">
-                      <AlertCircle className="h-4 w-4" />
-                      ⚠️ الرجاء اختيار الميزانية أولاً
-                    </p>
-                  )}
-                  
-                  <div className="mt-4 text-center">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => router.back()}
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      إلغاء والعودة للخلف
-                    </Button>
-                  </div>
+                  {referralCode && (<div className="mt-3 p-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg"><p className="text-xs text-center text-green-700">✅ كود الإحالة <strong>{referralCode}</strong> مفعل - تحصل على خصم 10%</p></div>)}
+                  <p className="text-xs text-gray-500 text-center mt-3">بالنشر، فإنك توافق على <Link href="/terms" className="text-blue-600 hover:underline font-medium">الشروط والأحكام</Link></p>
+                  {!budgetMin && (<p className="text-center text-amber-600 text-sm mt-2 flex items-center justify-center gap-1"><AlertCircle className="h-4 w-4" />⚠️ الرجاء اختيار الميزانية أولاً</p>)}
+                  <div className="mt-4 text-center"><Button type="button" variant="ghost" size="sm" onClick={() => router.back()} className="text-gray-600 hover:text-gray-900">إلغاء والعودة للخلف</Button></div>
                 </CardContent>
               </Card>
             </div>
