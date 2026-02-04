@@ -65,44 +65,58 @@ export default function SignupPage() {
     try {
       const supabase = createClient();
 
-      // تسجيل المستخدم الجديد. قاعدة البيانات ستقوم بإنشاء الملف الشخصي تلقائياً.
+      // تسجيل المستخدم الجديد
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
-            phone: phone, // <-- إرسال رقم الهاتف
-            role: role,   // <-- إرسال نوع المستخدم
+            phone: phone,
+            role: role,
+            referral_code: referralCode || null, // حفظ كود الإحالة في بيانات المستخدم
           },
         },
       });
 
       if (signUpError) throw signUpError;
 
-      // إذا كان هناك كود إحالة، تسجيل الإحالة
-      // ننتظر قليلاً للتأكد من أن المُحفِّز (trigger) في قاعدة البيانات قد أنشأ الملف الشخصي
+      // إذا كان هناك كود إحالة، حفظه في localStorage للاستخدام لاحقاً
       if (referralCode && data.user) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // انتظار ثانية واحدة
-        const { data: affiliateData } = await supabase
-          .from("affiliates")
-          .select("id")
-          .eq("referral_code", referralCode)
-          .single();
+        localStorage.setItem("user_referral_code", referralCode);
+        
+        // تسجيل الإحالة في قاعدة البيانات
+        setTimeout(async () => {
+          const { data: affiliateData } = await supabase
+            .from("affiliates")
+            .select("id")
+            .eq("referral_code", referralCode)
+            .single();
 
-        if (affiliateData) {
-          await supabase.from("referrals").insert({
-            affiliate_id: affiliateData.id,
-            referred_user_id: data.user.id,
-            referral_code: referralCode,
-            status: "pending",
-          });
-        }
+          if (affiliateData) {
+            await supabase.from("referrals").insert({
+              affiliate_id: affiliateData.id,
+              referred_user_id: data.user.id,
+              referral_code: referralCode,
+              status: "pending",
+            });
+          }
+        }, 1500);
+      }
+
+      // حفظ كود الإحالة في sessionStorage أيضاً
+      if (referralCode) {
+        sessionStorage.setItem("pending_referral_code", referralCode);
       }
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/auth/login"); // توجيه المستخدم لتسجيل الدخول بعد التأكيد
+        // إذا كان المستخدم صاحب عمل، توجهه مباشرة إلى صفحة إنشاء مشروع مع الكود
+        if (role === "business_owner" && referralCode) {
+          router.push(`/projects/new?ref=${referralCode}`);
+        } else {
+          router.push("/dashboard");
+        }
       }, 3000);
     } catch (err: any) {
       setError(err.message || "حدث خطأ أثناء إنشاء الحساب");
@@ -125,7 +139,15 @@ export default function SignupPage() {
               تم إنشاء حسابك بنجاح! 🎉
             </CardTitle>
             <CardDescription>
-              يرجى تأكيد بريدك الإلكتروني. يتم توجيهك إلى صفحة تسجيل الدخول...
+              {referralCode ? (
+                <>
+                  تم تفعيل كود الإحالة: <strong>{referralCode}</strong>
+                  <br />
+                  سيتم توجيهك لإنشاء أول مشروع...
+                </>
+              ) : (
+                "يتم توجيهك إلى لوحة التحكم..."
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
@@ -153,9 +175,15 @@ export default function SignupPage() {
             {referralCode && (
               <Alert className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
                 <DollarSign className="h-4 w-4 text-blue-600" />
-                <AlertDescription>
-                  تمت إحالتك بواسطة كود:{" "}
-                  <span className="font-bold">{referralCode}</span>
+                <AlertDescription className="space-y-2">
+                  <div>
+                    ✅ <strong>كود الإحالة مفعل:</strong> {referralCode}
+                  </div>
+                  {role === "business_owner" && (
+                    <div className="text-sm text-blue-700">
+                      ستحصل على خصم 10% على نشر أول مشروع لك!
+                    </div>
+                  )}
                 </AlertDescription>
               </Alert>
             )}
@@ -302,15 +330,29 @@ export default function SignupPage() {
           </CardContent>
 
           <CardContent className="pt-0">
-            <p className="text-sm text-center text-gray-600">
-              لديك حساب بالفعل؟{" "}
-              <Link
-                href="/auth/login"
-                className="text-blue-600 hover:underline font-medium"
-              >
-                سجل الدخول
-              </Link>
-            </p>
+            <div className="text-center space-y-2">
+              <p className="text-sm text-gray-600">
+                لديك حساب بالفعل؟{" "}
+                <Link
+                  href="/auth/login"
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  سجل الدخول
+                </Link>
+              </p>
+              
+              {!referralCode && (
+                <p className="text-xs text-gray-500">
+                  لديك كود إحالة؟{" "}
+                  <Link
+                    href="/auth/signup"
+                    className="text-purple-600 hover:underline"
+                  >
+                    أضفه عند التسجيل
+                  </Link>
+                </p>
+              )}
+            </div>
           </CardContent>
         </form>
       </Card>
