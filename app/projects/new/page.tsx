@@ -72,7 +72,8 @@ function NewProjectForm() {
       setIsLoggedIn(!!user);
       
       if (!user) {
-        router.push(`/auth/login?redirect=/projects/new${window.location.search}`);
+        const currentParams = new URLSearchParams(window.location.search);
+        router.push(`/auth/login?redirect=/projects/new&${currentParams.toString()}`);
         return;
       }
     };
@@ -92,7 +93,7 @@ function NewProjectForm() {
     let finalRefCode = refFromUrl || refFromStorage || refFromSession;
     
     if (finalRefCode && !referralLoaded) {
-      setReferralCode(finalRefCode);
+      setReferralCode(finalRefCode.toUpperCase());
       setReferralLoaded(true);
       
       // تنظيف التخزين المحلي بعد الاستخدام
@@ -124,7 +125,8 @@ function NewProjectForm() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        router.push(`/auth/login?redirect=/projects/new&ref=${referralCode}`);
+        const redirectUrl = `/auth/login?redirect=/projects/new&ref=${referralCode || ""}`;
+        router.push(redirectUrl);
         return;
       }
 
@@ -151,19 +153,24 @@ function NewProjectForm() {
 
       // التحقق من صحة كود الإحالة إذا كان موجوداً
       let validMarketerId = null;
+      let validMarketerData = null;
+      
       if (referralCode) {
+        console.log("🔍 التحقق من كود الإحالة:", referralCode);
+        
         const { data: marketer, error: marketerError } = await supabase
           .from("affiliates")
-          .select("id, user_id, referral_code, is_active")
-          .eq("referral_code", referralCode)
+          .select("id, user_id, referral_code, is_active, total_referrals, total_earnings")
+          .eq("referral_code", referralCode.trim())
           .eq("is_active", true)
           .single();
 
         if (!marketerError && marketer) {
           validMarketerId = marketer.id;
-          console.log(`✅ كود الإحالة صالح للمسوق: ${marketer.referral_code}`);
+          validMarketerData = marketer;
+          console.log("✅ كود الإحالة صالح للمسوق:", marketer.referral_code);
         } else {
-          console.log("⚠️ كود الإحالة غير صالح أو المسوق غير نشط");
+          console.log("⚠️ كود الإحالة غير صالح أو المسوق غير نشط:", marketerError?.message);
         }
       }
 
@@ -190,25 +197,126 @@ function NewProjectForm() {
         .select()
         .single();
 
-      if (projectError) throw projectError;
+      if (projectError) {
+        console.error("❌ خطأ في إنشاء المشروع:", projectError);
+        throw projectError;
+      }
+
+      console.log("✅ تم إنشاء المشروع بنجاح:", project.id);
 
       // إذا كان كود الإحالة صالحاً، تسجيل الإحالة
-      if (validMarketerId) {
-        await supabase.from("referrals").insert({
-          affiliate_id: validMarketerId,
-          referred_user_id: user.id,
-          project_id: project.id,
-          referral_code: referralCode,
-          status: "pending",
-          commission_rate: 10.0,
-          project_amount: parseInt(budgetMin),
-        });
-        
-        console.log(`✅ تم تسجيل الإحالة للمشروع: ${project.id}`);
+      if (validMarketerId && project.id) {
+        try {
+          // حساب العمولة (10% من الميزانية الدنيا)
+          const commissionAmount = parseFloat(((parseInt(budgetMin) * 10) / 100).toFixed(2));
+          
+          console.log("📝 بيانات الإحالة:");
+          console.log("  - affiliate_id:", validMarketerId);
+          console.log("  - referred_user_id:", user.id);
+          console.log("  - project_id:", project.id);
+          console.log("  - referral_code:", referralCode);
+          console.log("  - commission_amount:", commissionAmount);
+
+          // إدراج الإحالة في جدول referrals
+          const { data: newReferral, error: referralError } = await supabase
+            .from("referrals")
+            .insert({
+              affiliate_id: validMarketerId,
+              referred_user_id: user.id,
+              referral_code: referralCode,
+              project_id: project.id,
+              commission_amount: commissionAmount,
+              status: "pending"
+            })
+            .select()
+            .single();
+
+          if (referralError) {
+            console.error("❌ خطأ في تسجيل الإحالة:", referralError);
+            console.error("❌ تفاصيل الخطأ:", referralError.details);
+            
+            // حاول مرة أخرى مع خيارات مختلفة
+            const { data: retryReferral, error: retryError } = await supabase
+              .from("referrals")
+              .insert({
+                affiliate_id: validMarketerId,
+                referred_user_id: user.id,
+                referral_code: referralCode,
+                project_id: project.id,
+                commission_amount: commissionAmount,
+                status: "pending",
+                created_at: new Date().toISOString()
+              })
+              .select()
+              .single();
+
+            if (retryError) {
+              console.error("❌ خطأ في المحاولة الثانية:", retryError);
+            } else {
+              console.log("✅ تم تسجيل الإحالة في المحاولة الثانية:", retryReferral);
+            }
+          } else {
+            console.log("✅ تم تسجيل الإحالة بنجاح:", newReferral);
+          }
+
+          // تحديث إحصائيات المسوق
+          try {
+            console.log("📊 تحديث إحصائيات المسوق...");
+            
+            // استخدام RPC function إذا كانت موجودة
+            const { error: rpcError } = await supabase.rpc('increment_affiliate_stats', {
+              p_affiliate_id: validMarketerId,
+              p_amount: commissionAmount
+            });
+
+            if (rpcError) {
+              console.log("⚠️ RPC غير متوفر، استخدام الطريقة البديلة:", rpcError.message);
+              
+              // الطريقة البديلة: جلب ثم تحديث
+              const { data: currentAffiliate } = await supabase
+                .from("affiliates")
+                .select("total_referrals, total_earnings")
+                .eq("id", validMarketerId)
+                .single();
+
+              if (currentAffiliate) {
+                const newReferrals = (currentAffiliate.total_referrals || 0) + 1;
+                const newEarnings = parseFloat(((currentAffiliate.total_earnings || 0) + commissionAmount).toFixed(2));
+                
+                const { error: updateError } = await supabase
+                  .from("affiliates")
+                  .update({
+                    total_referrals: newReferrals,
+                    total_earnings: newEarnings,
+                    updated_at: new Date().toISOString()
+                  })
+                  .eq("id", validMarketerId);
+
+                if (updateError) {
+                  console.error("❌ خطأ في تحديث المسوق:", updateError);
+                } else {
+                  console.log(`✅ تم تحديث إحصائيات المسوق: ${newReferrals} إحالات، ${newEarnings}$ أرباح`);
+                }
+              }
+            } else {
+              console.log(`✅ تم تحديث إحصائيات المسوق عبر RPC: +${commissionAmount}$`);
+            }
+            
+          } catch (statsError: any) {
+            console.error("⚠️ خطأ في تحديث إحصائيات المسوق:", statsError.message);
+          }
+          
+        } catch (referralErr: any) {
+          console.error("❌ خطأ كامل في تسجيل الإحالة:", referralErr.message);
+          // لا ترمي الخطأ الرئيسي، لأن المشروع تم إنشاؤه بنجاح
+        }
+      } else {
+        console.log("ℹ️ لا يوجد كود إحالة صالح، تم تخطي تسجيل الإحالة");
       }
 
       // Upload files if any
       if (files.length > 0 && files.length <= 50) {
+        console.log("📤 رفع الملفات...");
         for (const file of files) {
           const fileName = `${Date.now()}_${file.name}`;
           const { data: uploadData, error: uploadError } =
@@ -228,6 +336,7 @@ function NewProjectForm() {
             uploaded_by: user.id,
           });
         }
+        console.log(`✅ تم رفع ${files.length} ملف`);
       } else if (files.length > 50) {
         throw new Error("لا يمكن رفع أكثر من 50 ملف");
       }
@@ -247,6 +356,7 @@ function NewProjectForm() {
       }, 5000);
       
     } catch (err: any) {
+      console.error("❌ خطأ أثناء إنشاء المشروع:", err);
       setError(err.message || "حدث خطأ أثناء إنشاء المشروع");
     } finally {
       setLoading(false);
@@ -352,6 +462,18 @@ function NewProjectForm() {
                 </div>
               </>
             )}
+            
+            {referralCode && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700">
+                  ✅ تم تسجيل الإحالة بكود: <strong>{referralCode}</strong>
+                </p>
+                <p className="text-xs text-green-600 mt-1">
+                  سيحصل المسوق على عمولة 10% عند إتمام المشروع
+                </p>
+              </div>
+            )}
+            
             <p className="text-sm text-gray-500">
               ستتم توجيهك إلى صفحة المشروع خلال 5 ثوانٍ...
             </p>
