@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,11 +30,12 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Upload, X } from "lucide-react";
+import { CalendarIcon, Upload, X, UserPlus, Gift } from "lucide-react";
 import Link from "next/link";
 
 export default function NewProjectPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -50,6 +51,7 @@ export default function NewProjectPage() {
   const [deadline, setDeadline] = useState<Date>();
   const [referralCode, setReferralCode] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [referralLoaded, setReferralLoaded] = useState(false);
 
   // خيارات الميزانية الثابتة مرتبطة ببوابات الدفع
   const budgetOptions = [
@@ -59,6 +61,18 @@ export default function NewProjectPage() {
     { value: "1200", label: "1200$ - مشروع حلول متكاملة", gateway: "solutions.workshub.space" },
     { value: "1500", label: "1500$ - مشروع كبير/معقد", gateway: "professional.workshub.space" },
   ];
+
+  // جلب كود الإحالة من query parameters عند تحميل الصفحة
+  useEffect(() => {
+    const refCode = searchParams.get("ref");
+    if (refCode && !referralLoaded) {
+      setReferralCode(refCode);
+      setReferralLoaded(true);
+      
+      // إظهار إشعار أن كود الإحالة تم تحميله
+      setError(null); // مسح أي أخطاء سابقة
+    }
+  }, [searchParams, referralLoaded]);
 
   const getGatewayByBudget = (budget: string) => {
     return budgetOptions.find(option => option.value === budget);
@@ -99,14 +113,33 @@ export default function NewProjectPage() {
         throw new Error("الميزانية المختارة غير صالحة");
       }
 
-      // إنشاء المشروع - مع القيم المسموحة في enum
+      // التحقق من صحة كود الإحالة إذا كان موجوداً
+      if (referralCode) {
+        // يمكنك إضافة منطق للتحقق من صحة كود الإحالة هنا
+        // مثال: التحقق من وجود الكود في قاعدة البيانات
+        const { data: marketer, error: marketerError } = await supabase
+          .from("marketers")
+          .select("id, name")
+          .eq("referral_code", referralCode)
+          .single();
+
+        if (marketerError) {
+          // الكود غير موجود، لكن نتركه للمستخدم ليختار
+          console.log("كود الإحالة غير موجود، ولكن يمكن المتابعة");
+        } else if (marketer) {
+          // الكود موجود وصالح
+          console.log(`كود الإحالة صالح للمسوق: ${marketer.name}`);
+        }
+      }
+
+      // إنشاء المشروع
       const projectData: any = {
         client_id: user.id,
         title,
         description,
         category,
         budget_min: parseInt(budgetMin),
-        status: "draft", // استخدام draft بدلاً من pending_payment
+        status: "open",
       };
 
       // إضافة الحقول الاختيارية فقط إذا كانت موجودة
@@ -122,49 +155,52 @@ export default function NewProjectPage() {
         .select()
         .single();
 
-      if (projectError) {
-        // إذا كان الخطأ بسبب enum، جرب استخدام "open" بدلاً من "draft"
-        if (projectError.message.includes("enum")) {
-          // جرب مع "open"
-          projectData.status = "open";
-          const { data: project2, error: projectError2 } = await supabase
-            .from("projects")
-            .insert(projectData)
-            .select()
-            .single();
-          
-          if (projectError2) throw projectError2;
-          
-          // استخدام المشروع الثاني
-          return handleProjectCreated(project2, selectedGateway);
+      if (projectError) throw projectError;
+
+      // Upload files if any
+      if (files.length > 0 && files.length <= 50) {
+        for (const file of files) {
+          const fileName = `${Date.now()}_${file.name}`;
+          const { data: uploadData, error: uploadError } =
+            await supabase.storage
+              .from("project-files")
+              .upload(`projects/${project.id}/${fileName}`, file);
+
+          if (uploadError) throw uploadError;
+
+          // Create file record
+          await supabase.from("project_files").insert({
+            project_id: project.id,
+            file_name: file.name,
+            file_url: uploadData.path,
+            file_size: file.size,
+            file_type: file.type,
+            uploaded_by: user.id,
+          });
         }
-        throw projectError;
+      } else if (files.length > 50) {
+        throw new Error("لا يمكن رفع أكثر من 50 ملف");
       }
 
-      handleProjectCreated(project, selectedGateway);
+      // بعد إنشاء المشروع، توجيه المستخدم لبوابة الدفع المناسبة
+      const paymentUrl = `https://${selectedGateway.gateway}?project_id=${project.id}&amount=${budgetMin}`;
+      const newWindow = window.open(paymentUrl, '_blank');
+      
+      if (newWindow) {
+        setPaymentWindowOpened(true);
+      }
+      
+      // إظهار رسالة نجاح مع توجيه لصفحة المشروع
+      setSuccess(true);
+      setTimeout(() => {
+        router.push(`/projects/${project.id}`);
+      }, 5000);
       
     } catch (err: any) {
       setError(err.message || "حدث خطأ أثناء إنشاء المشروع");
+    } finally {
       setLoading(false);
     }
-  };
-
-  const handleProjectCreated = (project: any, selectedGateway: any) => {
-    // بعد إنشاء المشروع، توجيه المستخدم لبوابة الدفع المناسبة
-    const paymentUrl = `https://${selectedGateway.gateway}?project_id=${project.id}&amount=${budgetMin}`;
-    const newWindow = window.open(paymentUrl, '_blank');
-    
-    if (newWindow) {
-      setPaymentWindowOpened(true);
-    }
-    
-    // إظهار رسالة نجاح مع توجيه لصفحة المشروع
-    setSuccess(true);
-    setTimeout(() => {
-      router.push(`/projects/${project.id}`);
-    }, 5000);
-    
-    setLoading(false);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -196,6 +232,9 @@ export default function NewProjectPage() {
     { value: "video-editing", label: "مونتاج فيديو" },
     { value: "other", label: "أخرى" },
   ];
+
+  // عرض إشعار إذا تم تحميل كود إحالة تلقائياً
+  const showReferralNotice = referralCode && referralLoaded;
 
   if (success) {
     return (
@@ -237,7 +276,7 @@ export default function NewProjectPage() {
                     onClick={() => {
                       const selectedGateway = getGatewayByBudget(budgetMin);
                       if (selectedGateway) {
-                        window.open(`https://${selectedGateway.gateway}`, '_blank');
+                        window.open(`https://${selectedGateway.gateway}?project_id=&amount=${budgetMin}`, '_blank');
                       }
                     }}
                     className="text-blue-600 hover:underline font-medium"
@@ -275,6 +314,20 @@ export default function NewProjectPage() {
           املأ التفاصيل أدناه لبدء تلقي عروض من المستقلين المحترفين
         </p>
       </div>
+
+      {showReferralNotice && (
+        <Alert className="mb-6 border-green-200 bg-green-50">
+          <Gift className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-700">
+            ✅ تم تحميل كود الإحالة تلقائياً! <strong>{referralCode}</strong>
+            {referralCode === "abcd" && (
+              <span className="block mt-1 text-sm">
+                مبروك! هذا الكود يمنحك خصم 10% على نشر مشروعك الأول.
+              </span>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="grid md:grid-cols-3 gap-8">
@@ -518,15 +571,33 @@ export default function NewProjectPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="referralCode">كود الإحالة (اختياري)</Label>
-                  <Input
-                    id="referralCode"
-                    value={referralCode}
-                    onChange={(e) => setReferralCode(e.target.value)}
-                    placeholder="إذا كان لديك كود إحالة"
-                  />
+                  <Label htmlFor="referralCode" className="flex items-center gap-2">
+                    <UserPlus className="h-4 w-4" />
+                    كود الإحالة (اختياري)
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="referralCode"
+                      value={referralCode}
+                      onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                      placeholder="أدخل كود الإحالة"
+                      className={referralLoaded ? "border-green-500 bg-green-50" : ""}
+                    />
+                    {referralLoaded && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500">
-                    إذا كنت قد سجلت عبر رابط مسوق، أدخل الكود هنا
+                    إذا كنت قد سجلت عبر رابط مسوق، أدخل الكود هنا أو استخدم رابط مثل:
+                    <code className="block mt-1 bg-gray-100 p-1 rounded text-xs">
+                      https://workshub.space/projects/new?ref=ABCD
+                    </code>
                   </p>
                 </div>
 
@@ -546,7 +617,7 @@ export default function NewProjectPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>معلومات الدفع</CardTitle>
+                <CardTitle>معلومات الدفع والإحالة</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -574,14 +645,31 @@ export default function NewProjectPage() {
                   </div>
                 )}
 
+                {referralCode && (
+                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Gift className="h-4 w-4 text-purple-600" />
+                      <p className="text-sm font-medium text-purple-700">
+                        كود الإحالة مفعل
+                      </p>
+                    </div>
+                    <p className="text-xs text-purple-600">
+                      الكود: <strong>{referralCode}</strong>
+                    </p>
+                    <p className="text-xs text-purple-500 mt-1">
+                      يحصل المسوق على 10% عمولة من قيمة المشروع
+                    </p>
+                  </div>
+                )}
+
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-yellow-600 font-bold">ℹ️</span>
+                    <span className="text-yellow-600 font-bold">🎁</span>
                   </div>
                   <div>
-                    <p className="font-medium">حالة المشروع</p>
+                    <p className="font-medium">مكافأة الإحالة</p>
                     <p className="text-sm text-gray-600">
-                      سيكون المشروع في حالة انتظار حتى تكتمل عملية الدفع
+                      استخدم كود إحالة للحصول على خصومات وعروض خاصة
                     </p>
                   </div>
                 </div>
@@ -604,9 +692,21 @@ export default function NewProjectPage() {
                         جاري إنشاء المشروع...
                       </>
                     ) : (
-                      "نشر المشروع وفتح بوابة الدفع"
+                      <>
+                        <CreditCard className="ml-2 h-5 w-5" />
+                        نشر المشروع وفتح بوابة الدفع
+                      </>
                     )}
                   </Button>
+                  
+                  {referralCode && (
+                    <div className="mt-3 p-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                      <p className="text-xs text-center text-green-700">
+                        ✅ كود الإحالة <strong>{referralCode}</strong> مفعل وسيحصل المسوق على عمولته
+                      </p>
+                    </div>
+                  )}
+
                   <p className="text-xs text-gray-500 text-center mt-3">
                     بالنشر، فإنك توافق على{" "}
                     <Link
