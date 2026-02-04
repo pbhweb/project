@@ -53,6 +53,7 @@ function NewProjectForm() {
   const [referralCode, setReferralCode] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [referralLoaded, setReferralLoaded] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // خيارات الميزانية الثابتة مرتبطة ببوابات الدفع
   const budgetOptions = [
@@ -63,17 +64,48 @@ function NewProjectForm() {
     { value: "1500", label: "1500$ - مشروع كبير/معقد", gateway: "professional.workshub.space" },
   ];
 
-  // جلب كود الإحالة من query parameters عند تحميل الصفحة
+  // جلب كود الإحالة من مصادر متعددة
   useEffect(() => {
-    const refCode = searchParams.get("ref");
-    if (refCode && !referralLoaded) {
-      setReferralCode(refCode);
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsLoggedIn(!!user);
+      
+      if (!user) {
+        router.push(`/auth/login?redirect=/projects/new${window.location.search}`);
+        return;
+      }
+    };
+    
+    checkAuth();
+
+    // المصدر 1: من query parameters مباشرة
+    const refFromUrl = searchParams.get("ref");
+    
+    // المصدر 2: من localStorage (إذا جاء من تسجيل جديد)
+    const refFromStorage = localStorage.getItem("user_referral_code");
+    
+    // المصدر 3: من sessionStorage
+    const refFromSession = sessionStorage.getItem("pending_referral_code");
+    
+    // تحديد أولوية المصادر
+    let finalRefCode = refFromUrl || refFromStorage || refFromSession;
+    
+    if (finalRefCode && !referralLoaded) {
+      setReferralCode(finalRefCode);
       setReferralLoaded(true);
       
-      // إظهار إشعار أن كود الإحالة تم تحميله
-      setError(null); // مسح أي أخطاء سابقة
+      // تنظيف التخزين المحلي بعد الاستخدام
+      if (refFromStorage) {
+        localStorage.removeItem("user_referral_code");
+      }
+      if (refFromSession) {
+        sessionStorage.removeItem("pending_referral_code");
+      }
+      
+      setError(null);
     }
-  }, [searchParams, referralLoaded]);
+  }, [searchParams, referralLoaded, router]);
 
   const getGatewayByBudget = (budget: string) => {
     return budgetOptions.find(option => option.value === budget);
@@ -91,7 +123,10 @@ function NewProjectForm() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("يجب تسجيل الدخول");
+      if (!user) {
+        router.push(`/auth/login?redirect=/projects/new&ref=${referralCode}`);
+        return;
+      }
 
       // Validate required fields
       if (!title || !description || !category || !budgetMin) {
@@ -115,21 +150,20 @@ function NewProjectForm() {
       }
 
       // التحقق من صحة كود الإحالة إذا كان موجوداً
+      let validMarketerId = null;
       if (referralCode) {
-        // يمكنك إضافة منطق للتحقق من صحة كود الإحالة هنا
-        // مثال: التحقق من وجود الكود في قاعدة البيانات
         const { data: marketer, error: marketerError } = await supabase
-          .from("marketers")
-          .select("id, name")
+          .from("affiliates")
+          .select("id, user_id, referral_code, is_active")
           .eq("referral_code", referralCode)
+          .eq("is_active", true)
           .single();
 
-        if (marketerError) {
-          // الكود غير موجود، لكن نتركه للمستخدم ليختار
-          console.log("كود الإحالة غير موجود، ولكن يمكن المتابعة");
-        } else if (marketer) {
-          // الكود موجود وصالح
-          console.log(`كود الإحالة صالح للمسوق: ${marketer.name}`);
+        if (!marketerError && marketer) {
+          validMarketerId = marketer.id;
+          console.log(`✅ كود الإحالة صالح للمسوق: ${marketer.referral_code}`);
+        } else {
+          console.log("⚠️ كود الإحالة غير صالح أو المسوق غير نشط");
         }
       }
 
@@ -141,13 +175,13 @@ function NewProjectForm() {
         category,
         budget_min: parseInt(budgetMin),
         status: "open",
+        referral_code: referralCode || null,
       };
 
       // إضافة الحقول الاختيارية فقط إذا كانت موجودة
       if (budgetMax) projectData.budget_max = parseFloat(budgetMax);
       if (estimatedHours) projectData.estimated_hours = parseInt(estimatedHours);
       if (deadline) projectData.deadline = deadline;
-      if (referralCode) projectData.referral_code = referralCode;
 
       // Create project
       const { data: project, error: projectError } = await supabase
@@ -157,6 +191,21 @@ function NewProjectForm() {
         .single();
 
       if (projectError) throw projectError;
+
+      // إذا كان كود الإحالة صالحاً، تسجيل الإحالة
+      if (validMarketerId) {
+        await supabase.from("referrals").insert({
+          affiliate_id: validMarketerId,
+          referred_user_id: user.id,
+          project_id: project.id,
+          referral_code: referralCode,
+          status: "pending",
+          commission_rate: 10.0,
+          project_amount: parseInt(budgetMin),
+        });
+        
+        console.log(`✅ تم تسجيل الإحالة للمشروع: ${project.id}`);
+      }
 
       // Upload files if any
       if (files.length > 0 && files.length <= 50) {
@@ -236,6 +285,17 @@ function NewProjectForm() {
 
   // عرض إشعار إذا تم تحميل كود إحالة تلقائياً
   const showReferralNotice = referralCode && referralLoaded;
+
+  if (!isLoggedIn) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري التحقق من تسجيل الدخول...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (success) {
     return (
@@ -319,13 +379,13 @@ function NewProjectForm() {
       {showReferralNotice && (
         <Alert className="mb-6 border-green-200 bg-green-50">
           <Gift className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-700">
-            ✅ تم تحميل كود الإحالة تلقائياً! <strong>{referralCode}</strong>
-            {referralCode === "abcd" && (
-              <span className="block mt-1 text-sm">
-                مبروك! هذا الكود يمنحك خصم 10% على نشر مشروعك الأول.
-              </span>
-            )}
+          <AlertDescription className="text-green-700 space-y-2">
+            <div>
+              ✅ <strong>كود الإحالة مفعل:</strong> {referralCode}
+            </div>
+            <div className="text-sm text-green-600">
+              تحصل على خصم 10% وسيحصل المسوق على عمولة عند إتمام المشروع
+            </div>
           </AlertDescription>
         </Alert>
       )}
@@ -647,19 +707,24 @@ function NewProjectForm() {
                 )}
 
                 {referralCode && (
-                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                    <div className="flex items-center gap-2 mb-2">
                       <Gift className="h-4 w-4 text-purple-600" />
                       <p className="text-sm font-medium text-purple-700">
-                        كود الإحالة مفعل
+                        مزايا كود الإحالة
                       </p>
                     </div>
-                    <p className="text-xs text-purple-600">
-                      الكود: <strong>{referralCode}</strong>
-                    </p>
-                    <p className="text-xs text-purple-500 mt-1">
-                      يحصل المسوق على 10% عمولة من قيمة المشروع
-                    </p>
+                    <div className="space-y-1 text-xs">
+                      <p className="text-purple-600">
+                        🎁 <strong>خصم 10%</strong> على نشر المشروع
+                      </p>
+                      <p className="text-purple-600">
+                        👥 المسوق يحصل على <strong>10% عمولة</strong>
+                      </p>
+                      <p className="text-purple-600">
+                        📊 <strong>تتبع الأرباح</strong> في لوحة تحكم المسوق
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -703,7 +768,7 @@ function NewProjectForm() {
                   {referralCode && (
                     <div className="mt-3 p-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
                       <p className="text-xs text-center text-green-700">
-                        ✅ كود الإحالة <strong>{referralCode}</strong> مفعل وسيحصل المسوق على عمولته
+                        ✅ كود الإحالة <strong>{referralCode}</strong> مفعل - تحصل على خصم 10%
                       </p>
                     </div>
                   )}
