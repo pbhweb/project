@@ -38,67 +38,130 @@ export default function DashboardPage() {
 
   const loadDashboardData = async () => {
     try {
+      setLoading(true)
       const supabase = createClient()
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      // الحصول على المستخدم
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError) {
+        throw new Error(userError.message)
+      }
+      
       if (!user) {
         router.push("/auth/login")
         return
       }
 
-      // Get user profile
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+      // الحصول على البروفايل باستخدام maybeSingle لتجنب الأخطاء
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle()
+
+      if (profileError) {
+        throw new Error(profileError.message)
+      }
+
+      // إذا لم يكن هناك بروفايل، قم بإنشائه
+      if (!profile) {
+        const { data: newProfile, error: createError } = await supabase
+          .from("profiles")
+          .insert({
+            id: user.id,
+            email: user.email,
+            full_name: user.email?.split('@')[0] || 'مستخدم',
+            role: 'freelancer', // دور افتراضي
+            is_active: true
+          })
+          .select()
+          .single()
+
+        if (createError) {
+          throw new Error(createError.message)
+        }
+        
+        setUserProfile(newProfile)
+        
+        // بعد إنشاء البروفايل، أعيد تحميل البيانات
+        await loadDashboardData()
+        return
+      }
 
       setUserProfile(profile)
 
-      if (profile?.role === "business_owner") {
+      // تحويل المستخدمين بناءً على الأدوار (معدّل)
+      if (profile.role === "business_owner" || profile.role === "client") {
         router.push("/client/dashboard")
         return
-      } else if (profile?.role === "freelancer") {
+      } else if (profile.role === "freelancer") {
         router.push("/freelancer/dashboard")
         return
-      } else if (profile?.role === "affiliate") {
+      } else if (profile.role === "affiliate") {
         router.push("/affiliate/dashboard")
         return
       }
 
-      // Load statistics based on user role
+      // تحميل الإحصائيات بناءً على الدور
       if (profile.role === "client") {
-        const { data: projects } = await supabase.from("projects").select("*").eq("client_id", user.id)
+        const { data: projects, error: projectsError } = await supabase
+          .from("projects")
+          .select("*")
+          .eq("client_id", user.id)
 
-        const { data: bids } = await supabase
+        if (projectsError) throw new Error(projectsError.message)
+
+        const projectIds = projects?.map(p => p.id) || []
+        
+        const { data: bids, error: bidsError } = await supabase
           .from("bids")
           .select("*")
-          .in("project_id", projects?.map((p) => p.id) || [])
+          .in("project_id", projectIds)
+
+        if (bidsError) throw new Error(bidsError.message)
 
         setStats({
           totalProjects: projects?.length || 0,
-          activeProjects: projects?.filter((p) => p.status === "in_progress").length || 0,
-          totalEarnings: 0, // Clients don't earn
-          pendingBids: bids?.filter((b) => b.status === "pending").length || 0,
+          activeProjects: projects?.filter(p => p.status === "in_progress").length || 0,
+          totalEarnings: 0, // العملاء لا يكسبون
+          pendingBids: bids?.filter(b => b.status === "pending").length || 0,
         })
-      } else if (profile.role === "freelancer") {
-        const { data: bids } = await supabase.from("bids").select("*").eq("freelancer_id", user.id)
 
-        const { data: transactions } = await supabase
+      } else if (profile.role === "freelancer") {
+        const { data: bids, error: bidsError } = await supabase
+          .from("bids")
+          .select("*")
+          .eq("freelancer_id", user.id)
+
+        if (bidsError) throw new Error(bidsError.message)
+
+        const { data: transactions, error: transactionsError } = await supabase
           .from("transactions")
           .select("amount")
           .eq("user_id", user.id)
           .eq("status", "completed")
           .eq("type", "commission")
 
+        if (transactionsError) throw new Error(transactionsError.message)
+
         const totalEarnings = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0
 
         setStats({
-          totalProjects: bids?.filter((b) => b.status === "accepted").length || 0,
-          activeProjects: bids?.filter((b) => b.status === "accepted").length || 0,
+          totalProjects: bids?.filter(b => b.status === "accepted").length || 0,
+          activeProjects: bids?.filter(b => b.status === "accepted").length || 0,
           totalEarnings,
-          pendingBids: bids?.filter((b) => b.status === "pending").length || 0,
+          pendingBids: bids?.filter(b => b.status === "pending").length || 0,
         })
+
       } else if (profile.role === "affiliate") {
-        const { data: affiliate } = await supabase.from("affiliates").select("*").eq("user_id", user.id).single()
+        const { data: affiliate, error: affiliateError } = await supabase
+          .from("affiliates")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle()
+
+        if (affiliateError) throw new Error(affiliateError.message)
 
         setStats({
           totalProjects: affiliate?.total_referrals || 0,
@@ -107,8 +170,10 @@ export default function DashboardPage() {
           pendingBids: 0,
         })
       }
+
     } catch (err: any) {
-      setError(err.message)
+      console.error("خطأ في تحميل البيانات:", err)
+      setError(err.message || "حدث خطأ في تحميل البيانات")
     } finally {
       setLoading(false)
     }
@@ -123,6 +188,13 @@ export default function DashboardPage() {
         </div>
       </div>
     )
+  }
+
+  // إذا تم تحويل المستخدم، لا تعرض أي شيء
+  if (userProfile?.role === "business_owner" || 
+      userProfile?.role === "freelancer" || 
+      userProfile?.role === "affiliate") {
+    return null
   }
 
   const getRoleIcon = (role: string) => {
@@ -158,7 +230,7 @@ export default function DashboardPage() {
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">لوحة التحكم</h1>
+              <h1 className="text-3xl font-bold text-gray-900">لوحة التحكم الرئيسية</h1>
               <p className="text-gray-600 mt-2">مرحباً بك، {userProfile?.full_name}</p>
             </div>
             <div className="flex items-center gap-3">
@@ -179,6 +251,7 @@ export default function DashboardPage() {
           </Alert>
         )}
 
+        {/* باقي الكود يبقى كما هو... */}
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
