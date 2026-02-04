@@ -1,7 +1,7 @@
 // app/projects/new/page.tsx
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react"; // ✅ أضفت Suspense هنا
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -34,17 +34,15 @@ import { format } from "date-fns";
 import { CalendarIcon, Upload, X, UserPlus, Gift, CreditCard, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-// مكون داخلي يجب أن يكون خارج NewProjectForm
 function NewProjectContent() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // ✅ الآن داخل مكون مستقل
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -57,7 +55,6 @@ function NewProjectContent() {
   const [referralLoaded, setReferralLoaded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // خيارات الميزانية الثابتة مرتبطة ببوابات الدفع
   const budgetOptions = [
     { value: "300", label: "300$ - مشروع صغير/مبدئي", gateway: "digital.workshub.space" },
     { value: "600", label: "600$ - مشروع رقمي بسيط", gateway: "digitals.workshub.space" },
@@ -66,7 +63,6 @@ function NewProjectContent() {
     { value: "1500", label: "1500$ - مشروع كبير/معقد", gateway: "professional.workshub.space" },
   ];
 
-  // جلب كود الإحالة من مصادر متعددة
   useEffect(() => {
     const checkAuth = async () => {
       const supabase = createClient();
@@ -93,23 +89,16 @@ function NewProjectContent() {
     
     checkAuth();
 
-    // المصدر 1: من query parameters مباشرة
     const refFromUrl = searchParams.get("ref");
-    
-    // المصدر 2: من localStorage (إذا جاء من تسجيل جديد)
     const refFromStorage = localStorage.getItem("user_referral_code");
-    
-    // المصدر 3: من sessionStorage
     const refFromSession = sessionStorage.getItem("pending_referral_code");
     
-    // تحديد أولوية المصادر
     let finalRefCode = refFromUrl || refFromStorage || refFromSession;
     
     if (finalRefCode && !referralLoaded) {
       setReferralCode(finalRefCode.toUpperCase());
       setReferralLoaded(true);
       
-      // تنظيف التخزين المحلي بعد الاستخدام
       if (refFromStorage) {
         localStorage.removeItem("user_referral_code");
       }
@@ -125,13 +114,10 @@ function NewProjectContent() {
     return budgetOptions.find(option => option.value === budget);
   };
 
-  // دالة مساعدة لتحديث إحصائيات المسوق
   const updateAffiliateStats = async (affiliateId: string, commissionAmount: number) => {
     const supabase = createClient();
     
     try {
-      console.log("📊 تحديث إحصائيات المسوق ID:", affiliateId);
-      
       const { data: currentAffiliate, error: fetchError } = await supabase
         .from("affiliates")
         .select("total_referrals, total_earnings")
@@ -139,7 +125,6 @@ function NewProjectContent() {
         .single();
 
       if (fetchError) {
-        console.error("❌ خطأ في جلب بيانات المسوق:", fetchError);
         return { success: false, error: fetchError };
       }
 
@@ -157,19 +142,15 @@ function NewProjectContent() {
           .eq("id", affiliateId);
 
         if (updateError) {
-          console.error("❌ خطأ في تحديث المسوق:", updateError);
           return { success: false, error: updateError };
         } else {
-          console.log(`✅ تم تحديث إحصائيات المسوق: ${newReferrals} إحالات، ${newEarnings}$ أرباح`);
           return { success: true };
         }
       } else {
-        console.error("❌ لم يتم العثور على بيانات المسوق");
         return { success: false, error: new Error("المسوق غير موجود") };
       }
       
     } catch (statsError: any) {
-      console.error("⚠️ خطأ في تحديث إحصائيات المسوق:", statsError.message);
       return { success: false, error: statsError };
     }
   };
@@ -194,6 +175,34 @@ function NewProjectContent() {
         return;
       }
 
+      // ✅ **الإصلاح 1: تحقق من وجود profile للمستخدم**
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileError || !profile) {
+        console.log("⚠️ المستخدم ليس له بروفايل، جاري إنشاء واحد...");
+        
+        // أنشئ profile إذا لم يكن موجوداً
+        const { error: createProfileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            full_name: user.email?.split('@')[0] || 'مستخدم',
+            role: 'freelancer',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (createProfileError) {
+          console.error("❌ فشل إنشاء البروفايل:", createProfileError);
+          throw new Error("فشل في تحضير حسابك. يرجى المحاولة مرة أخرى.");
+        }
+      }
+
       if (!title || !description || !category || !budgetMin) {
         throw new Error("جميع الحقول المطلوبة (*) يجب ملؤها");
       }
@@ -215,8 +224,6 @@ function NewProjectContent() {
       let validMarketerId = null;
       
       if (referralCode) {
-        console.log("🔍 التحقق من كود الإحالة:", referralCode);
-        
         try {
           const { data: marketer, error: marketerError } = await supabase
             .from("affiliates")
@@ -227,9 +234,6 @@ function NewProjectContent() {
 
           if (!marketerError && marketer) {
             validMarketerId = marketer.id;
-            console.log("✅ كود الإحالة صالح للمسوق:", marketer.referral_code);
-          } else {
-            console.log("⚠️ كود الإحالة غير صالح أو المسوق غير نشط:", marketerError?.message);
           }
         } catch (marketerErr: any) {
           console.log("⚠️ خطأ في التحقق من كود الإحالة:", marketerErr.message);
@@ -250,15 +254,16 @@ function NewProjectContent() {
       if (estimatedHours) projectData.estimated_hours = parseInt(estimatedHours);
       if (deadline) projectData.deadline = deadline;
 
+      // ✅ **الإصلاح 2: استخدام maybeSingle بدلاً من single**
       const { data: project, error: projectError } = await supabase
         .from("projects")
         .insert(projectData)
         .select()
-        .single();
+        .maybeSingle(); // ← غيرت من single إلى maybeSingle
 
-      if (projectError) {
+      if (projectError || !project) {
         console.error("❌ خطأ في إنشاء المشروع:", projectError);
-        throw projectError;
+        throw new Error(projectError?.message || "فشل إنشاء المشروع");
       }
 
       console.log("✅ تم إنشاء المشروع بنجاح:", project.id);
@@ -266,8 +271,6 @@ function NewProjectContent() {
       if (validMarketerId && project.id) {
         try {
           const commissionAmount = parseFloat(((parseInt(budgetMin) * 10) / 100).toFixed(2));
-          
-          console.log("📝 تسجيل الإحالة...");
           
           const { error: referralError } = await supabase
             .from("referrals")
@@ -281,15 +284,8 @@ function NewProjectContent() {
               created_at: new Date().toISOString()
             });
 
-          if (referralError) {
-            console.error("❌ خطأ في تسجيل الإحالة:", referralError);
-          } else {
-            console.log("✅ تم تسجيل الإحالة بنجاح");
-            
-            const statsResult = await updateAffiliateStats(validMarketerId, 0);
-            if (!statsResult.success) {
-              console.error("⚠️ فشل تحديث إحصائيات المسوق:", statsResult.error);
-            }
+          if (!referralError) {
+            await updateAffiliateStats(validMarketerId, 0);
           }
           
         } catch (referralErr: any) {
@@ -305,21 +301,17 @@ function NewProjectContent() {
             .from("project-files")
             .upload(`projects/${project.id}/${fileName}`, file);
 
-          if (uploadError) {
-            console.error("❌ خطأ في رفع الملف:", uploadError);
-            continue;
+          if (!uploadError) {
+            await supabase.from("project_files").insert({
+              project_id: project.id,
+              file_name: file.name,
+              file_url: `projects/${project.id}/${fileName}`,
+              file_size: file.size,
+              file_type: file.type,
+              uploaded_by: user.id,
+            });
           }
-
-          await supabase.from("project_files").insert({
-            project_id: project.id,
-            file_name: file.name,
-            file_url: `projects/${project.id}/${fileName}`,
-            file_size: file.size,
-            file_type: file.type,
-            uploaded_by: user.id,
-          });
         }
-        console.log(`✅ تم رفع ${files.length} ملف`);
       }
 
       const paymentUrl = `https://${selectedGateway.gateway}?project_id=${project.id}&amount=${budgetMin}&user_id=${user.id}`;
@@ -327,11 +319,6 @@ function NewProjectContent() {
       
       if (newWindow) {
         setPaymentWindowOpened(true);
-        setTimeout(() => {
-          if (newWindow && !newWindow.closed) {
-            console.log("✅ تم فتح نافذة الدفع بنجاح");
-          }
-        }, 2000);
       } else {
         console.error("❌ فشل فتح نافذة الدفع");
         throw new Error("فشل فتح بوابة الدفع. يرجى التحقق من إعدادات المنع النافذة المنبثقة.");
@@ -956,7 +943,6 @@ function NewProjectContent() {
   );
 }
 
-// المكون الرئيسي مع Suspense
 export default function NewProjectPage() {
   return (
     <Suspense fallback={
