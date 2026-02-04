@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -30,10 +30,11 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Upload, X, UserPlus, Gift } from "lucide-react";
+import { CalendarIcon, Upload, X, UserPlus, Gift, CreditCard } from "lucide-react";
 import Link from "next/link";
 
-export default function NewProjectPage() {
+// مكون منفصل للتعامل مع useSearchParams داخل Suspense
+function NewProjectForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -729,5 +730,23 @@ export default function NewProjectPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+// المكون الرئيسي مع Suspense
+export default function NewProjectPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">جاري تحميل نموذج نشر المشروع...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <NewProjectForm />
+    </Suspense>
   );
 }
