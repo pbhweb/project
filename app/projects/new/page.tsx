@@ -1,3 +1,4 @@
+// app/projects/new/page.tsx
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
@@ -30,7 +31,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Upload, X, UserPlus, Gift, CreditCard } from "lucide-react";
+import { CalendarIcon, Upload, X, UserPlus, Gift, CreditCard, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 // مكون منفصل للتعامل مع useSearchParams داخل Suspense
@@ -41,6 +42,7 @@ function NewProjectForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -68,14 +70,25 @@ function NewProjectForm() {
   useEffect(() => {
     const checkAuth = async () => {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      setIsLoggedIn(!!user);
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (authError) {
+        console.error("❌ خطأ في المصادقة:", authError);
+        setIsLoggedIn(false);
         const currentParams = new URLSearchParams(window.location.search);
         router.push(`/auth/login?redirect=/projects/new&${currentParams.toString()}`);
         return;
       }
+      
+      if (!user) {
+        setIsLoggedIn(false);
+        const currentParams = new URLSearchParams(window.location.search);
+        router.push(`/auth/login?redirect=/projects/new&${currentParams.toString()}`);
+        return;
+      }
+      
+      setIsLoggedIn(true);
+      setUserId(user.id);
     };
     
     checkAuth();
@@ -112,6 +125,56 @@ function NewProjectForm() {
     return budgetOptions.find(option => option.value === budget);
   };
 
+  // دالة مساعدة لتحديث إحصائيات المسوق
+  const updateAffiliateStats = async (affiliateId: string, commissionAmount: number) => {
+    const supabase = createClient();
+    
+    try {
+      console.log("📊 تحديث إحصائيات المسوق ID:", affiliateId);
+      
+      // الطريقة الآمنة: استخدام transaction ضمني
+      const { data: currentAffiliate, error: fetchError } = await supabase
+        .from("affiliates")
+        .select("total_referrals, total_earnings")
+        .eq("id", affiliateId)
+        .single();
+
+      if (fetchError) {
+        console.error("❌ خطأ في جلب بيانات المسوق:", fetchError);
+        return { success: false, error: fetchError };
+      }
+
+      if (currentAffiliate) {
+        const newReferrals = (currentAffiliate.total_referrals || 0) + 1;
+        const newEarnings = parseFloat(((currentAffiliate.total_earnings || 0) + commissionAmount).toFixed(2));
+        
+        const { error: updateError } = await supabase
+          .from("affiliates")
+          .update({
+            total_referrals: newReferrals,
+            total_earnings: newEarnings,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", affiliateId);
+
+        if (updateError) {
+          console.error("❌ خطأ في تحديث المسوق:", updateError);
+          return { success: false, error: updateError };
+        } else {
+          console.log(`✅ تم تحديث إحصائيات المسوق: ${newReferrals} إحالات، ${newEarnings}$ أرباح`);
+          return { success: true };
+        }
+      } else {
+        console.error("❌ لم يتم العثور على بيانات المسوق");
+        return { success: false, error: new Error("المسوق غير موجود") };
+      }
+      
+    } catch (statsError: any) {
+      console.error("⚠️ خطأ في تحديث إحصائيات المسوق:", statsError.message);
+      return { success: false, error: statsError };
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -120,22 +183,25 @@ function NewProjectForm() {
     try {
       const supabase = createClient();
 
-      // Get current user
+      // التحقق من المصادقة
       const {
         data: { user },
+        error: authError
       } = await supabase.auth.getUser();
-      if (!user) {
+      
+      if (authError || !user) {
+        console.error("❌ خطأ في المصادقة:", authError);
         const redirectUrl = `/auth/login?redirect=/projects/new&ref=${referralCode || ""}`;
         router.push(redirectUrl);
         return;
       }
 
-      // Validate required fields
+      // التحقق من الحقول المطلوبة
       if (!title || !description || !category || !budgetMin) {
         throw new Error("جميع الحقول المطلوبة (*) يجب ملؤها");
       }
 
-      // Check if description contains contact info
+      // التحقق من عدم وجود معلومات اتصال
       const containsContact =
         description.match(/\d{10,}/) || // Phone numbers
         description.match(/@[A-Za-z0-9._%+-]+\.[A-Za-z]{2,}/) || // Emails
@@ -145,7 +211,7 @@ function NewProjectForm() {
         throw new Error("لا يمكن إضافة معلومات اتصال في وصف المشروع");
       }
 
-      // الحصول على بوابة الدفع المناسبة بناء على الميزانية
+      // الحصول على بوابة الدفع المناسبة
       const selectedGateway = getGatewayByBudget(budgetMin);
       if (!selectedGateway) {
         throw new Error("الميزانية المختارة غير صالحة");
@@ -158,39 +224,43 @@ function NewProjectForm() {
       if (referralCode) {
         console.log("🔍 التحقق من كود الإحالة:", referralCode);
         
-        const { data: marketer, error: marketerError } = await supabase
-          .from("affiliates")
-          .select("id, user_id, referral_code, is_active, total_referrals, total_earnings")
-          .eq("referral_code", referralCode.trim())
-          .eq("is_active", true)
-          .single();
+        try {
+          const { data: marketer, error: marketerError } = await supabase
+            .from("affiliates")
+            .select("id, user_id, referral_code, is_active, total_referrals, total_earnings")
+            .eq("referral_code", referralCode.trim())
+            .eq("is_active", true)
+            .single();
 
-        if (!marketerError && marketer) {
-          validMarketerId = marketer.id;
-          validMarketerData = marketer;
-          console.log("✅ كود الإحالة صالح للمسوق:", marketer.referral_code);
-        } else {
-          console.log("⚠️ كود الإحالة غير صالح أو المسوق غير نشط:", marketerError?.message);
+          if (!marketerError && marketer) {
+            validMarketerId = marketer.id;
+            validMarketerData = marketer;
+            console.log("✅ كود الإحالة صالح للمسوق:", marketer.referral_code);
+          } else {
+            console.log("⚠️ كود الإحالة غير صالح أو المسوق غير نشط:", marketerError?.message);
+          }
+        } catch (marketerErr: any) {
+          console.log("⚠️ خطأ في التحقق من كود الإحالة:", marketerErr.message);
         }
       }
 
-      // إنشاء المشروع
+      // إنشاء بيانات المشروع
       const projectData: any = {
         client_id: user.id,
         title,
         description,
         category,
         budget_min: parseInt(budgetMin),
-        status: "open",
+        status: "pending_payment", // تغيير الحالة إلى pending_payment
         referral_code: referralCode || null,
       };
 
-      // إضافة الحقول الاختيارية فقط إذا كانت موجودة
+      // إضافة الحقول الاختيارية
       if (budgetMax) projectData.budget_max = parseFloat(budgetMax);
       if (estimatedHours) projectData.estimated_hours = parseInt(estimatedHours);
       if (deadline) projectData.deadline = deadline;
 
-      // Create project
+      // إنشاء المشروع
       const { data: project, error: projectError } = await supabase
         .from("projects")
         .insert(projectData)
@@ -204,21 +274,15 @@ function NewProjectForm() {
 
       console.log("✅ تم إنشاء المشروع بنجاح:", project.id);
 
-      // إذا كان كود الإحالة صالحاً، تسجيل الإحالة
+      // تسجيل الإحالة إذا كان الكود صالحاً
       if (validMarketerId && project.id) {
         try {
-          // حساب العمولة (10% من الميزانية الدنيا)
           const commissionAmount = parseFloat(((parseInt(budgetMin) * 10) / 100).toFixed(2));
           
-          console.log("📝 بيانات الإحالة:");
-          console.log("  - affiliate_id:", validMarketerId);
-          console.log("  - referred_user_id:", user.id);
-          console.log("  - project_id:", project.id);
-          console.log("  - referral_code:", referralCode);
-          console.log("  - commission_amount:", commissionAmount);
-
-          // إدراج الإحالة في جدول referrals
-          const { data: newReferral, error: referralError } = await supabase
+          console.log("📝 تسجيل الإحالة...");
+          
+          // تسجيل الإحالة
+          const { error: referralError } = await supabase
             .from("referrals")
             .insert({
               affiliate_id: validMarketerId,
@@ -226,138 +290,84 @@ function NewProjectForm() {
               referral_code: referralCode,
               project_id: project.id,
               commission_amount: commissionAmount,
-              status: "pending"
-            })
-            .select()
-            .single();
+              status: "pending_payment", // تغيير الحالة
+              created_at: new Date().toISOString()
+            });
 
           if (referralError) {
             console.error("❌ خطأ في تسجيل الإحالة:", referralError);
-            console.error("❌ تفاصيل الخطأ:", referralError.details);
-            
-            // حاول مرة أخرى مع خيارات مختلفة
-            const { data: retryReferral, error: retryError } = await supabase
-              .from("referrals")
-              .insert({
-                affiliate_id: validMarketerId,
-                referred_user_id: user.id,
-                referral_code: referralCode,
-                project_id: project.id,
-                commission_amount: commissionAmount,
-                status: "pending",
-                created_at: new Date().toISOString()
-              })
-              .select()
-              .single();
-
-            if (retryError) {
-              console.error("❌ خطأ في المحاولة الثانية:", retryError);
-            } else {
-              console.log("✅ تم تسجيل الإحالة في المحاولة الثانية:", retryReferral);
-            }
+            // لا نوقف العملية إذا فشل تسجيل الإحالة
           } else {
-            console.log("✅ تم تسجيل الإحالة بنجاح:", newReferral);
-          }
-
-          // تحديث إحصائيات المسوق
-          try {
-            console.log("📊 تحديث إحصائيات المسوق...");
+            console.log("✅ تم تسجيل الإحالة بنجاح");
             
-            // استخدام RPC function إذا كانت موجودة
-            const { error: rpcError } = await supabase.rpc('increment_affiliate_stats', {
-              p_affiliate_id: validMarketerId,
-              p_amount: commissionAmount
-            });
-
-            if (rpcError) {
-              console.log("⚠️ RPC غير متوفر، استخدام الطريقة البديلة:", rpcError.message);
-              
-              // الطريقة البديلة: جلب ثم تحديث
-              const { data: currentAffiliate } = await supabase
-                .from("affiliates")
-                .select("total_referrals, total_earnings")
-                .eq("id", validMarketerId)
-                .single();
-
-              if (currentAffiliate) {
-                const newReferrals = (currentAffiliate.total_referrals || 0) + 1;
-                const newEarnings = parseFloat(((currentAffiliate.total_earnings || 0) + commissionAmount).toFixed(2));
-                
-                const { error: updateError } = await supabase
-                  .from("affiliates")
-                  .update({
-                    total_referrals: newReferrals,
-                    total_earnings: newEarnings,
-                    updated_at: new Date().toISOString()
-                  })
-                  .eq("id", validMarketerId);
-
-                if (updateError) {
-                  console.error("❌ خطأ في تحديث المسوق:", updateError);
-                } else {
-                  console.log(`✅ تم تحديث إحصائيات المسوق: ${newReferrals} إحالات، ${newEarnings}$ أرباح`);
-                }
-              }
-            } else {
-              console.log(`✅ تم تحديث إحصائيات المسوق عبر RPC: +${commissionAmount}$`);
+            // تحديث إحصائيات المسوق (فقط التسجيل، بدون عمولة بعد)
+            const statsResult = await updateAffiliateStats(validMarketerId, 0);
+            if (!statsResult.success) {
+              console.error("⚠️ فشل تحديث إحصائيات المسوق:", statsResult.error);
             }
-            
-          } catch (statsError: any) {
-            console.error("⚠️ خطأ في تحديث إحصائيات المسوق:", statsError.message);
           }
           
         } catch (referralErr: any) {
-          console.error("❌ خطأ كامل في تسجيل الإحالة:", referralErr.message);
-          // لا ترمي الخطأ الرئيسي، لأن المشروع تم إنشاؤه بنجاح
+          console.error("❌ خطأ في تسجيل الإحالة:", referralErr.message);
+          // نستمر لأن المشروع تم إنشاؤه بنجاح
         }
-      } else {
-        console.log("ℹ️ لا يوجد كود إحالة صالح، تم تخطي تسجيل الإحالة");
       }
 
-      // Upload files if any
+      // رفع الملفات إذا وجدت
       if (files.length > 0 && files.length <= 50) {
         console.log("📤 رفع الملفات...");
         for (const file of files) {
           const fileName = `${Date.now()}_${file.name}`;
-          const { data: uploadData, error: uploadError } =
-            await supabase.storage
-              .from("project-files")
-              .upload(`projects/${project.id}/${fileName}`, file);
+          const { error: uploadError } = await supabase.storage
+            .from("project-files")
+            .upload(`projects/${project.id}/${fileName}`, file);
 
-          if (uploadError) throw uploadError;
+          if (uploadError) {
+            console.error("❌ خطأ في رفع الملف:", uploadError);
+            continue; // نستمر مع الملفات الأخرى
+          }
 
-          // Create file record
+          // تسجيل الملف في قاعدة البيانات
           await supabase.from("project_files").insert({
             project_id: project.id,
             file_name: file.name,
-            file_url: uploadData.path,
+            file_url: `projects/${project.id}/${fileName}`,
             file_size: file.size,
             file_type: file.type,
             uploaded_by: user.id,
           });
         }
         console.log(`✅ تم رفع ${files.length} ملف`);
-      } else if (files.length > 50) {
-        throw new Error("لا يمكن رفع أكثر من 50 ملف");
       }
 
-      // بعد إنشاء المشروع، توجيه المستخدم لبوابة الدفع المناسبة
-      const paymentUrl = `https://${selectedGateway.gateway}?project_id=${project.id}&amount=${budgetMin}`;
+      // فتح بوابة الدفع
+      const paymentUrl = `https://${selectedGateway.gateway}?project_id=${project.id}&amount=${budgetMin}&user_id=${user.id}`;
       const newWindow = window.open(paymentUrl, '_blank');
       
       if (newWindow) {
         setPaymentWindowOpened(true);
+        // إغلاق النافذة بعد 2 ثانية للتأكد من فتحها
+        setTimeout(() => {
+          if (newWindow && !newWindow.closed) {
+            console.log("✅ تم فتح نافذة الدفع بنجاح");
+          }
+        }, 2000);
+      } else {
+        console.error("❌ فشل فتح نافذة الدفع");
+        throw new Error("فشل فتح بوابة الدفع. يرجى التحقق من إعدادات المنع النافذة المنبثقة.");
       }
       
-      // إظهار رسالة نجاح مع توجيه لصفحة المشروع
+      // إظهار رسالة النجاح
       setSuccess(true);
+      
+      // إعادة التوجيه بعد 8 ثوانٍ (وقت أطول لإكمال الدفع)
       setTimeout(() => {
         router.push(`/projects/${project.id}`);
-      }, 5000);
+      }, 8000);
       
     } catch (err: any) {
       console.error("❌ خطأ أثناء إنشاء المشروع:", err);
-      setError(err.message || "حدث خطأ أثناء إنشاء المشروع");
+      setError(err.message || "حدث خطأ أثناء إنشاء المشروع. يرجى المحاولة مرة أخرى.");
     } finally {
       setLoading(false);
     }
@@ -410,7 +420,7 @@ function NewProjectForm() {
   if (success) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <Card className="border-2 border-green-200">
+        <Card className="border-2 border-green-200 shadow-lg">
           <CardHeader className="text-center">
             <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
@@ -441,23 +451,33 @@ function NewProjectForm() {
           <CardContent className="text-center space-y-4">
             {paymentWindowOpened && (
               <>
-                <p className="text-gray-600">
-                  إذا لم تفتح نافذة الدفع تلقائياً،{' '}
-                  <button
-                    onClick={() => {
-                      const selectedGateway = getGatewayByBudget(budgetMin);
-                      if (selectedGateway) {
-                        window.open(`https://${selectedGateway.gateway}?project_id=&amount=${budgetMin}`, '_blank');
-                      }
-                    }}
-                    className="text-blue-600 hover:underline font-medium"
-                  >
-                    انقر هنا لفتح بوابة الدفع
-                  </button>
-                </p>
+                <Alert className="bg-blue-50 border-blue-200">
+                  <AlertCircle className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-700">
+                    <p className="font-medium mb-2">⚠️ تم فتح نافذة الدفع</p>
+                    <p className="text-sm">
+                      إذا لم تفتح نافذة الدفع تلقائياً،{' '}
+                      <button
+                        onClick={() => {
+                          const selectedGateway = getGatewayByBudget(budgetMin);
+                          if (selectedGateway) {
+                            window.open(`https://${selectedGateway.gateway}?project_id=&amount=${budgetMin}&user_id=${userId}`, '_blank');
+                          }
+                        }}
+                        className="text-blue-600 hover:underline font-medium"
+                      >
+                        انقر هنا لفتح بوابة الدفع
+                      </button>
+                    </p>
+                  </AlertDescription>
+                </Alert>
+                
                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-sm text-yellow-700">
-                    ⚠️ لن يتم نشر المشروع إلا بعد إكمال عملية الدفع بنجاح
+                    ⚠️ <strong>مهم:</strong> لن يتم نشر المشروع إلا بعد إكمال عملية الدفع بنجاح
+                  </p>
+                  <p className="text-xs text-yellow-600 mt-1">
+                    سيتم تحديث حالة المشروع تلقائياً بعد الدفع
                   </p>
                 </div>
               </>
@@ -466,20 +486,30 @@ function NewProjectForm() {
             {referralCode && (
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-700">
-                  ✅ تم تسجيل الإحالة بكود: <strong>{referralCode}</strong>
+                  ✅ <strong>كود الإحالة:</strong> {referralCode}
                 </p>
                 <p className="text-xs text-green-600 mt-1">
-                  سيحصل المسوق على عمولة 10% عند إتمام المشروع
+                  سيحصل المسوق على عمولة 10% بعد إتمام عملية الدفع
                 </p>
               </div>
             )}
             
-            <p className="text-sm text-gray-500">
-              ستتم توجيهك إلى صفحة المشروع خلال 5 ثوانٍ...
-            </p>
-            <div className="flex justify-center items-center space-x-2">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-              <span className="text-sm text-gray-600">جاري التوجيه...</span>
+            <div className="pt-4 border-t">
+              <p className="text-sm text-gray-500">
+                ستتم توجيهك إلى صفحة المشروع خلال 8 ثوانٍ...
+              </p>
+              <div className="flex justify-center items-center space-x-2 mt-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <span className="text-sm text-gray-600">جاري التوجيه...</span>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => router.push('/dashboard/projects')}
+              >
+                الذهاب إلى لوحة التحكم الآن
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -524,6 +554,7 @@ function NewProjectForm() {
               <CardContent className="space-y-6">
                 {error && (
                   <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
@@ -536,6 +567,7 @@ function NewProjectForm() {
                     onChange={(e) => setTitle(e.target.value)}
                     required
                     placeholder="مثال: تصميم موقع إلكتروني لشركة تجارية"
+                    className="focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
@@ -548,7 +580,7 @@ function NewProjectForm() {
                     required
                     rows={6}
                     placeholder="صف مشروعك بالتفصيل، بما في ذلك المتطلبات والنتائج المتوقعة..."
-                    className="resize-none"
+                    className="resize-none focus:ring-2 focus:ring-purple-500"
                   />
                   <p className="text-sm text-gray-500">
                     ⚠️ لا تضف معلومات اتصال (أرقام هواتف، إيميلات، حسابات تواصل
@@ -564,7 +596,7 @@ function NewProjectForm() {
                       onValueChange={setCategory}
                       required
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="focus:ring-2 focus:ring-purple-500">
                         <SelectValue placeholder="اختر التصنيف" />
                       </SelectTrigger>
                       <SelectContent>
@@ -586,6 +618,7 @@ function NewProjectForm() {
                       value={estimatedHours}
                       onChange={(e) => setEstimatedHours(e.target.value)}
                       placeholder="مثال: 40"
+                      className="focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
                 </div>
@@ -598,7 +631,7 @@ function NewProjectForm() {
                       onValueChange={setBudgetMin}
                       required
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="focus:ring-2 focus:ring-purple-500">
                         <SelectValue placeholder="اختر الميزانية" />
                       </SelectTrigger>
                       <SelectContent>
@@ -629,7 +662,7 @@ function NewProjectForm() {
                         step="50"
                         value={budgetMax}
                         onChange={(e) => setBudgetMax(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 focus:ring-2 focus:ring-purple-500"
                         placeholder="اختياري"
                       />
                     </div>
@@ -652,7 +685,7 @@ function NewProjectForm() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
                   <Upload className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                   <p className="text-sm text-gray-600 mb-3">
                     اسحب وأفلت الملفات أو انقر للرفع
@@ -665,13 +698,12 @@ function NewProjectForm() {
                     className="hidden"
                   />
                   <label htmlFor="file-upload">
-                    <Button type="button" variant="outline">
+                    <Button type="button" variant="outline" className="hover:bg-purple-50">
                       اختيار الملفات
                     </Button>
                   </label>
                   <p className="text-xs text-gray-500 mt-3">
-                    الملفات المدعومة: صور، PDF، Word، Excel، ZIP (بحد أقصى 50
-                    ملف)
+                    الملفات المدعومة: صور، PDF، Word، Excel، ZIP (بحد أقصى 50 ملف)
                   </p>
                 </div>
 
@@ -684,7 +716,7 @@ function NewProjectForm() {
                       {files.map((file, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between p-3 border rounded-lg"
+                          className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
@@ -706,6 +738,7 @@ function NewProjectForm() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeFile(index)}
+                            className="hover:bg-red-50 hover:text-red-600"
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -732,7 +765,7 @@ function NewProjectForm() {
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal",
+                          "w-full justify-start text-left font-normal hover:bg-gray-50",
                           !deadline && "text-muted-foreground"
                         )}
                       >
@@ -748,6 +781,7 @@ function NewProjectForm() {
                         selected={deadline}
                         onSelect={setDeadline}
                         initialFocus
+                        className="rounded-md border"
                       />
                     </PopoverContent>
                   </Popover>
@@ -764,7 +798,10 @@ function NewProjectForm() {
                       value={referralCode}
                       onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                       placeholder="أدخل كود الإحالة"
-                      className={referralLoaded ? "border-green-500 bg-green-50" : ""}
+                      className={cn(
+                        "focus:ring-2 focus:ring-purple-500",
+                        referralLoaded ? "border-green-500 bg-green-50" : ""
+                      )}
                     />
                     {referralLoaded && (
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -778,21 +815,33 @@ function NewProjectForm() {
                   </div>
                   <p className="text-xs text-gray-500">
                     إذا كنت قد سجلت عبر رابط مسوق، أدخل الكود هنا أو استخدم رابط مثل:
-                    <code className="block mt-1 bg-gray-100 p-1 rounded text-xs">
+                    <code className="block mt-1 bg-gray-100 p-1 rounded text-xs font-mono">
                       https://workshub.space/projects/new?ref=ABCD
                     </code>
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4">
-                  <h3 className="font-semibold text-blue-700 mb-2">
-                    💡 نصائح للنشر
+                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-100">
+                  <h3 className="font-semibold text-blue-700 mb-2 flex items-center gap-2">
+                    <span>💡</span> نصائح للنشر
                   </h3>
                   <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• كن واضحاً في وصف المتطلبات</li>
-                    <li>• حدد ميزانية واقعية</li>
-                    <li>• أرفع ملفات توضيحية إن أمكن</li>
-                    <li>• حدد موعداً نهائياً مناسباً</li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500">•</span>
+                      <span>كن واضحاً في وصف المتطلبات</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500">•</span>
+                      <span>حدد ميزانية واقعية</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500">•</span>
+                      <span>أرفع ملفات توضيحية إن أمكن</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-500">•</span>
+                      <span>حدد موعداً نهائياً مناسباً</span>
+                    </li>
                   </ul>
                 </div>
               </CardContent>
@@ -818,12 +867,10 @@ function NewProjectForm() {
                 {budgetMin && (
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm font-medium text-blue-700">
-                      الميزانية المختارة: {budgetMin}$
+                      الميزانية المختارة: <span className="font-bold">{budgetMin}$</span>
                     </p>
                     <p className="text-xs text-blue-600 mt-1">
-                      بوابة الدفع: {
-                        budgetOptions.find(opt => opt.value === budgetMin)?.gateway
-                      }
+                      بوابة الدفع: <span className="font-mono">{getGatewayByBudget(budgetMin)?.gateway}</span>
                     </p>
                   </div>
                 )}
@@ -837,14 +884,17 @@ function NewProjectForm() {
                       </p>
                     </div>
                     <div className="space-y-1 text-xs">
-                      <p className="text-purple-600">
-                        🎁 <strong>خصم 10%</strong> على نشر المشروع
+                      <p className="text-purple-600 flex items-center gap-1">
+                        <span>🎁</span>
+                        <span><strong>خصم 10%</strong> على نشر المشروع</span>
                       </p>
-                      <p className="text-purple-600">
-                        👥 المسوق يحصل على <strong>10% عمولة</strong>
+                      <p className="text-purple-600 flex items-center gap-1">
+                        <span>👥</span>
+                        <span>المسوق يحصل على <strong>10% عمولة</strong></span>
                       </p>
-                      <p className="text-purple-600">
-                        📊 <strong>تتبع الأرباح</strong> في لوحة تحكم المسوق
+                      <p className="text-purple-600 flex items-center gap-1">
+                        <span>📊</span>
+                        <span><strong>تتبع الأرباح</strong> في لوحة تحكم المسوق</span>
                       </p>
                     </div>
                   </div>
@@ -870,7 +920,7 @@ function NewProjectForm() {
                 <CardContent className="pt-6">
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all"
                     disabled={loading || !budgetMin}
                     size="lg"
                   >
@@ -899,17 +949,30 @@ function NewProjectForm() {
                     بالنشر، فإنك توافق على{" "}
                     <Link
                       href="/terms"
-                      className="text-blue-600 hover:underline"
+                      className="text-blue-600 hover:underline font-medium"
                     >
                       الشروط والأحكام
                     </Link>
                   </p>
                   
                   {!budgetMin && (
-                    <p className="text-center text-amber-600 text-sm mt-2">
+                    <p className="text-center text-amber-600 text-sm mt-2 flex items-center justify-center gap-1">
+                      <AlertCircle className="h-4 w-4" />
                       ⚠️ الرجاء اختيار الميزانية أولاً
                     </p>
                   )}
+                  
+                  <div className="mt-4 text-center">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => router.back()}
+                      className="text-gray-600 hover:text-gray-900"
+                    >
+                      إلغاء والعودة للخلف
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
