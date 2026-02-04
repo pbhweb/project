@@ -1,6 +1,7 @@
+// app/projects/new/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -33,10 +34,10 @@ import { format } from "date-fns";
 import { CalendarIcon, Upload, X, UserPlus, Gift, CreditCard, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-// مكون منفصل للتعامل مع useSearchParams داخل Suspense
-function NewProjectForm() {
+// مكون داخلي يجب أن يكون خارج NewProjectForm
+function NewProjectContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // ✅ الآن داخل مكون مستقل
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -131,7 +132,6 @@ function NewProjectForm() {
     try {
       console.log("📊 تحديث إحصائيات المسوق ID:", affiliateId);
       
-      // الطريقة الآمنة: استخدام transaction ضمني
       const { data: currentAffiliate, error: fetchError } = await supabase
         .from("affiliates")
         .select("total_referrals, total_earnings")
@@ -182,7 +182,6 @@ function NewProjectForm() {
     try {
       const supabase = createClient();
 
-      // التحقق من المصادقة
       const {
         data: { user },
         error: authError
@@ -195,30 +194,25 @@ function NewProjectForm() {
         return;
       }
 
-      // التحقق من الحقول المطلوبة
       if (!title || !description || !category || !budgetMin) {
         throw new Error("جميع الحقول المطلوبة (*) يجب ملؤها");
       }
 
-      // التحقق من عدم وجود معلومات اتصال
       const containsContact =
-        description.match(/\d{10,}/) || // Phone numbers
-        description.match(/@[A-Za-z0-9._%+-]+\.[A-Za-z]{2,}/) || // Emails
-        description.match(/(whatsapp|telegram|signal|viber)/i); // Messaging apps
+        description.match(/\d{10,}/) ||
+        description.match(/@[A-Za-z0-9._%+-]+\.[A-Za-z]{2,}/) ||
+        description.match(/(whatsapp|telegram|signal|viber)/i);
 
       if (containsContact) {
         throw new Error("لا يمكن إضافة معلومات اتصال في وصف المشروع");
       }
 
-      // الحصول على بوابة الدفع المناسبة
       const selectedGateway = getGatewayByBudget(budgetMin);
       if (!selectedGateway) {
         throw new Error("الميزانية المختارة غير صالحة");
       }
 
-      // التحقق من صحة كود الإحالة إذا كان موجوداً
       let validMarketerId = null;
-      let validMarketerData = null;
       
       if (referralCode) {
         console.log("🔍 التحقق من كود الإحالة:", referralCode);
@@ -233,7 +227,6 @@ function NewProjectForm() {
 
           if (!marketerError && marketer) {
             validMarketerId = marketer.id;
-            validMarketerData = marketer;
             console.log("✅ كود الإحالة صالح للمسوق:", marketer.referral_code);
           } else {
             console.log("⚠️ كود الإحالة غير صالح أو المسوق غير نشط:", marketerError?.message);
@@ -243,23 +236,20 @@ function NewProjectForm() {
         }
       }
 
-      // إنشاء بيانات المشروع
       const projectData: any = {
         client_id: user.id,
         title,
         description,
         category,
         budget_min: parseInt(budgetMin),
-        status: "pending_payment", // تغيير الحالة إلى pending_payment
+        status: "pending_payment",
         referral_code: referralCode || null,
       };
 
-      // إضافة الحقول الاختيارية
       if (budgetMax) projectData.budget_max = parseFloat(budgetMax);
       if (estimatedHours) projectData.estimated_hours = parseInt(estimatedHours);
       if (deadline) projectData.deadline = deadline;
 
-      // إنشاء المشروع
       const { data: project, error: projectError } = await supabase
         .from("projects")
         .insert(projectData)
@@ -273,14 +263,12 @@ function NewProjectForm() {
 
       console.log("✅ تم إنشاء المشروع بنجاح:", project.id);
 
-      // تسجيل الإحالة إذا كان الكود صالحاً
       if (validMarketerId && project.id) {
         try {
           const commissionAmount = parseFloat(((parseInt(budgetMin) * 10) / 100).toFixed(2));
           
           console.log("📝 تسجيل الإحالة...");
           
-          // تسجيل الإحالة
           const { error: referralError } = await supabase
             .from("referrals")
             .insert({
@@ -289,17 +277,15 @@ function NewProjectForm() {
               referral_code: referralCode,
               project_id: project.id,
               commission_amount: commissionAmount,
-              status: "pending_payment", // تغيير الحالة
+              status: "pending_payment",
               created_at: new Date().toISOString()
             });
 
           if (referralError) {
             console.error("❌ خطأ في تسجيل الإحالة:", referralError);
-            // لا نوقف العملية إذا فشل تسجيل الإحالة
           } else {
             console.log("✅ تم تسجيل الإحالة بنجاح");
             
-            // تحديث إحصائيات المسوق (فقط التسجيل، بدون عمولة بعد)
             const statsResult = await updateAffiliateStats(validMarketerId, 0);
             if (!statsResult.success) {
               console.error("⚠️ فشل تحديث إحصائيات المسوق:", statsResult.error);
@@ -308,11 +294,9 @@ function NewProjectForm() {
           
         } catch (referralErr: any) {
           console.error("❌ خطأ في تسجيل الإحالة:", referralErr.message);
-          // نستمر لأن المشروع تم إنشاؤه بنجاح
         }
       }
 
-      // رفع الملفات إذا وجدت
       if (files.length > 0 && files.length <= 50) {
         console.log("📤 رفع الملفات...");
         for (const file of files) {
@@ -323,10 +307,9 @@ function NewProjectForm() {
 
           if (uploadError) {
             console.error("❌ خطأ في رفع الملف:", uploadError);
-            continue; // نستمر مع الملفات الأخرى
+            continue;
           }
 
-          // تسجيل الملف في قاعدة البيانات
           await supabase.from("project_files").insert({
             project_id: project.id,
             file_name: file.name,
@@ -339,13 +322,11 @@ function NewProjectForm() {
         console.log(`✅ تم رفع ${files.length} ملف`);
       }
 
-      // فتح بوابة الدفع
       const paymentUrl = `https://${selectedGateway.gateway}?project_id=${project.id}&amount=${budgetMin}&user_id=${user.id}`;
       const newWindow = window.open(paymentUrl, '_blank');
       
       if (newWindow) {
         setPaymentWindowOpened(true);
-        // إغلاق النافذة بعد 2 ثانية للتأكد من فتحها
         setTimeout(() => {
           if (newWindow && !newWindow.closed) {
             console.log("✅ تم فتح نافذة الدفع بنجاح");
@@ -356,10 +337,8 @@ function NewProjectForm() {
         throw new Error("فشل فتح بوابة الدفع. يرجى التحقق من إعدادات المنع النافذة المنبثقة.");
       }
       
-      // إظهار رسالة النجاح
       setSuccess(true);
       
-      // إعادة التوجيه بعد 8 ثوانٍ (وقت أطول لإكمال الدفع)
       setTimeout(() => {
         router.push(`/projects/${project.id}`);
       }, 8000);
@@ -402,7 +381,6 @@ function NewProjectForm() {
     { value: "other", label: "أخرى" },
   ];
 
-  // عرض إشعار إذا تم تحميل كود إحالة تلقائياً
   const showReferralNotice = referralCode && referralLoaded;
 
   if (!isLoggedIn) {
@@ -543,7 +521,6 @@ function NewProjectForm() {
 
       <form onSubmit={handleSubmit}>
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Left Column - Main Info */}
           <div className="md:col-span-2 space-y-6">
             <Card>
               <CardHeader>
@@ -652,7 +629,8 @@ function NewProjectForm() {
                     </Label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                        $                       </span>
+                        $
+                      </span>
                       <Input
                         id="budgetMax"
                         type="number"
@@ -666,14 +644,14 @@ function NewProjectForm() {
                     </div>
                     {budgetMin && (
                       <p className="text-xs text-gray-500">
-                        الحد الأدنى المحدد: {budgetMin}$                       </p>
+                        الحد الأدنى المحدد: {budgetMin}$
+                      </p>
                     )}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* File Upload */}
             <Card>
               <CardHeader>
                 <CardTitle>الملفات المرفقة</CardTitle>
@@ -748,7 +726,6 @@ function NewProjectForm() {
             </Card>
           </div>
 
-          {/* Right Column - Additional Info */}
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -911,7 +888,6 @@ function NewProjectForm() {
               </CardContent>
             </Card>
 
-            {/* Submit Button */}
             <div className="sticky top-6">
               <Card>
                 <CardContent className="pt-6">
@@ -993,7 +969,7 @@ export default function NewProjectPage() {
         </div>
       </div>
     }>
-      <NewProjectForm />
+      <NewProjectContent />
     </Suspense>
   );
 }
