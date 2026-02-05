@@ -1,7 +1,7 @@
 // app/projects/new/page.tsx
 "use client";
 
-import { useState, useEffect, Suspense } from "react"; // ✅ أضفت Suspense هنا
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import { format } from "date-fns";
 import { CalendarIcon, Upload, X, UserPlus, Gift, CreditCard, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
+// مكون داخلي يستخدم useSearchParams
 function NewProjectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -943,6 +944,7 @@ function NewProjectContent() {
   );
 }
 
+// المكون الرئيسي مع Suspense
 export default function NewProjectPage() {
   return (
     <Suspense fallback={
