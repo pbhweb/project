@@ -44,6 +44,8 @@ export default function ProjectDetailsPage() {
   const [bidDays, setBidDays] = useState("")
   const [bidProposal, setBidProposal] = useState("")
   const [submittingBid, setSubmittingBid] = useState(false)
+  const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null)
+  const [licenseDocUrl, setLicenseDocUrl] = useState<Record<string, string>>({})
 
   useEffect(() => {
     loadProjectData()
@@ -80,14 +82,16 @@ export default function ProjectDetailsPage() {
       setProject(projectData)
       setClient(projectData.profiles)
 
-      // Load bids
+      // Load bids together with the freelancer's public profile info
+      // (name + verification status) so the business owner can see
+      // who they're dealing with before accepting an offer.
       const { data: bidsData } = await supabase
-  .from("bids")
-  .select("*") // <-- لا نجلب أي بيانات من جداول أخرى
-  .eq("project_id", projectId)
-  .order("created_at", { ascending: false })
+        .from("bids")
+        .select("*, profiles:freelancer_id(id, full_name, avatar_url, license_status, license_country, license_type)")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false })
 
-setBids(bidsData || [])
+      setBids(bidsData || [])
 
       // Load files
       const { data: filesData } = await supabase
@@ -165,6 +169,55 @@ setBids(bidsData || [])
       setError(err.message || "حدث خطأ أثناء تقديم العرض")
     } finally {
       setSubmittingBid(false)
+    }
+  }
+
+  // This actually calls the database now — previously the "Accept
+  // offer" button had no handler at all and did nothing.
+  const handleAcceptBid = async (bidId: string) => {
+    setAcceptingBidId(bidId)
+    setError(null)
+    try {
+      const supabase = createClient()
+      const { data, error: acceptError } = await supabase.rpc("accept_bid", { p_bid_id: bidId })
+
+      if (acceptError) throw acceptError
+      if (data && data.success === false) {
+        throw new Error(
+          data.error === "not_project_owner"
+            ? "أنت لست صاحب هذا المشروع"
+            : "تعذر قبول هذا العرض",
+        )
+      }
+
+      await loadProjectData()
+    } catch (err: any) {
+      setError(err.message || "حدث خطأ أثناء قبول العرض")
+    } finally {
+      setAcceptingBidId(null)
+    }
+  }
+
+  // Business owners can view a freelancer's license document, but only
+  // for freelancers who actually bid on THIS project — enforced by the
+  // get_bidder_verification() database function, not just the UI.
+  const handleViewLicense = async (bidId: string) => {
+    try {
+      const supabase = createClient()
+      const { data, error: rpcError } = await supabase.rpc("get_bidder_verification", { p_bid_id: bidId })
+      const record = Array.isArray(data) ? data[0] : data
+      if (rpcError || !record?.license_file_path) return
+
+      const { data: signed } = await supabase.storage
+        .from("freelancer-licenses")
+        .createSignedUrl(record.license_file_path, 60 * 5)
+
+      if (signed?.signedUrl) {
+        setLicenseDocUrl((prev) => ({ ...prev, [bidId]: signed.signedUrl }))
+        window.open(signed.signedUrl, "_blank")
+      }
+    } catch (err) {
+      console.error("[v0] View license error:", err)
     }
   }
 
@@ -369,7 +422,19 @@ setBids(bidsData || [])
                               <User className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
-                              <h4 className="font-bold">{bid.profiles?.full_name}</h4>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-bold">{bid.profiles?.full_name || "مستقل"}</h4>
+                                {bid.profiles?.license_status === "verified" && (
+                                  <Badge className="bg-green-100 text-green-800 gap-1 text-xs">
+                                    ✅ موثّق
+                                  </Badge>
+                                )}
+                                {bid.profiles?.license_status === "pending" && (
+                                  <Badge variant="outline" className="text-xs text-amber-700 border-amber-300">
+                                    التوثيق قيد المراجعة
+                                  </Badge>
+                                )}
+                              </div>
                               <div className="flex items-center gap-2">
                                 <div className="flex items-center">
                                   {[1, 2, 3, 4, 5].map((star) => (
@@ -429,9 +494,26 @@ setBids(bidsData || [])
                             {bid.status === "withdrawn" && "↩️ مسحوب"}
                           </Badge>
 
+                          {project.client_id === userProfile?.id && bid.profiles?.license_status && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs"
+                              onClick={() => handleViewLicense(bid.id)}
+                              disabled={bid.profiles.license_status !== "verified"}
+                            >
+                              عرض مستند الترخيص
+                            </Button>
+                          )}
+
                           {project.client_id === userProfile?.id && bid.status === "pending" && (
-                            <Button size="sm" className="bg-gradient-to-r from-green-600 to-emerald-600">
-                              قبول العرض
+                            <Button
+                              size="sm"
+                              className="bg-gradient-to-r from-green-600 to-emerald-600"
+                              disabled={acceptingBidId === bid.id}
+                              onClick={() => handleAcceptBid(bid.id)}
+                            >
+                              {acceptingBidId === bid.id ? "جاري القبول..." : "قبول العرض"}
                             </Button>
                           )}
                         </div>

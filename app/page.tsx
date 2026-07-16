@@ -1,36 +1,76 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, Briefcase, DollarSign, Shield, Users } from "lucide-react"
+import {
+  ArrowRight,
+  Briefcase,
+  DollarSign,
+  Shield,
+  ShieldCheck,
+  Users,
+  PlayCircle,
+  FileCheck2,
+} from "lucide-react"
 import Link from "next/link"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 export default function HomePage() {
+  const { t, lang } = useLanguage()
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-hidden">
       {/* Hero Section */}
-      <section className="py-20 px-4 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-balance">
-            <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-              منصة العمل الحر
-            </span>
-            <br />
-            <span className="text-3xl md:text-4xl">الوجهة المثالية لمشاريعك</span>
-          </h1>
-          <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-pretty">
-            نوفر لك أفضل المستقلين لإنجاز مشاريعك، ونضمن لك عمولة 10% على كل مشروع تجلبه للمنصة
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/signup">
-              <Button size="lg" className="gap-2">
-                ابدأ الآن مجاناً
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/projects">
-              <Button size="lg" variant="outline">
-                استعرض المشاريع
-              </Button>
-            </Link>
+      <section className="relative py-20 px-4">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.12),transparent_45%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.12),transparent_40%)]" />
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div className={lang === "ar" ? "text-right" : "text-left"}>
+            <div className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-medium text-green-700 mb-5">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              {t("trust_badge")}
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance leading-tight">
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                {t("hero_title_line1")}
+              </span>
+              <br />
+              <span className="text-3xl md:text-4xl text-gray-900">{t("hero_title_line2")}</span>
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8 max-w-xl text-pretty">{t("hero_subtitle")}</p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/auth/signup">
+                <Button size="lg" className="gap-2 shadow-lg shadow-blue-600/20">
+                  {t("hero_cta_start")}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/projects">
+                <Button size="lg" variant="outline">
+                  {t("hero_cta_browse")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Product preview — replace /public/media/hero-poster.jpg and
+              /public/media/hero-demo.mp4 with your own screenshots/clip. */}
+          <div className="relative">
+            <div className="rounded-2xl border bg-white shadow-2xl overflow-hidden aspect-video">
+              <video
+                className="w-full h-full object-cover"
+                poster="/media/hero-poster.jpg"
+                controls
+                preload="none"
+              >
+                <source src="/media/hero-demo.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg border p-3 flex items-center gap-2">
+              <PlayCircle className="h-5 w-5 text-blue-600" />
+              <span className="text-sm font-medium">
+                {lang === "ar" ? "شاهد كيف تعمل المنصة" : "See how it works"}
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -38,39 +78,38 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="py-16 px-4 bg-secondary/30">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">لماذا تختار منصتنا؟</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card>
+          <h2 className="text-3xl font-bold text-center mb-12">{t("features_title")}</h2>
+          <div className="grid md:grid-cols-4 gap-6">
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
               <CardHeader>
-                <DollarSign className="h-12 w-12 text-green-600 mb-4" />
-                <CardTitle>نظام عمولة مزدوج</CardTitle>
-                <CardDescription>20% للمستقلين، 10% للمسوقين</CardDescription>
+                <DollarSign className="h-10 w-10 text-green-600 mb-3" />
+                <CardTitle className="text-lg">{t("feature_commission_title")}</CardTitle>
+                <CardDescription>{t("feature_commission_desc")}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">احصل على عمولة مجزية لكل مشروع تنفذه أو تجلبه للمنصة</p>
-              </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
               <CardHeader>
-                <Shield className="h-12 w-12 text-blue-600 mb-4" />
-                <CardTitle>حماية المعلومات</CardTitle>
-                <CardDescription>أرقام الهواتف مخفية حتى القبول</CardDescription>
+                <Shield className="h-10 w-10 text-blue-600 mb-3" />
+                <CardTitle className="text-lg">{t("feature_protection_title")}</CardTitle>
+                <CardDescription>{t("feature_protection_desc")}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">نحمي معلومات اتصالك ونظهرها فقط للأطراف المقبولة</p>
-              </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
               <CardHeader>
-                <Users className="h-12 w-12 text-blue-600 mb-4" />
-                <CardTitle>ثلاثة أنواع من المستخدمين</CardTitle>
-                <CardDescription>أصحاب عمل، مستقلين، مسوقين</CardDescription>
+                <Users className="h-10 w-10 text-purple-600 mb-3" />
+                <CardTitle className="text-lg">{t("feature_roles_title")}</CardTitle>
+                <CardDescription>{t("feature_roles_desc")}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">نظام متكامل يلبي احتياجات جميع الأطراف في سوق العمل الحر</p>
-              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow ring-1 ring-green-100">
+              <CardHeader>
+                <FileCheck2 className="h-10 w-10 text-green-600 mb-3" />
+                <CardTitle className="text-lg">{t("feature_verify_title")}</CardTitle>
+                <CardDescription>{t("feature_verify_desc")}</CardDescription>
+              </CardHeader>
             </Card>
           </div>
         </div>
@@ -79,65 +118,76 @@ export default function HomePage() {
       {/* How It Works */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">كيف تعمل المنصة؟</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{t("how_title")}</h2>
           <div className="grid md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-blue-600">1</span>
+            {[
+              { n: 1, title: t("how_1_title"), desc: t("how_1_desc"), circle: "bg-blue-100", text: "text-blue-600" },
+              {
+                n: 2,
+                title: t("how_2_title"),
+                desc: t("how_2_desc"),
+                circle: "bg-purple-100",
+                text: "text-purple-600",
+              },
+              { n: 3, title: t("how_3_title"), desc: t("how_3_desc"), circle: "bg-green-100", text: "text-green-600" },
+              {
+                n: 4,
+                title: t("how_4_title"),
+                desc: t("how_4_desc"),
+                circle: "bg-orange-100",
+                text: "text-orange-600",
+              },
+            ].map((step) => (
+              <div key={step.n} className="text-center">
+                <div className={`w-16 h-16 ${step.circle} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                  <span className={`text-2xl font-bold ${step.text}`}>{step.n}</span>
+                </div>
+                <h3 className="font-semibold mb-2">{step.title}</h3>
+                <p className="text-sm text-muted-foreground">{step.desc}</p>
               </div>
-              <h3 className="font-semibold mb-2">انشر مشروعك</h3>
-              <p className="text-sm text-muted-foreground">أضف مشروعك بحد أدنى 300$</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-blue-600">2</span>
-              </div>
-              <h3 className="font-semibold mb-2">استقبل العروض</h3>
-              <p className="text-sm text-muted-foreground">يحصل المستقلون على 20% عمولة</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-green-600">3</span>
-              </div>
-              <h3 className="font-semibold mb-2">اختر أفضل عرض</h3>
-              <p className="text-sm text-muted-foreground">شاهد تقييمات المستقلين السابقة</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-orange-600">4</span>
-              </div>
-              <h3 className="font-semibold mb-2">احصل على عمولة</h3>
-              <p className="text-sm text-muted-foreground">المسوقون يحصلون على 10% عمولة</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      {/* Verification explainer */}
+      <section id="verification" className="py-16 px-4 bg-gradient-to-br from-green-50 via-white to-blue-50">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">جاهز للبدء؟</h2>
-          <p className="text-xl mb-8 opacity-90">انضم إلى آلاف المستخدمين الذين وجدوا فرص عمل وأرباح على منصتنا</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-100 mb-6">
+            <ShieldCheck className="h-8 w-8 text-green-600" />
+          </div>
+          <h2 className="text-3xl font-bold mb-4">{t("verify_section_title")}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-6">{t("verify_section_body")}</p>
+          <Link href="/profile">
+            <Button variant="outline" size="lg">
+              {t("verify_learn_more")}
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-6">{t("cta_title")}</h2>
+          <p className="text-xl mb-8 opacity-90">{t("cta_subtitle")}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/signup?role=client">
+            <Link href="/auth/signup?role=business_owner">
               <Button size="lg" variant="secondary" className="gap-2">
                 <Briefcase className="h-4 w-4" />
-                أنا صاحب عمل
+                {t("cta_business")}
               </Button>
             </Link>
             <Link href="/auth/signup?role=freelancer">
               <Button size="lg" variant="outline" className="bg-white text-blue-600 hover:bg-gray-50 gap-2">
                 <Briefcase className="h-4 w-4" />
-                أنا مستقل
+                {t("cta_freelancer")}
               </Button>
             </Link>
             <Link href="/auth/signup?role=affiliate">
               <Button size="lg" variant="ghost" className="text-white border-2 border-white hover:bg-white/10 gap-2">
                 <Users className="h-4 w-4" />
-                أنا مسوق
+                {t("cta_affiliate")}
               </Button>
             </Link>
           </div>

@@ -32,6 +32,19 @@ export default function SignupForm() {
     if (ref) {
       setReferralCode(ref.toUpperCase())
     }
+
+    // Prefill the account type when arriving from a "I'm a business
+    // owner / freelancer / affiliate" link on the home page.
+    // "client" is kept as a legacy alias for "business_owner" since
+    // older links on the site used ?role=client.
+    const roleParam = searchParams.get("role")
+    if (roleParam === "business_owner" || roleParam === "client") {
+      setRole("business_owner")
+    } else if (roleParam === "freelancer") {
+      setRole("freelancer")
+    } else if (roleParam === "affiliate") {
+      setRole("affiliate")
+    }
   }, [searchParams])
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -86,10 +99,19 @@ export default function SignupForm() {
               تم إرسال رسالة تأكيد إلى بريدك الإلكتروني. يرجى التحقق من بريدك وتأكيد حسابك للمتابعة.
             </CardDescription>
           </CardHeader>
-          <CardFooter className="flex justify-center">
-            <Button onClick={() => router.push("/auth/login")} variant="outline">
+          <CardFooter className="flex flex-col gap-3">
+            <Button onClick={() => router.push("/auth/login")} variant="outline" className="w-full">
               العودة لتسجيل الدخول
             </Button>
+            {role === "freelancer" && (
+              <p className="text-xs text-center text-muted-foreground">
+                بعد تسجيل الدخول، يمكنك رفع رخصة العمل الحر (اختياري) من صفحة{" "}
+                <Link href="/profile" className="text-primary hover:underline">
+                  الملف الشخصي
+                </Link>{" "}
+                للحصول على شارة "موثّق".
+              </p>
+            )}
           </CardFooter>
         </Card>
       </div>
