@@ -42,8 +42,8 @@ function NewProjectContent() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
+  const [pendingPaymentUrl, setPendingPaymentUrl] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -57,24 +57,21 @@ function NewProjectContent() {
   const [referralLoaded, setReferralLoaded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Quick-select budget presets shown as chips in the UI. These no
-  // longer point at 5 different payment domains — every budget uses
-  // the SAME checkout link, with the price passed as a query param.
+  // ✅ موحّد على رابط واحد فقط بدل 5 روابط مختلفة.
+  // كل خيار له نفس النطاق digital.workshub.space لكن بـ product_id مختلف حسب الباقة.
+  // ⚠️ عدّل قيمة productId هنا لتطابق معرّفات المنتجات الفعلية في متجرك الرقمي.
   const budgetOptions = [
-    { value: "300", label: "300$ - مشروع صغير/مبدئي" },
-    { value: "600", label: "600$ - مشروع رقمي بسيط" },
-    { value: "900", label: "900$ - مشروع متوسط" },
-    { value: "1200", label: "1200$ - مشروع حلول متكاملة" },
-    { value: "1500", label: "1500$ - مشروع كبير/معقد" },
+    { value: "300", label: "300$ - مشروع صغير/مبدئي", productId: "project-300" },
+    { value: "600", label: "600$ - مشروع رقمي بسيط", productId: "project-600" },
+    { value: "900", label: "900$ - مشروع متوسط", productId: "project-900" },
+    { value: "1200", label: "1200$ - مشروع حلول متكاملة", productId: "project-1200" },
+    { value: "1500", label: "1500$ - مشروع كبير/معقد", productId: "project-1500" },
   ];
 
-  // Single checkout product. Replace PAYMENT_PRODUCT_ID with the real
-  // product id from your digital.workshub.space storefront if it's
-  // different. The amount and a "wanted" flag are passed as query
-  // params so ANY budget value works through this one link.
-  const PAYMENT_PRODUCT_ID = "workhub-project";
-  const buildPaymentUrl = (amount: string, projectId: string, userIdForLink: string) =>
-    `https://digital.workshub.space/l/${PAYMENT_PRODUCT_ID}?price=${amount}&wanted=true&project_id=${projectId}&user_id=${userIdForLink}`;
+  const CHECKOUT_DOMAIN = "digital.workshub.space";
+
+  const buildCheckoutUrl = (productId: string, price: string) =>
+    `https://${CHECKOUT_DOMAIN}/l/${productId}?price=${price}&wanted=true`;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -123,6 +120,10 @@ function NewProjectContent() {
     }
   }, [searchParams, referralLoaded, router]);
 
+  const getGatewayByBudget = (budget: string) => {
+    return budgetOptions.find(option => option.value === budget);
+  };
+
   const updateAffiliateStats = async (affiliateId: string, commissionAmount: number) => {
     const supabase = createClient();
     
@@ -169,6 +170,10 @@ function NewProjectContent() {
     setError(null);
     setLoading(true);
 
+    // ✅ نفتح نافذة فارغة الآن (أثناء الضغطة مباشرة) حتى لا يحظرها المتصفح
+    // كمنع نوافذ منبثقة — سنضع فيها الرابط الصحيح لاحقاً بعد إنشاء المشروع.
+    const paymentWindow = window.open("about:blank", "_blank");
+
     try {
       const supabase = createClient();
 
@@ -194,12 +199,12 @@ function NewProjectContent() {
       if (profileError || !profile) {
         console.log("⚠️ المستخدم ليس له بروفايل، جاري إنشاء واحد...");
         
-        // أنشئ profile إذا لم يكن موجوداً — نستخدم نوع الحساب الذي
-        // اختاره المستخدم عند التسجيل (وليس "freelancer" دائماً)
+        // أنشئ profile إذا لم يكن موجوداً
         const metadataRole = (user.user_metadata as any)?.role;
         const safeRole = ["business_owner", "freelancer", "affiliate"].includes(metadataRole)
           ? metadataRole
-          : "business_owner"; // person is here to post a project, so default to business_owner, not freelancer
+          : "business_owner"; // شخص ينشئ مشروعاً غالباً صاحب عمل، وليس مستقل
+
         const { error: createProfileError } = await supabase
           .from('profiles')
           .insert({
@@ -230,7 +235,8 @@ function NewProjectContent() {
         throw new Error("لا يمكن إضافة معلومات اتصال في وصف المشروع");
       }
 
-      if (!budgetMin || parseFloat(budgetMin) <= 0) {
+      const selectedOption = getGatewayByBudget(budgetMin);
+      if (!selectedOption) {
         throw new Error("الميزانية المختارة غير صالحة");
       }
 
@@ -280,7 +286,6 @@ function NewProjectContent() {
       }
 
       console.log("✅ تم إنشاء المشروع بنجاح:", project.id);
-      setCreatedProjectId(project.id);
 
       if (validMarketerId && project.id) {
         try {
@@ -307,9 +312,9 @@ function NewProjectContent() {
         }
       }
 
+      const failedUploads: string[] = [];
       if (files.length > 0 && files.length <= 50) {
         console.log("📤 رفع الملفات...");
-        const failedUploads: string[] = [];
         for (const file of files) {
           const fileName = `${Date.now()}_${file.name}`;
           const { error: uploadError } = await supabase.storage
@@ -326,29 +331,30 @@ function NewProjectContent() {
               uploaded_by: user.id,
             });
           } else {
-            console.error("❌ فشل رفع الملف:", file.name, uploadError);
+            console.error("❌ فشل رفع الملف:", file.name, uploadError.message);
             failedUploads.push(file.name);
           }
         }
-        if (failedUploads.length > 0) {
-          // Don't block project creation on this — the project already
-          // exists — but let the person know which files didn't make it.
-          setError(
-            `تم نشر المشروع، لكن فشل رفع ${failedUploads.length} ملف: ${failedUploads.join(", ")}. يمكنك إعادة رفعها من صفحة المشروع.`
-          );
-        }
       }
 
-      const paymentUrl = buildPaymentUrl(budgetMin, project.id, user.id);
-      const newWindow = window.open(paymentUrl, '_blank');
-      
-      if (newWindow) {
+      if (failedUploads.length > 0) {
+        setError(
+          `تم نشر المشروع، لكن تعذّر رفع ${failedUploads.length} ملف: ${failedUploads.join(", ")}. تأكد من تفعيل bucket "project-files" في Supabase Storage.`
+        );
+      }
+
+      const paymentUrl = buildCheckoutUrl(selectedOption.productId, budgetMin);
+
+      if (paymentWindow) {
+        paymentWindow.location.href = paymentUrl;
         setPaymentWindowOpened(true);
       } else {
-        console.error("❌ فشل فتح نافذة الدفع");
-        throw new Error("فشل فتح بوابة الدفع. يرجى التحقق من إعدادات المنع النافذة المنبثقة.");
+        // النافذة حُظرت رغم فتحها المبكر — نستخدم رابطاً يمكن للمستخدم الضغط عليه بدل التوجيه التلقائي
+        console.error("❌ تم حظر نافذة الدفع من المتصفح");
+        setPaymentWindowOpened(false);
       }
-      
+
+      setPendingPaymentUrl(paymentUrl);
       setSuccess(true);
       
       setTimeout(() => {
@@ -358,6 +364,7 @@ function NewProjectContent() {
     } catch (err: any) {
       console.error("❌ خطأ أثناء إنشاء المشروع:", err);
       setError(err.message || "حدث خطأ أثناء إنشاء المشروع. يرجى المحاولة مرة أخرى.");
+      paymentWindow?.close();
     } finally {
       setLoading(false);
     }
@@ -434,29 +441,26 @@ function NewProjectContent() {
             <CardDescription>
               {paymentWindowOpened 
                 ? "تم فتح نافذة جديدة لبوابة الدفع. يرجى إكمال عملية الدفع."
-                : "سيتم توجيهك إلى صفحة المشروع قريباً..."}
+                : "المتصفح منع فتح نافذة جديدة تلقائياً — استخدم الزر أدناه لإكمال الدفع."}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            {paymentWindowOpened && (
+            {pendingPaymentUrl && (
               <>
                 <Alert className="bg-blue-50 border-blue-200">
                   <AlertCircle className="h-4 w-4 text-blue-600" />
                   <AlertDescription className="text-blue-700">
-                    <p className="font-medium mb-2">⚠️ تم فتح نافذة الدفع</p>
-                    <p className="text-sm">
-                      إذا لم تفتح نافذة الدفع تلقائياً،{' '}
-                      <button
-                        onClick={() => {
-                          if (createdProjectId && userId) {
-                            window.open(buildPaymentUrl(budgetMin, createdProjectId, userId), "_blank");
-                          }
-                        }}
-                        className="text-blue-600 hover:underline font-medium"
-                      >
-                        انقر هنا لفتح بوابة الدفع
-                      </button>
+                    <p className="font-medium mb-2">
+                      {paymentWindowOpened ? "لم تفتح النافذة تلقائياً؟" : "⚠️ تم حظر النافذة المنبثقة"}
                     </p>
+                    <a
+                      href={pendingPaymentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                    >
+                      انقر هنا لفتح بوابة الدفع
+                    </a>
                   </AlertDescription>
                 </Alert>
                 
@@ -494,7 +498,7 @@ function NewProjectContent() {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => router.push('/my-projects')}
+                onClick={() => router.push('/dashboard/projects')}
               >
                 الذهاب إلى لوحة التحكم الآن
               </Button>
@@ -855,7 +859,7 @@ function NewProjectContent() {
                       الميزانية المختارة: <span className="font-bold">{budgetMin}$</span>
                     </p>
                     <p className="text-xs text-blue-600 mt-1">
-                      رابط الدفع: <span className="font-mono">digital.workshub.space/l/{PAYMENT_PRODUCT_ID}</span>
+                      رابط الدفع: <span className="font-mono break-all">{buildCheckoutUrl(getGatewayByBudget(budgetMin)?.productId || "", budgetMin)}</span>
                     </p>
                   </div>
                 )}

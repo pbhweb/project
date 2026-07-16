@@ -33,17 +33,14 @@ export default function SignupForm() {
       setReferralCode(ref.toUpperCase())
     }
 
-    // Prefill the account type when arriving from a "I'm a business
-    // owner / freelancer / affiliate" link on the home page.
-    // "client" is kept as a legacy alias for "business_owner" since
-    // older links on the site used ?role=client.
+    // ✅ الإصلاح: كانت روابط الصفحة الرئيسية (?role=client/freelancer/affiliate)
+    // تُتجاهل بالكامل، فيُسجَّل الجميع افتراضياً كـ"مستقل" مهما ضغطوا.
     const roleParam = searchParams.get("role")
-    if (roleParam === "business_owner" || roleParam === "client") {
-      setRole("business_owner")
-    } else if (roleParam === "freelancer") {
-      setRole("freelancer")
-    } else if (roleParam === "affiliate") {
-      setRole("affiliate")
+    if (roleParam) {
+      const normalized = roleParam === "client" ? "business_owner" : roleParam
+      if (["business_owner", "freelancer", "affiliate"].includes(normalized)) {
+        setRole(normalized as UserRole)
+      }
     }
   }, [searchParams])
 
@@ -99,19 +96,10 @@ export default function SignupForm() {
               تم إرسال رسالة تأكيد إلى بريدك الإلكتروني. يرجى التحقق من بريدك وتأكيد حسابك للمتابعة.
             </CardDescription>
           </CardHeader>
-          <CardFooter className="flex flex-col gap-3">
-            <Button onClick={() => router.push("/auth/login")} variant="outline" className="w-full">
+          <CardFooter className="flex justify-center">
+            <Button onClick={() => router.push("/auth/login")} variant="outline">
               العودة لتسجيل الدخول
             </Button>
-            {role === "freelancer" && (
-              <p className="text-xs text-center text-muted-foreground">
-                بعد تسجيل الدخول، يمكنك رفع رخصة العمل الحر (اختياري) من صفحة{" "}
-                <Link href="/profile" className="text-primary hover:underline">
-                  الملف الشخصي
-                </Link>{" "}
-                للحصول على شارة "موثّق".
-              </p>
-            )}
           </CardFooter>
         </Card>
       </div>

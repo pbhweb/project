@@ -6,14 +6,12 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Navbar } from "@/components/navbar"
 import { Toaster } from "@/components/ui/sonner"
-import { LanguageProvider } from "@/lib/i18n/language-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "WorkHub — Freelance Marketplace with Verified Freelancers",
-  description:
-    "Post projects, receive offers from professional freelancers, and check freelance license verification before you hire.",
+  title: "منصة العمل الحر - ربط أصحاب العمل مع المستقلين",
+  description: "منصة متكاملة للعمل الحر مع نظام إحالة وعمولات",
 }
 
 export default function RootLayout({
@@ -22,26 +20,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    // Default language is English (lang/dir are updated client-side by
-    // LanguageProvider when the visitor switches to Arabic).
-    <html lang="en" dir="ltr" suppressHydrationWarning>
-      <head>
-        {/* Google AdSense site-verification / ad script. Replace the
-            client id below if your AdSense account id ever changes. */}
+    <html lang="ar" dir="rtl">
+      <body className={`${inter.className} antialiased`}>
+        {/* Google AdSense — site ownership verification / ad code */}
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4261863462581026"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
-      </head>
-      <body className={`${inter.className} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <LanguageProvider>
-            <Navbar />
-            <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">{children}</main>
-            <Toaster />
-          </LanguageProvider>
+          <Navbar />
+          <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">{children}</main>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
