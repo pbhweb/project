@@ -29,9 +29,12 @@ export async function updateSession(request: NextRequest) {
 
   // الحصول على بيانات المستخدم
   const { data: { user }, error } = await supabase.auth.getUser()
-  
-  if (error) {
-    console.error('Auth error in middleware:', error)
+
+  // "Auth session missing" simply means the visitor has no session cookie yet
+  // (any anonymous page view). That's expected, not an error — only log
+  // anything else, so real auth failures don't get buried in noise.
+  if (error && error.name !== "AuthSessionMissingError") {
+    console.error("Auth error in middleware:", error)
   }
 
   const { pathname } = request.nextUrl
