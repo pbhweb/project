@@ -57,21 +57,26 @@ function NewProjectContent() {
   const [referralLoaded, setReferralLoaded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // ✅ موحّد على رابط واحد فقط بدل 5 روابط مختلفة.
-  // كل خيار له نفس النطاق digital.workshub.space لكن بـ product_id مختلف حسب الباقة.
-  // ⚠️ عدّل قيمة productId هنا لتطابق معرّفات المنتجات الفعلية في متجرك الرقمي.
-  const budgetOptions = [
-    { value: "300", label: "300$ - مشروع صغير/مبدئي", productId: "project-300" },
-    { value: "600", label: "600$ - مشروع رقمي بسيط", productId: "project-600" },
-    { value: "900", label: "900$ - مشروع متوسط", productId: "project-900" },
-    { value: "1200", label: "1200$ - مشروع حلول متكاملة", productId: "project-1200" },
-    { value: "1500", label: "1500$ - مشروع كبير/معقد", productId: "project-1500" },
+  // ✅ لا مزيد من باقات أسعار ثابتة — أي مبلغ حر بحد أدنى MIN_BUDGET دولار.
+  // رابط الدفع موحّد على منتج Gumroad واحد ("project") مع تمرير السعر الفعلي
+  // ومعرّف المشروع كـ url param حتى يقرأه الويبهوك بعد الدفع.
+  const MIN_BUDGET = 125;
+
+  // أسعار الصرف: الريال السعودي والدرهم الإماراتي والريال القطري والدينار الكويتي
+  // مربوطة رسمياً بالدولار (ثابتة). اليورو عائم وهذا سعر تقريبي.
+  const CURRENCY_RATES: { code: string; label: string; rate: number; floating: boolean }[] = [
+    { code: "SAR", label: "ريال سعودي", rate: 3.75, floating: false },
+    { code: "AED", label: "درهم إماراتي", rate: 3.6725, floating: false },
+    { code: "QAR", label: "ريال قطري", rate: 3.64, floating: false },
+    { code: "KWD", label: "دينار كويتي", rate: 0.307, floating: false },
+    { code: "EUR", label: "يورو", rate: 0.92, floating: true },
   ];
 
   const CHECKOUT_DOMAIN = "digital.workshub.space";
+  const GUMROAD_PRODUCT_SLUG = "project";
 
-  const buildCheckoutUrl = (productId: string, price: string) =>
-    `https://${CHECKOUT_DOMAIN}/l/${productId}?price=${price}&wanted=true`;
+  const buildCheckoutUrl = (projectId: string, price: string) =>
+    `https://${CHECKOUT_DOMAIN}/l/${GUMROAD_PRODUCT_SLUG}?price=${price}&wanted=true&project_id=${projectId}`;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -119,10 +124,6 @@ function NewProjectContent() {
       setError(null);
     }
   }, [searchParams, referralLoaded, router]);
-
-  const getGatewayByBudget = (budget: string) => {
-    return budgetOptions.find(option => option.value === budget);
-  };
 
   const updateAffiliateStats = async (affiliateId: string, commissionAmount: number) => {
     const supabase = createClient();
@@ -235,9 +236,8 @@ function NewProjectContent() {
         throw new Error("لا يمكن إضافة معلومات اتصال في وصف المشروع");
       }
 
-      const selectedOption = getGatewayByBudget(budgetMin);
-      if (!selectedOption) {
-        throw new Error("الميزانية المختارة غير صالحة");
+      if (Number(budgetMin) < MIN_BUDGET) {
+        throw new Error(`الحد الأدنى للميزانية ${MIN_BUDGET}$`);
       }
 
       let validMarketerId = null;
@@ -343,7 +343,7 @@ function NewProjectContent() {
         );
       }
 
-      const paymentUrl = buildCheckoutUrl(selectedOption.productId, budgetMin);
+      const paymentUrl = buildCheckoutUrl(project.id, budgetMin);
 
       if (paymentWindow) {
         paymentWindow.location.href = paymentUrl;
@@ -616,26 +616,52 @@ function NewProjectContent() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
-                    <Label htmlFor="budgetMin">الميزانية الدنيا *</Label>
-                    <Select
-                      value={budgetMin}
-                      onValueChange={setBudgetMin}
-                      required
-                    >
-                      <SelectTrigger className="focus:ring-2 focus:ring-purple-500">
-                        <SelectValue placeholder="اختر الميزانية" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {budgetOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-neutral-400">
-                      سيتم فتح بوابة الدفع المناسبة تلقائياً بناءً على اختيارك
-                    </p>
+                    <Label htmlFor="budgetMin">الميزانية الدنيا * (بالدولار الأمريكي)</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">
+                        $
+                      </span>
+                      <Input
+                        id="budgetMin"
+                        type="number"
+                        min={MIN_BUDGET}
+                        step="1"
+                        value={budgetMin}
+                        onChange={(e) => setBudgetMin(e.target.value)}
+                        placeholder={`الحد الأدنى ${MIN_BUDGET}$`}
+                        className="pl-10 focus:ring-2 focus:ring-emerald-500"
+                        required
+                      />
+                    </div>
+                    {budgetMin && Number(budgetMin) < MIN_BUDGET ? (
+                      <p className="text-xs text-red-400">
+                        الحد الأدنى للميزانية {MIN_BUDGET}$
+                      </p>
+                    ) : (
+                      <p className="text-xs text-neutral-400">
+                        الحد الأدنى لنشر مشروع هو {MIN_BUDGET}$
+                      </p>
+                    )}
+
+                    {budgetMin && Number(budgetMin) >= MIN_BUDGET && (
+                      <div className="rounded-lg border border-emerald-500/20 bg-neutral-900 p-3 space-y-1.5">
+                        <p className="text-xs text-neutral-400 mb-1">ما يعادلها تقريباً (يظهر للعميل):</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm">
+                          {CURRENCY_RATES.map(({ code, label, rate, floating }) => (
+                            <div key={code} className="flex items-center justify-between gap-2">
+                              <span className="text-neutral-400">{label}</span>
+                              <span className="text-emerald-300 font-medium">
+                                {(Number(budgetMin) * rate).toLocaleString("ar", { maximumFractionDigits: 0 })}
+                                {floating ? "≈" : ""}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-neutral-500 pt-1">
+                          الريال والدرهم والريال القطري والدينار الكويتي أسعار صرف ثابتة مربوطة بالدولار. اليورو تقريبي ويتغيّر يومياً.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3">
@@ -649,11 +675,11 @@ function NewProjectContent() {
                       <Input
                         id="budgetMax"
                         type="number"
-                        min={budgetMin || "300"}
-                        step="50"
+                        min={budgetMin || String(MIN_BUDGET)}
+                        step="1"
                         value={budgetMax}
                         onChange={(e) => setBudgetMax(e.target.value)}
-                        className="pl-10 focus:ring-2 focus:ring-purple-500"
+                        className="pl-10 focus:ring-2 focus:ring-emerald-500"
                         placeholder="اختياري"
                       />
                     </div>
@@ -668,6 +694,7 @@ function NewProjectContent() {
             </Card>
 
             <Card>
+
               <CardHeader>
                 <CardTitle>الملفات المرفقة</CardTitle>
                 <CardDescription>
@@ -853,13 +880,13 @@ function NewProjectContent() {
                   </div>
                 </div>
 
-                {budgetMin && (
+                {budgetMin && Number(budgetMin) >= MIN_BUDGET && (
                   <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                     <p className="text-sm font-medium text-emerald-300">
-                      الميزانية المختارة: <span className="font-bold">{budgetMin}$</span>
+                      الميزانية المحددة: <span className="font-bold">{budgetMin}$</span>
                     </p>
                     <p className="text-xs text-emerald-400 mt-1">
-                      رابط الدفع: <span className="font-mono break-all">{buildCheckoutUrl(getGatewayByBudget(budgetMin)?.productId || "", budgetMin)}</span>
+                      سيُنشأ رابط دفع خاص بمشروعك تلقائياً بعد النشر
                     </p>
                   </div>
                 )}
@@ -909,7 +936,7 @@ function NewProjectContent() {
                   <Button
                     type="submit"
                     className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-semibold shadow-lg hover:shadow-xl transition-all"
-                    disabled={loading || !budgetMin}
+                    disabled={loading || !budgetMin || Number(budgetMin) < MIN_BUDGET}
                     size="lg"
                   >
                     {loading ? (
@@ -943,10 +970,10 @@ function NewProjectContent() {
                     </Link>
                   </p>
                   
-                  {!budgetMin && (
+                  {(!budgetMin || Number(budgetMin) < MIN_BUDGET) && (
                     <p className="text-center text-amber-600 text-sm mt-2 flex items-center justify-center gap-1">
                       <AlertCircle className="h-4 w-4" />
-                      ⚠️ الرجاء اختيار الميزانية أولاً
+                      ⚠️ الرجاء إدخال ميزانية {MIN_BUDGET}$ أو أكثر
                     </p>
                   )}
                   

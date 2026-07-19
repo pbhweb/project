@@ -66,12 +66,19 @@ export default function DashboardPage() {
 
       // إذا لم يكن هناك بروفايل، قم بإنشائه
       if (!profile) {
+        // نحترم الدور الذي اختاره المستخدم عند التسجيل (مخزّن في user_metadata)
+        // بدلاً من افتراض "freelancer" دائماً، وإلا يُحبس المسوقون وأصحاب الأعمال
+        // في لوحة تحكم المستقلين بالخطأ.
+        const metaRole = user.user_metadata?.role
+        const allowedRoles = ["business_owner", "client", "freelancer", "affiliate"]
+        const resolvedRole = allowedRoles.includes(metaRole) ? metaRole : "freelancer"
+
         const { data: newProfile, error: createError } = await supabase
           .from("profiles")
           .insert({
             id: user.id,
             full_name: user.email?.split('@')[0] || 'مستخدم',
-            role: 'freelancer', // دور افتراضي
+            role: resolvedRole,
             is_active: true
           })
           .select()

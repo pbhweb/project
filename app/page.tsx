@@ -147,7 +147,7 @@ export default function HomePage() {
                 <span className="text-2xl font-bold text-emerald-400">1</span>
               </div>
               <h3 className="font-semibold mb-2">انشر مشروعك</h3>
-              <p className="text-sm text-muted-foreground">أضف مشروعك بحد أدنى 300$</p>
+              <p className="text-sm text-muted-foreground">أضف مشروعك بحد أدنى 125$</p>
             </div>
 
             <div className="text-center">

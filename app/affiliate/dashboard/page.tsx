@@ -50,6 +50,12 @@ export default function AffiliateDashboardPage() {
       }
 
       console.log("[v0] User profile:", profile)
+
+      if (profile?.role !== "affiliate") {
+        router.push("/dashboard")
+        return
+      }
+
       setUserProfile(profile)
 
       // Get affiliate account
