@@ -60,7 +60,7 @@ export default function ProjectDetailsPage() {
       } = await supabase.auth.getUser()
 
       if (user) {
-        const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+        const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
         setUserProfile(profile)
       }
 
@@ -212,19 +212,19 @@ export default function ProjectDetailsPage() {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      open: "bg-green-100 text-green-800",
-      in_progress: "bg-blue-100 text-blue-800",
-      completed: "bg-gray-100 text-gray-800",
-      cancelled: "bg-red-100 text-red-800",
+      open: "bg-green-500/15 text-green-300",
+      in_progress: "bg-emerald-500/10 text-emerald-300",
+      completed: "bg-neutral-900 text-neutral-200",
+      cancelled: "bg-red-500/15 text-red-300",
     }
-    return colors[status] || "bg-gray-100 text-gray-800"
+    return colors[status] || "bg-neutral-900 text-neutral-200"
   }
 
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
           <p className="mt-4">جاري تحميل بيانات المشروع...</p>
         </div>
       </div>
@@ -271,8 +271,8 @@ export default function ProjectDetailsPage() {
                 {project.category === "programming" && "برمجة"}
               </Badge>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.title}</h1>
-            <p className="text-gray-600">نشر {new Date(project.created_at).toLocaleDateString("ar-SA")}</p>
+            <h1 className="text-3xl font-bold text-white mb-2">{project.title}</h1>
+            <p className="text-neutral-400">نشر {new Date(project.created_at).toLocaleDateString("ar-SA")}</p>
           </div>
 
           {project.client_id === userProfile?.id ? (
@@ -295,12 +295,12 @@ export default function ProjectDetailsPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="flex items-center gap-3 p-3 bg-white border rounded-lg">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <DollarSign className="h-5 w-5 text-blue-600" />
+          <div className="flex items-center gap-3 p-3 bg-neutral-900 border border-white/10 rounded-lg">
+            <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">الميزانية</p>
+              <p className="text-sm text-neutral-400">الميزانية</p>
               <p className="font-bold text-lg">
                 ${project.budget_min}
                 {project.budget_max && ` - $${project.budget_max}`}
@@ -308,34 +308,34 @@ export default function ProjectDetailsPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 bg-white border rounded-lg">
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+          <div className="flex items-center gap-3 p-3 bg-neutral-900 border border-white/10 rounded-lg">
+            <div className="w-10 h-10 bg-green-500/15 rounded-full flex items-center justify-center">
               <Clock className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">الوقت المقدر</p>
+              <p className="text-sm text-neutral-400">الوقت المقدر</p>
               <p className="font-bold text-lg">
                 {project.estimated_hours ? `${project.estimated_hours} ساعة` : "غير محدد"}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 bg-white border rounded-lg">
-            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+          <div className="flex items-center gap-3 p-3 bg-neutral-900 border border-white/10 rounded-lg">
+            <div className="w-10 h-10 bg-purple-500/15 rounded-full flex items-center justify-center">
               <Users className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">العروض</p>
+              <p className="text-sm text-neutral-400">العروض</p>
               <p className="font-bold text-lg">{bids.length} عرض</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 bg-white border rounded-lg">
-            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+          <div className="flex items-center gap-3 p-3 bg-neutral-900 border border-white/10 rounded-lg">
+            <div className="w-10 h-10 bg-orange-500/15 rounded-full flex items-center justify-center">
               <Calendar className="h-5 w-5 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">الموعد النهائي</p>
+              <p className="text-sm text-neutral-400">الموعد النهائي</p>
               <p className="font-bold text-lg">
                 {project.deadline ? new Date(project.deadline).toLocaleDateString("ar-SA") : "غير محدد"}
               </p>
@@ -389,9 +389,9 @@ export default function ProjectDetailsPage() {
               {bids.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center">
-                    <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">لا توجد عروض حتى الآن</h3>
-                    <p className="text-gray-500">كن أول من يقدم عرضاً على هذا المشروع</p>
+                    <MessageSquare className="h-12 w-12 text-neutral-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-neutral-300 mb-2">لا توجد عروض حتى الآن</h3>
+                    <p className="text-neutral-400">كن أول من يقدم عرضاً على هذا المشروع</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -401,15 +401,15 @@ export default function ProjectDetailsPage() {
                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-                              <User className="h-6 w-6 text-blue-600" />
+                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/10 to-purple-500/15 rounded-full flex items-center justify-center">
+                              <User className="h-6 w-6 text-emerald-400" />
                             </div>
                             <div>
                               <h4 className="font-bold flex items-center gap-1.5">
                                 {bid.profiles?.full_name || "مستقل"}
                                 {bid.isVerified && (
                                   <span
-                                    className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full"
+                                    className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded-full"
                                     title="لدى هذا المستقل رخصة عمل حر موثّقة / Verified freelance license"
                                   >
                                     <ShieldCheck className="h-3 w-3" /> موثّق
@@ -424,7 +424,7 @@ export default function ProjectDetailsPage() {
                                       className={`h-4 w-4 ${
                                         star <= Math.round(calculateAverageRating(bid.reviews || []))
                                           ? "text-yellow-400 fill-yellow-400"
-                                          : "text-gray-300"
+                                          : "text-neutral-300"
                                       }`}
                                       viewBox="0 0 20 20"
                                       fill="currentColor"
@@ -433,7 +433,7 @@ export default function ProjectDetailsPage() {
                                     </svg>
                                   ))}
                                 </div>
-                                <span className="text-sm text-gray-600">
+                                <span className="text-sm text-neutral-400">
                                   {calculateAverageRating(bid.reviews || []).toFixed(1)}
                                 </span>
                               </div>
@@ -441,24 +441,24 @@ export default function ProjectDetailsPage() {
                           </div>
 
                           <div className="mb-4">
-                            <p className="text-gray-700 whitespace-pre-line">{bid.proposal}</p>
+                            <p className="text-neutral-300 whitespace-pre-line">{bid.proposal}</p>
                           </div>
 
                           <div className="flex flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                               <DollarSign className="h-4 w-4 text-green-600" />
                               <span className="font-bold text-green-600">${bid.amount}</span>
-                              <span className="text-sm text-gray-500">قيمة العرض</span>
+                              <span className="text-sm text-neutral-400">قيمة العرض</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-blue-600" />
+                              <Clock className="h-4 w-4 text-emerald-400" />
                               <span className="font-bold">{bid.delivery_days} يوم</span>
-                              <span className="text-sm text-gray-500">مدة التسليم</span>
+                              <span className="text-sm text-neutral-400">مدة التسليم</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Briefcase className="h-4 w-4 text-purple-600" />
                               <span className="font-bold text-purple-600">${(bid.amount * 0.2).toFixed(2)}</span>
-                              <span className="text-sm text-gray-500">عمولة المستقل (20%)</span>
+                              <span className="text-sm text-neutral-400">عمولة المستقل (20%)</span>
                             </div>
                           </div>
                         </div>
@@ -497,9 +497,9 @@ export default function ProjectDetailsPage() {
               {files.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center">
-                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">لا توجد ملفات مرفقة</h3>
-                    <p className="text-gray-500">لم يرفع الناشر أي ملفات للمشروع</p>
+                    <FileText className="h-12 w-12 text-neutral-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-neutral-300 mb-2">لا توجد ملفات مرفقة</h3>
+                    <p className="text-neutral-400">لم يرفع الناشر أي ملفات للمشروع</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -508,12 +508,12 @@ export default function ProjectDetailsPage() {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <FileText className="h-6 w-6 text-gray-600" />
+                          <div className="w-12 h-12 bg-neutral-900 rounded-lg flex items-center justify-center">
+                            <FileText className="h-6 w-6 text-neutral-400" />
                           </div>
                           <div>
                             <h4 className="font-medium">{file.file_name}</h4>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-neutral-400">
                               {(file.file_size / 1024).toFixed(1)} كيلوبايت •{" "}
                               {new Date(file.created_at).toLocaleDateString("ar-SA")}
                             </p>
@@ -546,12 +546,12 @@ export default function ProjectDetailsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-                      <User className="h-8 w-8 text-blue-600" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500/10 to-purple-500/15 rounded-full flex items-center justify-center">
+                      <User className="h-8 w-8 text-emerald-400" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold">{client?.full_name}</h3>
-                      <p className="text-gray-600">صاحب عمل</p>
+                      <p className="text-neutral-400">صاحب عمل</p>
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex items-center">
                           {[1, 2, 3, 4, 5].map((star) => (
@@ -565,18 +565,18 @@ export default function ProjectDetailsPage() {
                             </svg>
                           ))}
                         </div>
-                        <span className="text-sm text-gray-600">4.8 (24 تقييم)</span>
+                        <span className="text-sm text-neutral-400">4.8 (24 تقييم)</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-                        <Calendar className="h-5 w-5 text-blue-600" />
+                      <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                        <Calendar className="h-5 w-5 text-emerald-400" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">تاريخ الانضمام</p>
+                        <p className="text-sm text-neutral-400">تاريخ الانضمام</p>
                         <p className="font-medium">
                           {client?.created_at ? new Date(client.created_at).toLocaleDateString("ar-SA") : "غير متوفر"}
                         </p>
@@ -584,17 +584,17 @@ export default function ProjectDetailsPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
                         <Briefcase className="h-5 w-5 text-green-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">المشاريع المنشورة</p>
+                        <p className="text-sm text-neutral-400">المشاريع المنشورة</p>
                         <p className="font-medium">12 مشروع</p>
                       </div>
                     </div>
 
                     {userProfile?.id === project.client_id && (
-                      <Alert className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+                      <Alert className="bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border-emerald-500/20">
                         <AlertDescription>
                           رقم هاتفك: <span className="font-bold">{client?.phone}</span>
                           <br />
@@ -631,7 +631,7 @@ export default function ProjectDetailsPage() {
                       required
                       placeholder="يجب أن تكون 300$ على الأقل"
                     />
-                    <p className="text-xs text-gray-500">الحد الأدنى: ${project.budget_min}</p>
+                    <p className="text-xs text-neutral-400">الحد الأدنى: ${project.budget_min}</p>
                   </div>
 
                   <div className="space-y-3">
@@ -658,17 +658,17 @@ export default function ProjectDetailsPage() {
                       required
                       placeholder="صف عرضك بالتفصيل وكيف ستقوم بإنجاز المشروع..."
                     />
-                    <p className="text-xs text-gray-500">⚠️ لا تضف معلومات اتصال في وصف العرض</p>
+                    <p className="text-xs text-neutral-400">⚠️ لا تضف معلومات اتصال في وصف العرض</p>
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg">
                       <span className="text-sm font-medium">عمولتك:</span>
                       <span className="font-bold text-green-600">
                         ${bidAmount ? (Number.parseFloat(bidAmount) * 0.2).toFixed(2) : "0.00"}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 text-center">تحصل على 20% عمولة من قيمة المشروع</p>
+                    <p className="text-xs text-neutral-400 text-center">تحصل على 20% عمولة من قيمة المشروع</p>
                   </div>
 
                   <div className="flex gap-2">
@@ -693,32 +693,32 @@ export default function ProjectDetailsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 bg-green-500/15 rounded-full flex items-center justify-center shrink-0">
                     <span className="text-green-600 font-bold">$</span>
                   </div>
                   <div>
                     <p className="font-medium">عمولة 20%</p>
-                    <p className="text-sm text-gray-600">تحصل على 20% من قيمة المشروع كعمولة</p>
+                    <p className="text-sm text-neutral-400">تحصل على 20% من قيمة المشروع كعمولة</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-blue-600 font-bold">!</span>
+                  <div className="w-8 h-8 bg-emerald-500/10 rounded-full flex items-center justify-center shrink-0">
+                    <span className="text-emerald-400 font-bold">!</span>
                   </div>
                   <div>
                     <p className="font-medium">حماية المعلومات</p>
-                    <p className="text-sm text-gray-600">رقم هاتف الناشر يظهر فقط للعرض المقبول</p>
+                    <p className="text-sm text-neutral-400">رقم هاتف الناشر يظهر فقط للعرض المقبول</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 bg-purple-500/15 rounded-full flex items-center justify-center shrink-0">
                     <span className="text-purple-600 font-bold">✓</span>
                   </div>
                   <div>
                     <p className="font-medium">تقييمات المستقل</p>
-                    <p className="text-sm text-gray-600">يمكنك رؤية تقييمات المستقلين السابقة</p>
+                    <p className="text-sm text-neutral-400">يمكنك رؤية تقييمات المستقلين السابقة</p>
                   </div>
                 </div>
 
@@ -734,7 +734,7 @@ export default function ProjectDetailsPage() {
                 {!userProfile && (
                   <Alert>
                     <AlertDescription>
-                      <Link href="/auth/login" className="font-medium text-blue-600 hover:underline">
+                      <Link href="/auth/login" className="font-medium text-emerald-400 hover:underline">
                         سجل الدخول
                       </Link>{" "}
                       لتقديم عرض على المشروع
@@ -753,16 +753,16 @@ export default function ProjectDetailsPage() {
             <CardContent>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">قيمة المشروع:</span>
+                  <span className="text-sm text-neutral-400">قيمة المشروع:</span>
                   <span className="font-medium">${project.budget_min}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">عمولة المستقل (20%):</span>
+                  <span className="text-sm text-neutral-400">عمولة المستقل (20%):</span>
                   <span className="font-bold text-green-600">${(project.budget_min * 0.2).toFixed(2)}</span>
                 </div>
                 {project.referral_code && (
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">عمولة المسوق (10%):</span>
+                    <span className="text-sm text-neutral-400">عمولة المسوق (10%):</span>
                     <span className="font-bold text-purple-600">${(project.budget_min * 0.1).toFixed(2)}</span>
                   </div>
                 )}

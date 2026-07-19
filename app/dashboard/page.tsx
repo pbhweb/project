@@ -70,13 +70,12 @@ export default function DashboardPage() {
           .from("profiles")
           .insert({
             id: user.id,
-            email: user.email,
             full_name: user.email?.split('@')[0] || 'مستخدم',
             role: 'freelancer', // دور افتراضي
             is_active: true
           })
           .select()
-          .single()
+          .maybeSingle()
 
         if (createError) {
           throw new Error(createError.message)
@@ -183,7 +182,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
           <p className="mt-4">جاري تحميل لوحة التحكم...</p>
         </div>
       </div>
@@ -200,13 +199,13 @@ export default function DashboardPage() {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case "client":
-        return <Briefcase className="h-6 w-6 text-blue-600" />
+        return <Briefcase className="h-6 w-6 text-emerald-400" />
       case "freelancer":
         return <Users className="h-6 w-6 text-green-600" />
       case "affiliate":
         return <DollarSign className="h-6 w-6 text-purple-600" />
       default:
-        return <Users className="h-6 w-6 text-gray-600" />
+        return <Users className="h-6 w-6 text-neutral-400" />
     }
   }
 
@@ -224,17 +223,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">لوحة التحكم الرئيسية</h1>
-              <p className="text-gray-600 mt-2">مرحباً بك، {userProfile?.full_name}</p>
+              <h1 className="text-3xl font-bold text-white">لوحة التحكم الرئيسية</h1>
+              <p className="text-neutral-400 mt-2">مرحباً بك، {userProfile?.full_name}</p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg">
+              <div className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-white/10 rounded-lg">
                 {getRoleIcon(userProfile?.role)}
                 <span className="font-medium">{getRoleName(userProfile?.role)}</span>
               </div>
@@ -258,11 +257,11 @@ export default function DashboardPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">المشاريع الكلية</p>
-                  <h3 className="text-2xl font-bold text-gray-900">{stats.totalProjects}</h3>
+                  <p className="text-sm text-neutral-400">المشاريع الكلية</p>
+                  <h3 className="text-2xl font-bold text-white">{stats.totalProjects}</h3>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Briefcase className="h-6 w-6 text-blue-600" />
+                <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                  <Briefcase className="h-6 w-6 text-emerald-400" />
                 </div>
               </div>
             </CardContent>
@@ -272,10 +271,10 @@ export default function DashboardPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">المشاريع النشطة</p>
-                  <h3 className="text-2xl font-bold text-gray-900">{stats.activeProjects}</h3>
+                  <p className="text-sm text-neutral-400">المشاريع النشطة</p>
+                  <h3 className="text-2xl font-bold text-white">{stats.activeProjects}</h3>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-green-500/15 rounded-full flex items-center justify-center">
                   <TrendingUp className="h-6 w-6 text-green-600" />
                 </div>
               </div>
@@ -286,10 +285,10 @@ export default function DashboardPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">إجمالي الأرباح</p>
-                  <h3 className="text-2xl font-bold text-gray-900">${stats.totalEarnings}</h3>
+                  <p className="text-sm text-neutral-400">إجمالي الأرباح</p>
+                  <h3 className="text-2xl font-bold text-white">${stats.totalEarnings}</h3>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-purple-500/15 rounded-full flex items-center justify-center">
                   <DollarSign className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
@@ -300,10 +299,10 @@ export default function DashboardPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">العروض المعلقة</p>
-                  <h3 className="text-2xl font-bold text-gray-900">{stats.pendingBids}</h3>
+                  <p className="text-sm text-neutral-400">العروض المعلقة</p>
+                  <h3 className="text-2xl font-bold text-white">{stats.pendingBids}</h3>
                 </div>
-                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-orange-500/15 rounded-full flex items-center justify-center">
                   <Clock className="h-6 w-6 text-orange-600" />
                 </div>
               </div>
@@ -359,7 +358,7 @@ export default function DashboardPage() {
                         <Button className="w-full">عرض جميع العروض</Button>
                       </Link>
                       <div className="text-center">
-                        <p className="text-sm text-gray-500">لديك {stats.pendingBids} عرض معلق</p>
+                        <p className="text-sm text-neutral-400">لديك {stats.pendingBids} عرض معلق</p>
                       </div>
                     </div>
                   </CardContent>
@@ -402,7 +401,7 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="text-center space-y-4">
                       <div className="text-3xl font-bold text-green-600">${stats.totalEarnings}</div>
-                      <p className="text-sm text-gray-500">إجمالي الأرباح</p>
+                      <p className="text-sm text-neutral-400">إجمالي الأرباح</p>
                       <Link href="/transactions">
                         <Button variant="outline" className="w-full bg-transparent">
                           عرض المعاملات
@@ -430,7 +429,7 @@ export default function DashboardPage() {
                         <Button className="w-full">لوحة المسوقين</Button>
                       </Link>
                       <div className="text-center">
-                        <p className="text-sm text-gray-500">لديك {stats.totalProjects} إحالة</p>
+                        <p className="text-sm text-neutral-400">لديك {stats.totalProjects} إحالة</p>
                       </div>
                     </div>
                   </CardContent>
@@ -447,7 +446,7 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="text-center space-y-4">
                       <div className="text-3xl font-bold text-purple-600">${stats.totalEarnings}</div>
-                      <p className="text-sm text-gray-500">إجمالي أرباح الإحالة</p>
+                      <p className="text-sm text-neutral-400">إجمالي أرباح الإحالة</p>
                       <Link href="/transactions">
                         <Button variant="outline" className="w-full bg-transparent">
                           سحب الأرباح
@@ -467,11 +466,11 @@ export default function DashboardPage() {
                   <Link href="/projects/new">
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6 text-center">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <FileText className="h-6 w-6 text-blue-600" />
+                        <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <FileText className="h-6 w-6 text-emerald-400" />
                         </div>
                         <h3 className="font-semibold">نشر مشروع جديد</h3>
-                        <p className="text-sm text-gray-500 mt-1">ابدأ مشروعك بحد أدنى 300$</p>
+                        <p className="text-sm text-neutral-400 mt-1">ابدأ مشروعك بحد أدنى 300$</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -479,11 +478,11 @@ export default function DashboardPage() {
                   <Link href="/my-bids">
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6 text-center">
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <div className="w-12 h-12 bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
                           <CheckCircle className="h-6 w-6 text-green-600" />
                         </div>
                         <h3 className="font-semibold">مراجعة العروض</h3>
-                        <p className="text-sm text-gray-500 mt-1">قبول أو رفض عروض المستقلين</p>
+                        <p className="text-sm text-neutral-400 mt-1">قبول أو رفض عروض المستقلين</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -491,11 +490,11 @@ export default function DashboardPage() {
                   <Link href="/profile">
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6 text-center">
-                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <div className="w-12 h-12 bg-purple-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
                           <Users className="h-6 w-6 text-purple-600" />
                         </div>
                         <h3 className="font-semibold">تعديل الملف الشخصي</h3>
-                        <p className="text-sm text-gray-500 mt-1">حدث معلومات التواصل الخاصة بك</p>
+                        <p className="text-sm text-neutral-400 mt-1">حدث معلومات التواصل الخاصة بك</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -507,11 +506,11 @@ export default function DashboardPage() {
                   <Link href="/projects">
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6 text-center">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <Briefcase className="h-6 w-6 text-blue-600" />
+                        <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Briefcase className="h-6 w-6 text-emerald-400" />
                         </div>
                         <h3 className="font-semibold">تصفح المشاريع</h3>
-                        <p className="text-sm text-gray-500 mt-1">ابحث عن مشاريع تناسب مهاراتك</p>
+                        <p className="text-sm text-neutral-400 mt-1">ابحث عن مشاريع تناسب مهاراتك</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -519,11 +518,11 @@ export default function DashboardPage() {
                   <Link href="/my-bids">
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6 text-center">
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <div className="w-12 h-12 bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
                           <FileText className="h-6 w-6 text-green-600" />
                         </div>
                         <h3 className="font-semibold">عروضي</h3>
-                        <p className="text-sm text-gray-500 mt-1">عرض وتعديل العروض المقدمة</p>
+                        <p className="text-sm text-neutral-400 mt-1">عرض وتعديل العروض المقدمة</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -531,11 +530,11 @@ export default function DashboardPage() {
                   <Link href="/transactions">
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6 text-center">
-                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <div className="w-12 h-12 bg-purple-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
                           <DollarSign className="h-6 w-6 text-purple-600" />
                         </div>
                         <h3 className="font-semibold">أرباحي</h3>
-                        <p className="text-sm text-gray-500 mt-1">تتبع ونسحب أرباحك (20% عمولة)</p>
+                        <p className="text-sm text-neutral-400 mt-1">تتبع ونسحب أرباحك (20% عمولة)</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -547,11 +546,11 @@ export default function DashboardPage() {
                   <Link href="/affiliate">
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6 text-center">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <DollarSign className="h-6 w-6 text-blue-600" />
+                        <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <DollarSign className="h-6 w-6 text-emerald-400" />
                         </div>
                         <h3 className="font-semibold">كود الإحالة</h3>
-                        <p className="text-sm text-gray-500 mt-1">شارك رابطك واحصل على 10% عمولة</p>
+                        <p className="text-sm text-neutral-400 mt-1">شارك رابطك واحصل على 10% عمولة</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -559,11 +558,11 @@ export default function DashboardPage() {
                   <Link href="/transactions">
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6 text-center">
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <div className="w-12 h-12 bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
                           <TrendingUp className="h-5 w-5 text-green-600" />
                         </div>
                         <h3 className="font-semibold">سحب الأرباح</h3>
-                        <p className="text-sm text-gray-500 mt-1">انسحب أرباح الإحالة الخاصة بك</p>
+                        <p className="text-sm text-neutral-400 mt-1">انسحب أرباح الإحالة الخاصة بك</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -571,11 +570,11 @@ export default function DashboardPage() {
                   <Link href="/profile">
                     <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6 text-center">
-                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <div className="w-12 h-12 bg-purple-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
                           <Users className="h-6 w-6 text-purple-600" />
                         </div>
                         <h3 className="font-semibold">الملف الشخصي</h3>
-                        <p className="text-sm text-gray-500 mt-1">حدث معلوماتك الشخصية</p>
+                        <p className="text-sm text-neutral-400 mt-1">حدث معلوماتك الشخصية</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -593,39 +592,39 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 p-3 border rounded-lg">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Bell className="h-5 w-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                      <Bell className="h-5 w-5 text-emerald-400" />
                     </div>
                     <div className="flex-1">
                       <p className="font-medium">مرحباً بك في المنصة</p>
-                      <p className="text-sm text-gray-500">تم إنشاء حسابك بنجاح</p>
+                      <p className="text-sm text-neutral-400">تم إنشاء حسابك بنجاح</p>
                     </div>
-                    <span className="text-sm text-gray-500">الآن</span>
+                    <span className="text-sm text-neutral-400">الآن</span>
                   </div>
 
                   {userProfile?.role === "freelancer" && (
                     <div className="flex items-center gap-3 p-3 border rounded-lg">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-green-500/15 rounded-full flex items-center justify-center">
                         <DollarSign className="h-5 w-5 text-green-600" />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">يمكنك البدء بالربح</p>
-                        <p className="text-sm text-gray-500">احصل على 20% عمولة من كل مشروع</p>
+                        <p className="text-sm text-neutral-400">احصل على 20% عمولة من كل مشروع</p>
                       </div>
-                      <span className="text-sm text-gray-500">منذ قليل</span>
+                      <span className="text-sm text-neutral-400">منذ قليل</span>
                     </div>
                   )}
 
                   {userProfile?.role === "affiliate" && (
                     <div className="flex items-center gap-3 p-3 border rounded-lg">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-purple-500/15 rounded-full flex items-center justify-center">
                         <TrendingUp className="h-5 w-5 text-purple-600" />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">ابدأ بالتسويق</p>
-                        <p className="text-sm text-gray-500">احصل على 10% عمولة على كل إحالة</p>
+                        <p className="text-sm text-neutral-400">احصل على 10% عمولة على كل إحالة</p>
                       </div>
-                      <span className="text-sm text-gray-500">منذ قليل</span>
+                      <span className="text-sm text-neutral-400">منذ قليل</span>
                     </div>
                   )}
                 </div>

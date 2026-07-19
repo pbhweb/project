@@ -51,7 +51,7 @@ export default function MyProjectsPage() {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single()
+        .maybeSingle()
       setUserProfile(profile)
 
       // Load projects
@@ -80,12 +80,12 @@ export default function MyProjectsPage() {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      open: "bg-green-100 text-green-800",
-      in_progress: "bg-blue-100 text-blue-800",
-      completed: "bg-gray-100 text-gray-800",
-      cancelled: "bg-red-100 text-red-800",
+      open: "bg-green-500/15 text-green-300",
+      in_progress: "bg-emerald-500/10 text-emerald-300",
+      completed: "bg-neutral-900 text-neutral-200",
+      cancelled: "bg-red-500/15 text-red-300",
     }
-    return colors[status] || "bg-gray-100 text-gray-800"
+    return colors[status] || "bg-neutral-900 text-neutral-200"
   }
 
   const getStatusText = (status: string) => {
@@ -114,7 +114,7 @@ export default function MyProjectsPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
           <p className="mt-4">جاري تحميل مشاريعك...</p>
         </div>
       </div>
@@ -126,11 +126,11 @@ export default function MyProjectsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">مشاريعي</h1>
-          <p className="text-gray-600">إدارة وتتبع جميع المشاريع التي نشرتها</p>
+          <h1 className="text-3xl font-bold text-white mb-2">مشاريعي</h1>
+          <p className="text-neutral-400">إدارة وتتبع جميع المشاريع التي نشرتها</p>
         </div>
         <Link href="/projects/new">
-          <Button className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+          <Button className="gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold">
             <Plus className="h-4 w-4" />
             مشروع جديد
           </Button>
@@ -149,11 +149,11 @@ export default function MyProjectsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">إجمالي المشاريع</p>
-                <h3 className="text-2xl font-bold text-gray-900">{projects.length}</h3>
+                <p className="text-sm text-neutral-400">إجمالي المشاريع</p>
+                <h3 className="text-2xl font-bold text-white">{projects.length}</h3>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <FileText className="h-6 w-6 text-blue-600" />
+              <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                <FileText className="h-6 w-6 text-emerald-400" />
               </div>
             </div>
           </CardContent>
@@ -163,10 +163,10 @@ export default function MyProjectsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">المشاريع المفتوحة</p>
-                <h3 className="text-2xl font-bold text-gray-900">{openProjects.length}</h3>
+                <p className="text-sm text-neutral-400">المشاريع المفتوحة</p>
+                <h3 className="text-2xl font-bold text-white">{openProjects.length}</h3>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-green-500/15 rounded-full flex items-center justify-center">
                 <Eye className="h-6 w-6 text-green-600" />
               </div>
             </div>
@@ -177,10 +177,10 @@ export default function MyProjectsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">قيد التنفيذ</p>
-                <h3 className="text-2xl font-bold text-gray-900">{inProgressProjects.length}</h3>
+                <p className="text-sm text-neutral-400">قيد التنفيذ</p>
+                <h3 className="text-2xl font-bold text-white">{inProgressProjects.length}</h3>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-yellow-500/15 rounded-full flex items-center justify-center">
                 <Clock className="h-6 w-6 text-yellow-600" />
               </div>
             </div>
@@ -191,10 +191,10 @@ export default function MyProjectsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">إجمالي الميزانية</p>
-                <h3 className="text-2xl font-bold text-gray-900">${calculateTotalBudget()}</h3>
+                <p className="text-sm text-neutral-400">إجمالي الميزانية</p>
+                <h3 className="text-2xl font-bold text-white">${calculateTotalBudget()}</h3>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-purple-500/15 rounded-full flex items-center justify-center">
                 <DollarSign className="h-6 w-6 text-purple-600" />
               </div>
             </div>
@@ -216,9 +216,9 @@ export default function MyProjectsPage() {
           {projects.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">لا توجد مشاريع</h3>
-                <p className="text-gray-500 mb-6">لم تنشر أي مشاريع حتى الآن</p>
+                <FileText className="h-16 w-16 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-neutral-300 mb-2">لا توجد مشاريع</h3>
+                <p className="text-neutral-400 mb-6">لم تنشر أي مشاريع حتى الآن</p>
                 <Link href="/projects/new">
                   <Button className="gap-2">
                     <Plus className="h-4 w-4" />
@@ -241,9 +241,9 @@ export default function MyProjectsPage() {
           {openProjects.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Eye className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">لا توجد مشاريع مفتوحة</h3>
-                <p className="text-gray-500">جميع مشاريعك إما قيد التنفيذ أو مكتملة</p>
+                <Eye className="h-16 w-16 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-neutral-300 mb-2">لا توجد مشاريع مفتوحة</h3>
+                <p className="text-neutral-400">جميع مشاريعك إما قيد التنفيذ أو مكتملة</p>
               </CardContent>
             </Card>
           ) : (
@@ -260,9 +260,9 @@ export default function MyProjectsPage() {
           {inProgressProjects.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Clock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">لا توجد مشاريع قيد التنفيذ</h3>
-                <p className="text-gray-500">ليس لديك مشاريع قيد التنفيذ حالياً</p>
+                <Clock className="h-16 w-16 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-neutral-300 mb-2">لا توجد مشاريع قيد التنفيذ</h3>
+                <p className="text-neutral-400">ليس لديك مشاريع قيد التنفيذ حالياً</p>
               </CardContent>
             </Card>
           ) : (
@@ -279,9 +279,9 @@ export default function MyProjectsPage() {
           {completedProjects.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <CheckCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">لا توجد مشاريع مكتملة</h3>
-                <p className="text-gray-500">لم تكمل أي من مشاريعك بعد</p>
+                <CheckCircle className="h-16 w-16 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-neutral-300 mb-2">لا توجد مشاريع مكتملة</h3>
+                <p className="text-neutral-400">لم تكمل أي من مشاريعك بعد</p>
               </CardContent>
             </Card>
           ) : (
@@ -307,20 +307,20 @@ export default function MyProjectsPage() {
           <CardContent>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-700">التكاليف</h4>
+                <h4 className="font-medium text-neutral-300">التكاليف</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">قيمة المشاريع:</span>
+                    <span className="text-sm text-neutral-400">قيمة المشاريع:</span>
                     <span className="font-medium">${calculateTotalBudget()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">عمولة المستقلين (20%):</span>
+                    <span className="text-sm text-neutral-400">عمولة المستقلين (20%):</span>
                     <span className="font-medium text-red-600">
                       ${(calculateTotalBudget() * 0.2).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">عمولة المسوقين (10%):</span>
+                    <span className="text-sm text-neutral-400">عمولة المسوقين (10%):</span>
                     <span className="font-medium text-orange-600">
                       ${(calculateTotalBudget() * 0.1).toFixed(2)}
                     </span>
@@ -329,16 +329,16 @@ export default function MyProjectsPage() {
               </div>
 
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-700">الإحصائيات</h4>
+                <h4 className="font-medium text-neutral-300">الإحصائيات</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">متوسط الميزانية:</span>
+                    <span className="text-sm text-neutral-400">متوسط الميزانية:</span>
                     <span className="font-medium">
                       ${projects.length > 0 ? (calculateTotalBudget() / projects.length).toFixed(2) : "0"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">متوسط العروض:</span>
+                    <span className="text-sm text-neutral-400">متوسط العروض:</span>
                     <span className="font-medium">
                       {projects.length > 0
                         ? (projects.reduce((sum, p) => sum + (p.bids?.length || 0), 0) / projects.length).toFixed(1)
@@ -346,7 +346,7 @@ export default function MyProjectsPage() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">معدل القبول:</span>
+                    <span className="text-sm text-neutral-400">معدل القبول:</span>
                     <span className="font-medium">
                       {projects.length > 0
                         ? ((projects.filter((p) => getAcceptedBid(p.bids)).length / projects.length) * 100).toFixed(1) : "0"}%
@@ -356,10 +356,10 @@ export default function MyProjectsPage() {
               </div>
 
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-700">التوقعات</h4>
+                <h4 className="font-medium text-neutral-300">التوقعات</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">صافي التكلفة:</span>
+                    <span className="text-sm text-neutral-400">صافي التكلفة:</span>
                     <span className="font-bold text-green-600">
                       $
                       {(
@@ -370,12 +370,12 @@ export default function MyProjectsPage() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">التوفير المتوقع:</span>
-                    <span className="font-medium text-blue-600">
+                    <span className="text-sm text-neutral-400">التوفير المتوقع:</span>
+                    <span className="font-medium text-emerald-400">
                       ${(calculateTotalBudget() * 0.3).toFixed(2)}
                     </span>
                   </div>
-                  <div className="text-xs text-gray-500 mt-4">
+                  <div className="text-xs text-neutral-400 mt-4">
                     * العمولات تدفع فقط للمشاريع المقبولة
                   </div>
                 </div>
@@ -392,12 +392,12 @@ export default function MyProjectsPage() {
 function ProjectCard({ project }: { project: any }) {
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      open: "bg-green-100 text-green-800",
-      in_progress: "bg-blue-100 text-blue-800",
-      completed: "bg-gray-100 text-gray-800",
-      cancelled: "bg-red-100 text-red-800",
+      open: "bg-green-500/15 text-green-300",
+      in_progress: "bg-emerald-500/10 text-emerald-300",
+      completed: "bg-neutral-900 text-neutral-200",
+      cancelled: "bg-red-500/15 text-red-300",
     }
-    return colors[status] || "bg-gray-100 text-gray-800"
+    return colors[status] || "bg-neutral-900 text-neutral-200"
   }
 
   const getStatusText = (status: string) => {
@@ -431,12 +431,12 @@ function ProjectCard({ project }: { project: any }) {
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">الميزانية:</span>
+            <span className="text-sm text-neutral-400">الميزانية:</span>
             <span className="font-bold text-green-600">${project.budget_min}</span>
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">الموعد النهائي:</span>
+            <span className="text-sm text-neutral-400">الموعد النهائي:</span>
             <span className="font-medium">
               {project.deadline
                 ? new Date(project.deadline).toLocaleDateString("ar-SA")
@@ -445,7 +445,7 @@ function ProjectCard({ project }: { project: any }) {
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">التاريخ:</span>
+            <span className="text-sm text-neutral-400">التاريخ:</span>
             <span className="text-sm">
               {new Date(project.created_at).toLocaleDateString("ar-SA")}
             </span>
@@ -453,14 +453,14 @@ function ProjectCard({ project }: { project: any }) {
         </div>
 
         {acceptedBid && (
-          <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+          <Alert className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30">
             <AlertDescription>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">المستقل المقبول:</p>
                   <p className="text-sm">{acceptedBid.profiles?.full_name}</p>
                 </div>
-                <Badge variant="outline" className="bg-white">
+                <Badge variant="outline" className="bg-neutral-900">
                   ${acceptedBid.amount}
                 </Badge>
               </div>

@@ -44,12 +44,12 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-black p-4">
       <Card className="w-full max-w-md border-2">
         <CardHeader className="space-y-1 text-center">
           <Link
             href="/auth/login"
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-300"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -64,12 +64,12 @@ export default function ForgotPasswordPage() {
 
         {success ? (
           <CardContent className="space-y-6">
-            <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+            <Alert className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30">
               <AlertDescription className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-12 h-12 bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Mail className="h-6 w-6 text-green-600" />
                 </div>
-                <h3 className="font-bold text-green-700 mb-2">
+                <h3 className="font-bold text-green-400 mb-2">
                   تم إرسال رابط إعادة التعيين
                 </h3>
                 <p className="text-green-600">
@@ -124,7 +124,7 @@ export default function ForgotPasswordPage() {
               <div className="text-center">
                 <Link
                   href="/auth/login"
-                  className="text-sm text-blue-600 hover:underline font-medium"
+                  className="text-sm text-emerald-400 hover:underline font-medium"
                 >
                   العودة لتسجيل الدخول
                 </Link>

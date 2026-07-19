@@ -14,13 +14,13 @@ const termsData = [
   {
     id: 1,
     title: "قبول الشروط",
-    content: "باستخدامك لمنصة WorkHub، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا لم توافق على هذه الشروط، يرجى عدم استخدام المنصة.",
+    content: "باستخدامك لمنصة قمّة، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا لم توافق على هذه الشروط، يرجى عدم استخدام المنصة.",
   },
   {
     id: 2,
     title: "التعريفات",
     content: [
-      "المنصة: هي موقع WorkHub الإلكتروني الذي يربط بين أصحاب العمل والمستقلين.",
+      "المنصة: هي موقع قمّة الإلكتروني الذي يربط بين أصحاب العمل والمستقلين.",
       "صاحب العمل: هو أي شخص أو كيان ينشر مشروعاً على المنصة.",
       "المستقل: هو أي شخص مسجل في المنصة يقدم عروضاً لتنفيذ المشاريع.",
       "المسوق: هو أي شخص مسجل في المنصة يقوم بالترويج للمشاريع مقابل عمولة.",
@@ -90,13 +90,13 @@ const termsData = [
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="border-b bg-white">
+      <header className="border-b border-white/10 bg-black">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/dashboard">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center cursor-pointer">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-emerald-900 rounded-lg flex items-center justify-center cursor-pointer">
                 <span className="text-white font-bold text-xl">W</span>
               </div>
             </Link>
@@ -116,10 +116,10 @@ export default function TermsPage() {
         <div className="max-w-4xl mx-auto">
           <Card>
             <CardHeader className="text-center">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 rounded-full flex items-center justify-center mb-4">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-500/15 to-orange-500/15 rounded-full flex items-center justify-center mb-4">
                 <FileText className="h-8 w-8 text-orange-600" />
               </div>
-              <CardTitle className="text-3xl font-bold">شروط وأحكام منصة WorkHub</CardTitle>
+              <CardTitle className="text-3xl font-bold">شروط وأحكام منصة قمّة</CardTitle>
               <CardDescription>
                 آخر تحديث: {new Date().toLocaleDateString("ar-SA")}
               </CardDescription>
@@ -128,27 +128,27 @@ export default function TermsPage() {
               {termsData.map((section) => (
                 <div key={section.id} className="border-b pb-6 last:border-b-0">
                   <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-                    {section.id === 2 && <Users className="h-5 w-5 text-blue-600" />}
+                    {section.id === 2 && <Users className="h-5 w-5 text-emerald-400" />}
                     {section.id === 5 && <DollarSign className="h-5 w-5 text-green-600" />}
                     {section.id === 6 && <Shield className="h-5 w-5 text-purple-600" />}
                     {section.title}
                   </h2>
                   {Array.isArray(section.content) ? (
-                    <ul className="list-disc list-inside space-y-2 text-gray-700">
+                    <ul className="list-disc list-inside space-y-2 text-neutral-300">
                       {section.content.map((item, index) => (
                         <li key={index}>{item}</li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-gray-700">{section.content}</p>
+                    <p className="text-neutral-300">{section.content}</p>
                   )}
                 </div>
               ))}
 
               {/* Legal Disclaimer */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-8">
-                <h3 className="font-bold text-yellow-800 mb-2">إشعار قانوني هام</h3>
-                <p className="text-sm text-yellow-700">
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mt-8">
+                <h3 className="font-bold text-yellow-300 mb-2">إشعار قانوني هام</h3>
+                <p className="text-sm text-yellow-400">
                   هذه الشروط والأحكام هي نموذج عام ولا تشكل استشارة قانونية. نوصي بشدة بالتشاور مع محامٍ متخصص لمراجعة هذه الشروط والتأكد من أنها تتوافق مع متطلباتك القانونية المحلية.
                 </p>
               </div>
@@ -156,8 +156,8 @@ export default function TermsPage() {
           </Card>
 
           {/* Footer */}
-          <div className="text-center mt-8 text-gray-500 text-sm">
-            <p>&copy; {new Date().getFullYear()} WorkHub. جميع الحقوق محفوظة.</p>
+          <div className="text-center mt-8 text-neutral-400 text-sm">
+            <p>&copy; {new Date().getFullYear()} قمّة. جميع الحقوق محفوظة.</p>
           </div>
         </div>
       </main>

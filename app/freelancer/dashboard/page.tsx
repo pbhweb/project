@@ -40,7 +40,7 @@ export default function FreelancerDashboardPage() {
       }
 
       // Check if user is a freelancer
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
 
       if (profile?.role !== "freelancer") {
         router.push("/dashboard")
@@ -110,11 +110,11 @@ export default function FreelancerDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">لوحة تحكم المستقل</h1>
-          <p className="text-gray-600 mt-2">إدارة عروضك ومشاريعك وأرباحك</p>
+          <h1 className="text-3xl font-bold text-white">لوحة تحكم المستقل</h1>
+          <p className="text-neutral-400 mt-2">إدارة عروضك ومشاريعك وأرباحك</p>
         </div>
 
         {error && (
@@ -125,47 +125,47 @@ export default function FreelancerDashboardPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100">
+          <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/10">
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-sm text-blue-600 font-medium">إجمالي العروض</p>
-                <h3 className="text-3xl font-bold text-gray-900">{stats.total}</h3>
+                <p className="text-sm text-emerald-400 font-medium">إجمالي العروض</p>
+                <h3 className="text-3xl font-bold text-white">{stats.total}</h3>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100">
+          <Card className="bg-gradient-to-br from-orange-500/10 to-orange-500/15">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-orange-600 font-medium">قيد المراجعة</p>
-                <h3 className="text-3xl font-bold text-gray-900">{stats.pending}</h3>
+                <h3 className="text-3xl font-bold text-white">{stats.pending}</h3>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100">
+          <Card className="bg-gradient-to-br from-green-500/10 to-green-500/15">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-green-600 font-medium">مقبولة</p>
-                <h3 className="text-3xl font-bold text-gray-900">{stats.accepted}</h3>
+                <h3 className="text-3xl font-bold text-white">{stats.accepted}</h3>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-50 to-red-100">
+          <Card className="bg-gradient-to-br from-red-500/10 to-red-500/15">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-red-600 font-medium">مرفوضة</p>
-                <h3 className="text-3xl font-bold text-gray-900">{stats.rejected}</h3>
+                <h3 className="text-3xl font-bold text-white">{stats.rejected}</h3>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100">
+          <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/15">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-purple-600 font-medium">الأرباح</p>
-                <h3 className="text-2xl font-bold text-gray-900">${stats.totalEarnings}</h3>
+                <h3 className="text-2xl font-bold text-white">${stats.totalEarnings}</h3>
               </div>
             </CardContent>
           </Card>
@@ -199,11 +199,11 @@ export default function FreelancerDashboardPage() {
           <CardContent>
             {bids.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Briefcase className="h-12 w-12 text-gray-400" />
+                <div className="w-24 h-24 bg-neutral-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Briefcase className="h-12 w-12 text-neutral-500" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">لا توجد عروض حتى الآن</h3>
-                <p className="text-gray-500 mb-6">تصفح المشاريع وابدأ بتقديم عروضك للحصول على فرص عمل</p>
+                <h3 className="text-lg font-semibold text-neutral-300 mb-2">لا توجد عروض حتى الآن</h3>
+                <p className="text-neutral-400 mb-6">تصفح المشاريع وابدأ بتقديم عروضك للحصول على فرص عمل</p>
                 <Link href="/projects">
                   <Button>تصفح المشاريع</Button>
                 </Link>
@@ -218,8 +218,8 @@ export default function FreelancerDashboardPage() {
                           <h3 className="text-lg font-semibold">{(bid.projects as any)?.title || "مشروع محذوف"}</h3>
                           {getStatusBadge(bid.status)}
                         </div>
-                        <p className="text-gray-600 text-sm line-clamp-2 mb-3">{bid.proposal}</p>
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        <p className="text-neutral-400 text-sm line-clamp-2 mb-3">{bid.proposal}</p>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-400">
                           <span className="flex items-center gap-1 font-semibold text-green-600">
                             <DollarSign className="h-4 w-4" />${bid.amount}
                           </span>
@@ -227,7 +227,7 @@ export default function FreelancerDashboardPage() {
                             <Clock className="h-4 w-4" />
                             {bid.delivery_days} يوم
                           </span>
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-neutral-500">
                             {new Date(bid.created_at).toLocaleDateString("ar-SA")}
                           </span>
                         </div>

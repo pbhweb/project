@@ -49,10 +49,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-black p-4">
       <Card className="w-full max-w-md border-2">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-800 rounded-full flex items-center justify-center mb-4">
             <LogIn className="h-8 w-8 text-white" />
           </div>
           <CardTitle className="text-3xl font-bold">تسجيل الدخول</CardTitle>
@@ -89,7 +89,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">كلمة المرور</Label>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-sm text-blue-600 hover:underline"
+                  className="text-sm text-emerald-400 hover:underline"
                 >
                   نسيت كلمة المرور؟
                 </Link>
@@ -106,7 +106,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-300"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -119,7 +119,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-semibold"
               disabled={loading}
             >
               {loading ? (
@@ -134,10 +134,10 @@ export default function LoginPage() {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+                <div className="w-full border-t border-neutral-700"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">أو</span>
+                <span className="px-2 bg-black text-neutral-400">أو</span>
               </div>
             </div>
 
@@ -149,11 +149,11 @@ export default function LoginPage() {
           </CardContent>
 
           <CardContent className="pt-0">
-            <p className="text-sm text-center text-gray-600">
+            <p className="text-sm text-center text-neutral-400">
               ليس لديك حساب؟{" "}
               <Link
                 href="/auth/signup"
-                className="text-blue-600 hover:underline font-medium"
+                className="text-emerald-400 hover:underline font-medium"
               >
                 سجل الآن
               </Link>

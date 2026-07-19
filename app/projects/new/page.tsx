@@ -406,8 +406,8 @@ function NewProjectContent() {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري التحقق من تسجيل الدخول...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-neutral-400">جاري التحقق من تسجيل الدخول...</p>
         </div>
       </div>
     );
@@ -416,9 +416,9 @@ function NewProjectContent() {
   if (success) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <Card className="border-2 border-green-200 shadow-lg">
+        <Card className="border-2 border-green-500/30 shadow-lg">
           <CardHeader className="text-center">
-            <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <div className="mx-auto w-20 h-20 bg-green-500/15 rounded-full flex items-center justify-center mb-4">
               <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                 <svg
                   className="h-6 w-6 text-white"
@@ -435,7 +435,7 @@ function NewProjectContent() {
                 </svg>
               </div>
             </div>
-            <CardTitle className="text-2xl text-green-700">
+            <CardTitle className="text-2xl text-green-400">
               {paymentWindowOpened ? "تم فتح بوابة الدفع! 🎉" : "تم إنشاء مشروعك بنجاح! ✅"}
             </CardTitle>
             <CardDescription>
@@ -447,9 +447,9 @@ function NewProjectContent() {
           <CardContent className="text-center space-y-4">
             {pendingPaymentUrl && (
               <>
-                <Alert className="bg-blue-50 border-blue-200">
-                  <AlertCircle className="h-4 w-4 text-blue-600" />
-                  <AlertDescription className="text-blue-700">
+                <Alert className="bg-emerald-500/10 border-emerald-500/20">
+                  <AlertCircle className="h-4 w-4 text-emerald-400" />
+                  <AlertDescription className="text-emerald-300">
                     <p className="font-medium mb-2">
                       {paymentWindowOpened ? "لم تفتح النافذة تلقائياً؟" : "⚠️ تم حظر النافذة المنبثقة"}
                     </p>
@@ -457,15 +457,15 @@ function NewProjectContent() {
                       href={pendingPaymentUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block mt-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                      className="inline-block mt-1 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors font-medium text-sm"
                     >
                       انقر هنا لفتح بوابة الدفع
                     </a>
                   </AlertDescription>
                 </Alert>
                 
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-700">
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <p className="text-sm text-yellow-400">
                     ⚠️ <strong>مهم:</strong> لن يتم نشر المشروع إلا بعد إكمال عملية الدفع بنجاح
                   </p>
                   <p className="text-xs text-yellow-600 mt-1">
@@ -476,8 +476,8 @@ function NewProjectContent() {
             )}
             
             {referralCode && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-700">
+              <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <p className="text-sm text-green-400">
                   ✅ <strong>كود الإحالة:</strong> {referralCode}
                 </p>
                 <p className="text-xs text-green-600 mt-1">
@@ -487,12 +487,12 @@ function NewProjectContent() {
             )}
             
             <div className="pt-4 border-t">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-neutral-400">
                 ستتم توجيهك إلى صفحة المشروع خلال 8 ثوانٍ...
               </p>
               <div className="flex justify-center items-center space-x-2 mt-2">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-                <span className="text-sm text-gray-600">جاري التوجيه...</span>
+                <span className="text-sm text-neutral-400">جاري التوجيه...</span>
               </div>
               
               <Button 
@@ -512,18 +512,18 @@ function NewProjectContent() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-white mb-2">
           نشر مشروع جديد
         </h1>
-        <p className="text-gray-600">
+        <p className="text-neutral-400">
           املأ التفاصيل أدناه لبدء تلقي عروض من المستقلين المحترفين
         </p>
       </div>
 
       {showReferralNotice && (
-        <Alert className="mb-6 border-green-200 bg-green-50">
+        <Alert className="mb-6 border-green-500/30 bg-green-500/10">
           <Gift className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-700 space-y-2">
+          <AlertDescription className="text-green-400 space-y-2">
             <div>
               ✅ <strong>كود الإحالة مفعل:</strong> {referralCode}
             </div>
@@ -573,7 +573,7 @@ function NewProjectContent() {
                     placeholder="صف مشروعك بالتفصيل، بما في ذلك المتطلبات والنتائج المتوقعة..."
                     className="resize-none focus:ring-2 focus:ring-purple-500"
                   />
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-neutral-400">
                     ⚠️ لا تضف معلومات اتصال (أرقام هواتف، إيميلات، حسابات تواصل
                     اجتماعي)
                   </p>
@@ -633,7 +633,7 @@ function NewProjectContent() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-neutral-400">
                       سيتم فتح بوابة الدفع المناسبة تلقائياً بناءً على اختيارك
                     </p>
                   </div>
@@ -643,7 +643,7 @@ function NewProjectContent() {
                       الميزانية القصوى (اختياري)
                     </Label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">
                         $
                       </span>
                       <Input
@@ -658,7 +658,7 @@ function NewProjectContent() {
                       />
                     </div>
                     {budgetMin && (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-neutral-400">
                         الحد الأدنى المحدد: {budgetMin}$
                       </p>
                     )}
@@ -675,9 +675,9 @@ function NewProjectContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
-                  <Upload className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-sm text-gray-600 mb-3">
+                <div className="border-2 border-dashed border-neutral-700 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                  <Upload className="h-12 w-12 text-neutral-500 mx-auto mb-3" />
+                  <p className="text-sm text-neutral-400 mb-3">
                     اسحب وأفلت الملفات أو انقر للرفع
                   </p>
                   <input
@@ -688,11 +688,11 @@ function NewProjectContent() {
                     className="hidden"
                   />
                   <label htmlFor="file-upload">
-                    <Button type="button" variant="outline" className="hover:bg-purple-50">
+                    <Button type="button" variant="outline" className="hover:bg-purple-500/10">
                       اختيار الملفات
                     </Button>
                   </label>
-                  <p className="text-xs text-gray-500 mt-3">
+                  <p className="text-xs text-neutral-400 mt-3">
                     الملفات المدعومة: صور، PDF، Word، Excel، ZIP (بحد أقصى 50 ملف)
                   </p>
                 </div>
@@ -706,10 +706,10 @@ function NewProjectContent() {
                       {files.map((file, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                          className="flex items-center justify-between p-3 border rounded-lg hover:bg-neutral-900 transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
+                            <div className="w-10 h-10 bg-neutral-900 rounded flex items-center justify-center">
                               <span className="text-xs font-medium">
                                 {file.name.split(".").pop()?.toUpperCase()}
                               </span>
@@ -718,7 +718,7 @@ function NewProjectContent() {
                               <p className="text-sm font-medium truncate max-w-xs">
                                 {file.name}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-neutral-400">
                                 {(file.size / 1024).toFixed(1)} كيلوبايت
                               </p>
                             </div>
@@ -728,7 +728,7 @@ function NewProjectContent() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeFile(index)}
-                            className="hover:bg-red-50 hover:text-red-600"
+                            className="hover:bg-red-500/10 hover:text-red-600"
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -754,7 +754,7 @@ function NewProjectContent() {
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal hover:bg-gray-50",
+                          "w-full justify-start text-left font-normal hover:bg-neutral-900",
                           !deadline && "text-muted-foreground"
                         )}
                       >
@@ -789,7 +789,7 @@ function NewProjectContent() {
                       placeholder="أدخل كود الإحالة"
                       className={cn(
                         "focus:ring-2 focus:ring-purple-500",
-                        referralLoaded ? "border-green-500 bg-green-50" : ""
+                        referralLoaded ? "border-green-500 bg-green-500/10" : ""
                       )}
                     />
                     {referralLoaded && (
@@ -802,33 +802,33 @@ function NewProjectContent() {
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-neutral-400">
                     إذا كنت قد سجلت عبر رابط مسوق، أدخل الكود هنا أو استخدم رابط مثل:
-                    <code className="block mt-1 bg-gray-100 p-1 rounded text-xs font-mono">
+                    <code className="block mt-1 bg-neutral-900 p-1 rounded text-xs font-mono">
                       https://workshub.space/projects/new?ref=ABCD
                     </code>
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-100">
-                  <h3 className="font-semibold text-blue-700 mb-2 flex items-center gap-2">
+                <div className="bg-gradient-to-br from-emerald-500/10 to-purple-500/10 rounded-lg p-4 border border-emerald-500/20">
+                  <h3 className="font-semibold text-emerald-300 mb-2 flex items-center gap-2">
                     <span>💡</span> نصائح للنشر
                   </h3>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                  <ul className="text-sm text-neutral-400 space-y-1">
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-500">•</span>
+                      <span className="text-emerald-400">•</span>
                       <span>كن واضحاً في وصف المتطلبات</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-500">•</span>
+                      <span className="text-emerald-400">•</span>
                       <span>حدد ميزانية واقعية</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-500">•</span>
+                      <span className="text-emerald-400">•</span>
                       <span>أرفق ملفات توضيحية إن أمكن</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-500">•</span>
+                      <span className="text-emerald-400">•</span>
                       <span>حدد موعداً نهائياً مناسباً</span>
                     </li>
                   </ul>
@@ -842,33 +842,33 @@ function NewProjectContent() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 bg-green-500/15 rounded-full flex items-center justify-center shrink-0">
                     <span className="text-green-600 font-bold">💰</span>
                   </div>
                   <div>
                     <p className="font-medium">نظام الدفع</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-neutral-400">
                       بعد النشر، سيتم فتح بوابة الدفع المناسبة تلقائياً حسب الميزانية المختارة
                     </p>
                   </div>
                 </div>
 
                 {budgetMin && (
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-sm font-medium text-blue-700">
+                  <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                    <p className="text-sm font-medium text-emerald-300">
                       الميزانية المختارة: <span className="font-bold">{budgetMin}$</span>
                     </p>
-                    <p className="text-xs text-blue-600 mt-1">
+                    <p className="text-xs text-emerald-400 mt-1">
                       رابط الدفع: <span className="font-mono break-all">{buildCheckoutUrl(getGatewayByBudget(budgetMin)?.productId || "", budgetMin)}</span>
                     </p>
                   </div>
                 )}
 
                 {referralCode && (
-                  <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                  <div className="p-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/30">
                     <div className="flex items-center gap-2 mb-2">
                       <Gift className="h-4 w-4 text-purple-600" />
-                      <p className="text-sm font-medium text-purple-700">
+                      <p className="text-sm font-medium text-purple-400">
                         مزايا كود الإحالة
                       </p>
                     </div>
@@ -890,12 +890,12 @@ function NewProjectContent() {
                 )}
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 bg-yellow-500/15 rounded-full flex items-center justify-center shrink-0">
                     <span className="text-yellow-600 font-bold">🎁</span>
                   </div>
                   <div>
                     <p className="font-medium">مكافأة الإحالة</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-neutral-400">
                       استخدم كود إحالة للحصول على خصومات وعروض خاصة
                     </p>
                   </div>
@@ -908,7 +908,7 @@ function NewProjectContent() {
                 <CardContent className="pt-6">
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all"
+                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-semibold shadow-lg hover:shadow-xl transition-all"
                     disabled={loading || !budgetMin}
                     size="lg"
                   >
@@ -926,18 +926,18 @@ function NewProjectContent() {
                   </Button>
                   
                   {referralCode && (
-                    <div className="mt-3 p-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
-                      <p className="text-xs text-center text-green-700">
+                    <div className="mt-3 p-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-lg">
+                      <p className="text-xs text-center text-green-400">
                         ✅ كود الإحالة <strong>{referralCode}</strong> مفعل - تحصل على خصم 10%
                       </p>
                     </div>
                   )}
 
-                  <p className="text-xs text-gray-500 text-center mt-3">
+                  <p className="text-xs text-neutral-400 text-center mt-3">
                     بالنشر، فإنك توافق على{" "}
                     <Link
                       href="/terms"
-                      className="text-blue-600 hover:underline font-medium"
+                      className="text-emerald-400 hover:underline font-medium"
                     >
                       الشروط والأحكام
                     </Link>
@@ -956,7 +956,7 @@ function NewProjectContent() {
                       variant="ghost"
                       size="sm"
                       onClick={() => router.back()}
-                      className="text-gray-600 hover:text-gray-900"
+                      className="text-neutral-400 hover:text-white"
                     >
                       إلغاء والعودة للخلف
                     </Button>
@@ -978,8 +978,8 @@ export default function NewProjectPage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">جاري تحميل نموذج نشر المشروع...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+            <p className="text-neutral-400">جاري تحميل نموذج نشر المشروع...</p>
           </div>
         </div>
       </div>

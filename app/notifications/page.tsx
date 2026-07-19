@@ -74,15 +74,15 @@ export default function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <p>جاري التحميل...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b bg-white">
+    <div className="min-h-screen bg-black">
+      <header className="border-b border-white/10 bg-black">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bell className="w-6 h-6" />
@@ -120,7 +120,7 @@ export default function NotificationsPage() {
               {notifications.map((notification) => (
                 <Card
                   key={notification.id}
-                  className={`cursor-pointer transition-colors ${!notification.is_read ? "border-blue-300 bg-blue-50/50" : ""}`}
+                  className={`cursor-pointer transition-colors ${!notification.is_read ? "border-emerald-500/30 bg-emerald-500/5" : ""}`}
                   onClick={() => !notification.is_read && markAsRead(notification.id)}
                 >
                   <CardHeader className="pb-3">

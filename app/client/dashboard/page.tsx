@@ -39,7 +39,7 @@ export default function ClientDashboardPage() {
       }
 
       // Check if user is a client
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
 
       if (profile?.role !== "business_owner") {
         router.push("/dashboard")
@@ -74,7 +74,7 @@ export default function ClientDashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
           <p className="mt-4">جاري التحميل...</p>
         </div>
       </div>
@@ -99,11 +99,11 @@ export default function ClientDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">لوحة تحكم صاحب العمل</h1>
-          <p className="text-gray-600 mt-2">إدارة مشاريعك واختيار أفضل المستقلين</p>
+          <h1 className="text-3xl font-bold text-white">لوحة تحكم صاحب العمل</h1>
+          <p className="text-neutral-400 mt-2">إدارة مشاريعك واختيار أفضل المستقلين</p>
         </div>
 
         {error && (
@@ -114,38 +114,38 @@ export default function ClientDashboardPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100">
+          <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/10">
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-sm text-blue-600 font-medium">إجمالي المشاريع</p>
-                <h3 className="text-3xl font-bold text-gray-900">{stats.total}</h3>
+                <p className="text-sm text-emerald-400 font-medium">إجمالي المشاريع</p>
+                <h3 className="text-3xl font-bold text-white">{stats.total}</h3>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100">
+          <Card className="bg-gradient-to-br from-green-500/10 to-green-500/15">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-green-600 font-medium">مفتوحة</p>
-                <h3 className="text-3xl font-bold text-gray-900">{stats.open}</h3>
+                <h3 className="text-3xl font-bold text-white">{stats.open}</h3>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100">
+          <Card className="bg-gradient-to-br from-orange-500/10 to-orange-500/15">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-orange-600 font-medium">قيد التنفيذ</p>
-                <h3 className="text-3xl font-bold text-gray-900">{stats.inProgress}</h3>
+                <h3 className="text-3xl font-bold text-white">{stats.inProgress}</h3>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100">
+          <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/15">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-purple-600 font-medium">مكتملة</p>
-                <h3 className="text-3xl font-bold text-gray-900">{stats.completed}</h3>
+                <h3 className="text-3xl font-bold text-white">{stats.completed}</h3>
               </div>
             </CardContent>
           </Card>
@@ -159,7 +159,7 @@ export default function ClientDashboardPage() {
           <CardContent>
             <div className="flex gap-4">
               <Link href="/projects/new" className="flex-1">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">نشر مشروع جديد</Button>
+                <Button className="w-full bg-emerald-500 hover:bg-emerald-600">نشر مشروع جديد</Button>
               </Link>
               <Link href="/projects" className="flex-1">
                 <Button variant="outline" className="w-full bg-transparent">
@@ -179,11 +179,11 @@ export default function ClientDashboardPage() {
           <CardContent>
             {projects.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FileText className="h-12 w-12 text-gray-400" />
+                <div className="w-24 h-24 bg-neutral-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-12 w-12 text-neutral-500" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">لا توجد مشاريع حتى الآن</h3>
-                <p className="text-gray-500 mb-6">ابدأ بنشر أول مشروع واحصل على عروض من المستقلين المحترفين</p>
+                <h3 className="text-lg font-semibold text-neutral-300 mb-2">لا توجد مشاريع حتى الآن</h3>
+                <p className="text-neutral-400 mb-6">ابدأ بنشر أول مشروع واحصل على عروض من المستقلين المحترفين</p>
                 <Link href="/projects/new">
                   <Button>نشر مشروع جديد</Button>
                 </Link>
@@ -199,8 +199,8 @@ export default function ClientDashboardPage() {
                             <h3 className="text-lg font-semibold">{project.title}</h3>
                             {getStatusBadge(project.status)}
                           </div>
-                          <p className="text-gray-600 text-sm line-clamp-2 mb-3">{project.description}</p>
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                          <p className="text-neutral-400 text-sm line-clamp-2 mb-3">{project.description}</p>
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-400">
                             <span className="flex items-center gap-1">
                               <Briefcase className="h-4 w-4" />
                               {project.category}

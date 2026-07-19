@@ -58,7 +58,7 @@ export default function MyBidsPage() {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
       setUserProfile(profile);
 
       // Load bids
@@ -93,9 +93,9 @@ export default function MyBidsPage() {
       case "rejected":
         return <XCircle className="h-4 w-4 text-red-600" />;
       case "withdrawn":
-        return <XCircle className="h-4 w-4 text-gray-600" />;
+        return <XCircle className="h-4 w-4 text-neutral-400" />;
       default:
-        return <ClockIcon className="h-4 w-4 text-gray-600" />;
+        return <ClockIcon className="h-4 w-4 text-neutral-400" />;
     }
   };
 
@@ -117,15 +117,15 @@ export default function MyBidsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-500/15 text-yellow-300";
       case "accepted":
-        return "bg-green-100 text-green-800";
+        return "bg-green-500/15 text-green-300";
       case "rejected":
-        return "bg-red-100 text-red-800";
+        return "bg-red-500/15 text-red-300";
       case "withdrawn":
-        return "bg-gray-100 text-gray-800";
+        return "bg-neutral-900 text-neutral-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-neutral-900 text-neutral-200";
     }
   };
 
@@ -143,7 +143,7 @@ export default function MyBidsPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
           <p className="mt-4">جاري تحميل عروضك...</p>
         </div>
       </div>
@@ -154,8 +154,8 @@ export default function MyBidsPage() {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">عروضي</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-bold text-white mb-2">عروضي</h1>
+        <p className="text-neutral-400">
           إدارة وتتبع جميع العروض التي قدمتها على المشاريع
         </p>
       </div>
@@ -172,13 +172,13 @@ export default function MyBidsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">إجمالي العروض</p>
-                <h3 className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-neutral-400">إجمالي العروض</p>
+                <h3 className="text-2xl font-bold text-white">
                   {bids.length}
                 </h3>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <FileText className="h-6 w-6 text-blue-600" />
+              <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                <FileText className="h-6 w-6 text-emerald-400" />
               </div>
             </div>
           </CardContent>
@@ -188,12 +188,12 @@ export default function MyBidsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">العروض النشطة</p>
-                <h3 className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-neutral-400">العروض النشطة</p>
+                <h3 className="text-2xl font-bold text-white">
                   {activeBids.length}
                 </h3>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-yellow-500/15 rounded-full flex items-center justify-center">
                 <Clock className="h-6 w-6 text-yellow-600" />
               </div>
             </div>
@@ -204,12 +204,12 @@ export default function MyBidsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">العروض المقبولة</p>
-                <h3 className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-neutral-400">العروض المقبولة</p>
+                <h3 className="text-2xl font-bold text-white">
                   {acceptedBids.length}
                 </h3>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-green-500/15 rounded-full flex items-center justify-center">
                 <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
             </div>
@@ -220,12 +220,12 @@ export default function MyBidsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">الأرباح المتوقعة</p>
-                <h3 className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-neutral-400">الأرباح المتوقعة</p>
+                <h3 className="text-2xl font-bold text-white">
                   ${calculateEarnings()}
                 </h3>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-purple-500/15 rounded-full flex items-center justify-center">
                 <DollarSign className="h-6 w-6 text-purple-600" />
               </div>
             </div>
@@ -247,11 +247,11 @@ export default function MyBidsPage() {
           {bids.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <FileText className="h-16 w-16 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-neutral-300 mb-2">
                   لا توجد عروض
                 </h3>
-                <p className="text-gray-500 mb-6">
+                <p className="text-neutral-400 mb-6">
                   لم تقدم أي عروض على المشاريع حتى الآن
                 </p>
                 <Link href="/projects">
@@ -276,11 +276,11 @@ export default function MyBidsPage() {
           {activeBids.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Clock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <Clock className="h-16 w-16 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-neutral-300 mb-2">
                   لا توجد عروض نشطة
                 </h3>
-                <p className="text-gray-500">جميع عروضك إما مقبولة أو مرفوضة</p>
+                <p className="text-neutral-400">جميع عروضك إما مقبولة أو مرفوضة</p>
               </CardContent>
             </Card>
           ) : (
@@ -297,11 +297,11 @@ export default function MyBidsPage() {
           {acceptedBids.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <CheckCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <CheckCircle className="h-16 w-16 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-neutral-300 mb-2">
                   لا توجد عروض مقبولة
                 </h3>
-                <p className="text-gray-500">لم يقبل أي من عروضك حتى الآن</p>
+                <p className="text-neutral-400">لم يقبل أي من عروضك حتى الآن</p>
               </CardContent>
             </Card>
           ) : (
@@ -323,11 +323,11 @@ export default function MyBidsPage() {
           {rejectedBids.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <XCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <XCircle className="h-16 w-16 text-neutral-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-neutral-300 mb-2">
                   لا توجد عروض مرفوضة
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-neutral-400">
                   جميع عروضك إما مقبولة أو قيد المراجعة
                 </p>
               </CardContent>
@@ -357,27 +357,27 @@ export default function MyBidsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                    <th className="text-right py-3 px-4 text-sm font-medium text-neutral-300">
                       المشروع
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                    <th className="text-right py-3 px-4 text-sm font-medium text-neutral-300">
                       قيمة العرض
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                    <th className="text-right py-3 px-4 text-sm font-medium text-neutral-300">
                       العمولة (20%)
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                    <th className="text-right py-3 px-4 text-sm font-medium text-neutral-300">
                       الحالة
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {acceptedBids.map((bid) => (
-                    <tr key={bid.id} className="border-b hover:bg-gray-50">
+                    <tr key={bid.id} className="border-b hover:bg-neutral-900">
                       <td className="py-3 px-4">
                         <Link
                           href={`/projects/${bid.project_id}`}
-                          className="font-medium text-blue-600 hover:underline"
+                          className="font-medium text-emerald-400 hover:underline"
                         >
                           {bid.projects?.title}
                         </Link>
@@ -397,7 +397,7 @@ export default function MyBidsPage() {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="bg-gray-50">
+                  <tr className="bg-neutral-900">
                     <td className="py-3 px-4 font-bold" colSpan={2}>
                       الإجمالي:
                     </td>
@@ -446,15 +446,15 @@ function BidCard({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-500/15 text-yellow-300";
       case "accepted":
-        return "bg-green-100 text-green-800";
+        return "bg-green-500/15 text-green-300";
       case "rejected":
-        return "bg-red-100 text-red-800";
+        return "bg-red-500/15 text-red-300";
       case "withdrawn":
-        return "bg-gray-100 text-gray-800";
+        return "bg-neutral-900 text-neutral-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-neutral-900 text-neutral-200";
     }
   };
 
@@ -482,7 +482,7 @@ function BidCard({
             {showProject && bid.projects && (
               <div className="mb-4">
                 <h3 className="font-bold text-lg mb-1">{bid.projects.title}</h3>
-                <p className="text-gray-600 text-sm line-clamp-2">
+                <p className="text-neutral-400 text-sm line-clamp-2">
                   {bid.projects.description}
                 </p>
               </div>
@@ -490,26 +490,26 @@ function BidCard({
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
-                <p className="text-sm text-gray-500">قيمة العرض</p>
+                <p className="text-sm text-neutral-400">قيمة العرض</p>
                 <p className="font-bold text-lg text-green-600">
                   ${bid.amount}
                 </p>
               </div>
 
               <div className="space-y-1">
-                <p className="text-sm text-gray-500">مدة التسليم</p>
+                <p className="text-sm text-neutral-400">مدة التسليم</p>
                 <p className="font-bold">{bid.delivery_days} يوم</p>
               </div>
 
               <div className="space-y-1">
-                <p className="text-sm text-gray-500">عمولتك</p>
+                <p className="text-sm text-neutral-400">عمولتك</p>
                 <p className="font-bold text-purple-600">
                   ${bid.freelancer_commission || (bid.amount * 0.2).toFixed(2)}
                 </p>
               </div>
 
               <div className="space-y-1">
-                <p className="text-sm text-gray-500">التاريخ</p>
+                <p className="text-sm text-neutral-400">التاريخ</p>
                 <p className="font-medium">
                   {new Date(bid.created_at).toLocaleDateString("ar-SA")}
                 </p>
@@ -517,8 +517,8 @@ function BidCard({
             </div>
 
             <div>
-              <p className="text-sm text-gray-500 mb-1">وصف العرض:</p>
-              <p className="text-gray-700 whitespace-pre-line line-clamp-3">
+              <p className="text-sm text-neutral-400 mb-1">وصف العرض:</p>
+              <p className="text-neutral-300 whitespace-pre-line line-clamp-3">
                 {bid.proposal}
               </p>
             </div>
@@ -526,7 +526,7 @@ function BidCard({
             {showClientInfo &&
               bid.status === "accepted" &&
               bid.projects?.profiles && (
-                <Alert className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+                <Alert className="bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border-emerald-500/20">
                   <AlertDescription>
                     <div className="flex items-center justify-between">
                       <div>
@@ -538,7 +538,7 @@ function BidCard({
                           {bid.projects.profiles.phone}
                         </p>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-neutral-400">
                         رقم الهاتف ظاهر لك لأن عرضك مقبول
                       </div>
                     </div>

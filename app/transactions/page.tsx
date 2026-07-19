@@ -38,7 +38,7 @@ export default function TransactionsPage() {
       }
 
       // Get user profile
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
       setUserProfile(profile)
 
       // Get all transactions related to user
@@ -111,7 +111,7 @@ export default function TransactionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <p>جاري التحميل...</p>
       </div>
     )
@@ -129,8 +129,8 @@ export default function TransactionsPage() {
   })
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b bg-white">
+    <div className="min-h-screen bg-black">
+      <header className="border-b border-white/10 bg-black">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/dashboard">
@@ -174,7 +174,7 @@ export default function TransactionsPage() {
             <Card>
               <CardHeader className="pb-3">
                 <CardDescription>المعاملات المكتملة</CardDescription>
-                <CardTitle className="text-3xl text-blue-600">{stats.completedTransactions}</CardTitle>
+                <CardTitle className="text-3xl text-emerald-400">{stats.completedTransactions}</CardTitle>
               </CardHeader>
             </Card>
           </div>
@@ -206,7 +206,7 @@ export default function TransactionsPage() {
                           bid?.freelancer_id === userProfile?.id || affiliate?.user_id === userProfile?.id
 
                         return (
-                          <div key={tx.id} className="border rounded-lg p-4 hover:bg-slate-50 transition-colors">
+                          <div key={tx.id} className="border rounded-lg p-4 hover:bg-neutral-900 transition-colors">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
@@ -267,7 +267,7 @@ export default function TransactionsPage() {
                         const project = tx.projects as any
 
                         return (
-                          <div key={tx.id} className="border rounded-lg p-4 hover:bg-slate-50 transition-colors">
+                          <div key={tx.id} className="border rounded-lg p-4 hover:bg-neutral-900 transition-colors">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
@@ -321,7 +321,7 @@ export default function TransactionsPage() {
                         const project = tx.projects as any
 
                         return (
-                          <div key={tx.id} className="border rounded-lg p-4 hover:bg-slate-50 transition-colors">
+                          <div key={tx.id} className="border rounded-lg p-4 hover:bg-neutral-900 transition-colors">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">

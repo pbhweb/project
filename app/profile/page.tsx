@@ -56,9 +56,34 @@ export default function ProfilePage() {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+
+      if (!data) {
+        // لا يوجد بروفايل بعد لهذا المستخدم - ننشئ واحداً افتراضياً بدل عرض خطأ
+        const { data: created, error: createError } = await supabase
+          .from("profiles")
+          .insert({
+            id: user.id,
+            full_name: user.email?.split("@")[0] || "مستخدم",
+            role: "freelancer",
+            is_active: true,
+          })
+          .select()
+          .maybeSingle();
+
+        if (createError || !created) {
+          throw new Error("تعذّر تحميل الملف الشخصي، حاول تحديث الصفحة");
+        }
+
+        setProfile(created);
+        setFullName(created.full_name || "");
+        setPhone(created.phone || "");
+        setPhoneVisible(created.phone_visible || false);
+        setBio(created.bio || "");
+        return;
+      }
 
       setProfile(data);
       setFullName(data.full_name || "");
@@ -109,19 +134,19 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <p>جاري التحميل...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b bg-white">
+    <div className="min-h-screen bg-black">
+      <header className="border-b border-white/10 bg-black">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/dashboard">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center cursor-pointer">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-emerald-900 rounded-lg flex items-center justify-center cursor-pointer">
                 <span className="text-white font-bold text-xl">W</span>
               </div>
             </Link>
@@ -142,8 +167,8 @@ export default function ProfilePage() {
           )}
 
           {success && (
-            <Alert className="bg-green-50 border-green-200">
-              <AlertDescription className="text-green-800">
+            <Alert className="bg-green-500/10 border-green-500/30">
+              <AlertDescription className="text-green-300">
                 {success}
               </AlertDescription>
             </Alert>
@@ -156,7 +181,7 @@ export default function ProfilePage() {
             </CardHeader>
             <form onSubmit={handleSave}>
               <CardContent className="space-y-6">
-                <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-emerald-500/10 rounded-lg">
                   <Badge variant="secondary" className="text-lg px-4 py-2">
                     {profile?.role === "freelancer"
                       ? "مستقل"
@@ -191,9 +216,9 @@ export default function ProfilePage() {
                   />
                 </div>
 
-                <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+                <div className="space-y-4 p-4 bg-neutral-900 rounded-lg">
                   <div className="flex items-center gap-2 text-sm">
-                    <Shield className="w-4 h-4 text-blue-600" />
+                    <Shield className="w-4 h-4 text-emerald-400" />
                     <span className="font-semibold">إعدادات الخصوصية</span>
                   </div>
 

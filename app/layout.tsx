@@ -29,9 +29,9 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="beforeInteractive"
         />
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <Navbar />
-          <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">{children}</main>
+          <main className="min-h-screen bg-black">{children}</main>
           <Toaster />
         </ThemeProvider>
       </body>

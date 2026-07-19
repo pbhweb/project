@@ -127,15 +127,15 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
-        <Card className="w-full max-w-md border-2 border-green-200">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500/10 to-emerald-500/15 p-4">
+        <Card className="w-full max-w-md border-2 border-green-500/30">
           <CardHeader className="text-center">
-            <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <div className="mx-auto w-20 h-20 bg-green-500/15 rounded-full flex items-center justify-center mb-4">
               <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                 <UserPlus className="h-6 w-6 text-white" />
               </div>
             </div>
-            <CardTitle className="text-2xl text-green-700">
+            <CardTitle className="text-2xl text-green-400">
               تم إنشاء حسابك بنجاح! 🎉
             </CardTitle>
             <CardDescription>
@@ -159,10 +159,10 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-black p-4">
       <Card className="w-full max-w-lg border-2">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-800 rounded-full flex items-center justify-center mb-4">
             <UserPlus className="h-8 w-8 text-white" />
           </div>
           <CardTitle className="text-3xl font-bold">إنشاء حساب جديد</CardTitle>
@@ -173,14 +173,14 @@ export default function SignupPage() {
         <form onSubmit={handleSignup}>
           <CardContent className="space-y-6">
             {referralCode && (
-              <Alert className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-                <DollarSign className="h-4 w-4 text-blue-600" />
+              <Alert className="bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border-emerald-500/20">
+                <DollarSign className="h-4 w-4 text-emerald-400" />
                 <AlertDescription className="space-y-2">
                   <div>
                     ✅ <strong>كود الإحالة مفعل:</strong> {referralCode}
                   </div>
                   {role === "business_owner" && (
-                    <div className="text-sm text-blue-700">
+                    <div className="text-sm text-emerald-300">
                       ستحصل على خصم 10% على نشر أول مشروع لك!
                     </div>
                   )}
@@ -206,7 +206,7 @@ export default function SignupPage() {
                   <RadioGroupItem value="business_owner" id="business_owner" className="peer sr-only" />
                   <Label
                     htmlFor="business_owner"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-gray-200 bg-white p-4 hover:bg-gray-50 hover:text-gray-900 peer-data-[state=checked]:border-blue-600 peer-data-[state=checked]:bg-blue-50 cursor-pointer"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-neutral-800 bg-neutral-900 p-4 hover:bg-neutral-800 hover:text-white peer-data-[state=checked]:border-emerald-500 peer-data-[state=checked]:bg-emerald-500/10 cursor-pointer"
                   >
                     <Briefcase className="h-6 w-6 mb-2" />
                     <span>صاحب عمل</span>
@@ -220,7 +220,7 @@ export default function SignupPage() {
                   />
                   <Label
                     htmlFor="freelancer"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-gray-200 bg-white p-4 hover:bg-gray-50 hover:text-gray-900 peer-data-[state=checked]:border-green-600 peer-data-[state=checked]:bg-green-50 cursor-pointer"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-neutral-800 bg-neutral-900 p-4 hover:bg-neutral-800 hover:text-white peer-data-[state=checked]:border-emerald-400 peer-data-[state=checked]:bg-emerald-500/10 cursor-pointer"
                   >
                     <Users className="h-6 w-6 mb-2" />
                     <span>مستقل</span>
@@ -234,7 +234,7 @@ export default function SignupPage() {
                   />
                   <Label
                     htmlFor="affiliate"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-gray-200 bg-white p-4 hover:bg-gray-50 hover:text-gray-900 peer-data-[state=checked]:border-purple-600 peer-data-[state=checked]:bg-purple-50 cursor-pointer"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-neutral-800 bg-neutral-900 p-4 hover:bg-neutral-800 hover:text-white peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/10 cursor-pointer"
                   >
                     <DollarSign className="h-6 w-6 mb-2" />
                     <span>مسوق</span>
@@ -267,7 +267,7 @@ export default function SignupPage() {
                   placeholder="+966 5X XXX XXXX"
                   dir="ltr"
                 />
-                <p className="text-xs text-gray-500">مثال: +966501234567</p>
+                <p className="text-xs text-neutral-400">مثال: +966501234567</p>
               </div>
             </div>
 
@@ -299,7 +299,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-300"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -308,14 +308,14 @@ export default function SignupPage() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-neutral-400">
                 يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل
               </p>
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-semibold"
               disabled={loading}
             >
               {loading ? (
@@ -331,18 +331,18 @@ export default function SignupPage() {
 
           <CardContent className="pt-0">
             <div className="text-center space-y-2">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-neutral-400">
                 لديك حساب بالفعل؟{" "}
                 <Link
                   href="/auth/login"
-                  className="text-blue-600 hover:underline font-medium"
+                  className="text-emerald-400 hover:underline font-medium"
                 >
                   سجل الدخول
                 </Link>
               </p>
               
               {!referralCode && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-neutral-400">
                   لديك كود إحالة؟{" "}
                   <Link
                     href="/auth/signup"
