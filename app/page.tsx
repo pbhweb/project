@@ -6,33 +6,94 @@ import Link from "next/link"
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="py-20 px-4 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-balance">
-            <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-              منصة العمل الحر
-            </span>
-            <br />
-            <span className="text-3xl md:text-4xl">الوجهة المثالية لمشاريعك</span>
+      {/* Hero Section — cinematic full-bleed with glassmorphism card */}
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4">
+        {/* Backdrop: swap this block for a <video autoPlay muted loop playsInline poster="/hero-poster.jpg"><source src="/hero.mp4" type="video/mp4" /></video>
+            once a real cinematic clip is available. Until then, an animated gradient + glowing
+            connection lines stand in for the "remote teams, connected by data lines" concept. */}
+        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,#13294b_0%,#050810_55%,#020306_100%)]" />
+        <div className="absolute inset-0 -z-20 opacity-70 animate-[hero-drift_18s_ease-in-out_infinite] bg-[radial-gradient(circle_at_75%_65%,rgba(37,99,235,0.35)_0%,transparent_45%)]" />
+
+        <svg
+          className="absolute inset-0 -z-10 h-full w-full opacity-60"
+          viewBox="0 0 1200 800"
+          preserveAspectRatio="xMidYMid slice"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="dataLine" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#60a5fa" stopOpacity="0" />
+              <stop offset="50%" stopColor="#60a5fa" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#60a5fa" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {[
+            "M120,620 C320,520 420,560 620,400 S920,220 1080,180",
+            "M60,180 C260,240 380,180 560,300 S860,540 1140,560",
+            "M180,760 C420,680 520,500 760,460 S1020,360 1160,300",
+          ].map((d, i) => (
+            <path
+              key={d}
+              d={d}
+              fill="none"
+              stroke="url(#dataLine)"
+              strokeWidth="1.5"
+              strokeDasharray="6 10"
+              className="animate-[hero-flow_6s_linear_infinite]"
+              style={{ animationDelay: `${i * 0.8}s` }}
+            />
+          ))}
+          {[
+            [120, 620], [620, 400], [1080, 180], [60, 180], [560, 300], [1140, 560], [760, 460], [1160, 300],
+          ].map(([cx, cy], i) => (
+            <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="4" fill="#93c5fd" className="animate-[hero-pulse_3s_ease-in-out_infinite]" style={{ animationDelay: `${i * 0.3}s` }} />
+          ))}
+        </svg>
+
+        <div className="absolute inset-0 -z-10 bg-black/35" />
+
+        {/* Glassmorphism card */}
+        <div className="relative w-full max-w-2xl rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl px-8 py-14 text-center shadow-2xl shadow-black/40 sm:px-14">
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white text-balance">
+            تواصل مع نخبة المستقلين حول العالم
           </h1>
-          <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-pretty">
-            نوفر لك أفضل المستقلين لإنجاز مشاريعك، ونضمن لك عمولة 10% على كل مشروع تجلبه للمنصة
+          <p className="mt-6 text-lg md:text-xl text-white/70 max-w-xl mx-auto text-pretty">
+            حلول مواهب قابلة للتوسع، مدعومة بالسحابة — بلا حدود جغرافية
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/signup">
-              <Button size="lg" className="gap-2">
-                ابدأ الآن مجاناً
+              <Button
+                size="lg"
+                className="gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-lg shadow-blue-900/40 px-8"
+              >
+                وظّف أفضل الكفاءات
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link href="/projects">
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" className="border-white/30 text-white bg-white/5 hover:bg-white/10">
                 استعرض المشاريع
               </Button>
             </Link>
           </div>
         </div>
+
+        <style>{`
+          @keyframes hero-drift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-3%, 2%) scale(1.08); }
+          }
+          @keyframes hero-flow {
+            to { stroke-dashoffset: -160; }
+          }
+          @keyframes hero-pulse {
+            0%, 100% { opacity: 0.3; r: 3; }
+            50% { opacity: 1; r: 5; }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            [class*="animate-[hero-"] { animation: none !important; }
+          }
+        `}</style>
       </section>
 
       {/* Features Section */}
