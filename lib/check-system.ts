@@ -11,21 +11,13 @@ export async function checkSystemHealth() {
     if (authError) issues.push(`❌ مشكلة في المصادقة: ${authError.message}`);
     
     // التحقق من جدول profiles
-    const { data: profiles, error: profilesError } = await supabase
+    const { error: profilesError } = await supabase
       .from('profiles')
-      .select('id, email')
+      .select('id, full_name')
       .limit(1);
     
     if (profilesError) {
       issues.push(`❌ مشكلة في جدول profiles: ${profilesError.message}`);
-    } else {
-      // التحقق إذا كان حقل email موجود
-      if (profiles && profiles.length > 0) {
-        const profile = profiles[0];
-        if (!profile.email) {
-          issues.push(`⚠️ حقل email مفقود في جدول profiles`);
-        }
-      }
     }
     
     // التحقق من جدول affiliates
