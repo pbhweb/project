@@ -193,9 +193,16 @@ function NewProjectContent() {
       // ✅ **الإصلاح 1: تحقق من وجود profile للمستخدم**
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, role')
         .eq('id', user.id)
         .maybeSingle();
+
+      if (profile && profile.role !== "business_owner") {
+        throw new Error(
+          "لا يمكنك نشر مشروع بهذا الحساب — نشر المشاريع متاح فقط لحسابات \"صاحب عمل\". " +
+          "إذا كان هذا الحساب مفترض أن يكون صاحب عمل، تواصل مع الدعم للتحقق من نوع الحساب."
+        );
+      }
 
       if (profileError || !profile) {
         console.log("⚠️ المستخدم ليس له بروفايل، جاري إنشاء واحد...");
@@ -363,7 +370,19 @@ function NewProjectContent() {
       
     } catch (err: any) {
       console.error("❌ خطأ أثناء إنشاء المشروع:", err);
-      setError(err.message || "حدث خطأ أثناء إنشاء المشروع. يرجى المحاولة مرة أخرى.");
+
+      const rawMessage: string = err?.message || "";
+      let friendlyMessage = rawMessage || "حدث خطأ أثناء إنشاء المشروع. يرجى المحاولة مرة أخرى.";
+
+      if (rawMessage.includes("row-level security policy")) {
+        friendlyMessage =
+          "لا يمكنك نشر مشروع بهذا الحساب — نشر المشاريع متاح فقط لحسابات \"صاحب عمل\". " +
+          "إذا كان هذا الحساب مفترض أن يكون صاحب عمل، تواصل مع الدعم للتحقق من نوع الحساب.";
+      } else if (rawMessage.includes("invalid input value for enum")) {
+        friendlyMessage = "حدث خطأ في إعداد قاعدة البيانات (قيمة حالة غير مدعومة). تم إبلاغ الفريق التقني.";
+      }
+
+      setError(friendlyMessage);
       paymentWindow?.close();
     } finally {
       setLoading(false);
