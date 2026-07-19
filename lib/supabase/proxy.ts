@@ -48,6 +48,8 @@ export async function updateSession(request: NextRequest) {
     '/my-bids',
     '/my-projects',
     '/affiliate/dashboard',
+    '/freelancer/dashboard',
+    '/client/dashboard',
     '/transactions'
   ]
 
