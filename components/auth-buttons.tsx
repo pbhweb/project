@@ -86,7 +86,7 @@ export default function AuthButtons() {
           size="sm"
           onClick={handleSignOut}
           disabled={signingOut}
-          className="gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+          className="gap-1 text-red-600 hover:text-red-400 hover:bg-red-500/10"
         >
           {signingOut ? (
             <Loader2 className="h-3 w-3 animate-spin" />
@@ -107,7 +107,7 @@ export default function AuthButtons() {
         </Button>
       </Link>
       <Link href="/auth/signup">
-        <Button size="sm" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+        <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900">
           إنشاء حساب
         </Button>
       </Link>

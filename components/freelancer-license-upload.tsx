@@ -158,22 +158,22 @@ export function FreelancerLicenseUpload({ freelancerId }: { freelancerId: string
   };
 
   const statusColor = (status: string) => {
-    if (status === "verified") return "bg-emerald-100 text-emerald-700 border-emerald-300";
-    if (status === "rejected") return "bg-red-100 text-red-700 border-red-300";
+    if (status === "verified") return "bg-emerald-500/15 text-emerald-400 border-emerald-300";
+    if (status === "rejected") return "bg-red-500/15 text-red-400 border-red-300";
     if (status === "pending") return "bg-amber-100 text-amber-700 border-amber-300";
-    return "bg-gray-100 text-gray-600 border-gray-300";
+    return "bg-neutral-900 text-neutral-400 border-neutral-700";
   };
 
   if (loading) return null;
 
   return (
-    <div dir={dir} className="rounded-xl border bg-white p-5 space-y-4">
+    <div dir={dir} className="rounded-xl border border-white/10 bg-neutral-900 p-5 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0" />
           <div>
-            <h3 className="font-semibold text-gray-900">{t.title}</h3>
-            <p className="text-sm text-gray-500 mt-0.5">{t.subtitle}</p>
+            <h3 className="font-semibold text-white">{t.title}</h3>
+            <p className="text-sm text-neutral-400 mt-0.5">{t.subtitle}</p>
           </div>
         </div>
         <Button
@@ -202,8 +202,8 @@ export function FreelancerLicenseUpload({ freelancerId }: { freelancerId: string
             </Alert>
           )}
           {success && (
-            <Alert className="bg-emerald-50 border-emerald-200">
-              <AlertDescription className="text-emerald-700">
+            <Alert className="bg-emerald-500/10 border-emerald-500/30">
+              <AlertDescription className="text-emerald-400">
                 {lang === "ar" ? "تم الإرسال! سنراجعه قريباً." : "Submitted! We'll review it shortly."}
               </AlertDescription>
             </Alert>
