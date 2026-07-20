@@ -320,9 +320,25 @@ function NewProjectContent() {
       }
 
       const failedUploads: string[] = [];
-      if (files.length > 0 && files.length <= 50) {
-        console.log("📤 رفع الملفات...");
+      const blockedUploads: string[] = [];
+      if (files.length > 0 && files.length <= MAX_FILES) {
+        console.log("📤 فحص ورفع الملفات...");
         for (const file of files) {
+          try {
+            const scanForm = new FormData();
+            scanForm.append("file", file);
+            const scanRes = await fetch("/api/scan-file", { method: "POST", body: scanForm });
+            const scanResult = await scanRes.json();
+
+            if (scanResult && scanResult.safe === false) {
+              console.error("🚫 ملف مرفوض (فحص أمني):", file.name, scanResult.reason);
+              blockedUploads.push(`${file.name} (${scanResult.reason || "ملف مشبوه"})`);
+              continue;
+            }
+          } catch (scanErr) {
+            console.error("⚠️ تعذّر فحص الملف، سيُرفع بدون تأكيد نهائي:", file.name, scanErr);
+          }
+
           const fileName = `${Date.now()}_${file.name}`;
           const { error: uploadError } = await supabase.storage
             .from("project-files")
@@ -344,9 +360,15 @@ function NewProjectContent() {
         }
       }
 
+      if (blockedUploads.length > 0) {
+        setError(
+          `تم رفض ${blockedUploads.length} ملف لأسباب أمنية: ${blockedUploads.join(", ")}`
+        );
+      }
+
       if (failedUploads.length > 0) {
         setError(
-          `تم نشر المشروع، لكن تعذّر رفع ${failedUploads.length} ملف: ${failedUploads.join(", ")}. تأكد من تفعيل bucket "project-files" في Supabase Storage.`
+          `تم إنشاء المشروع (بانتظار الدفع)، لكن تعذّر رفع ${failedUploads.length} ملف: ${failedUploads.join(", ")}. تأكد من تفعيل bucket "project-files" في Supabase Storage.`
         );
       }
 
@@ -389,17 +411,53 @@ function NewProjectContent() {
     }
   };
 
+  // ✅ يطابق حدود bucket "project-files" (راجع scripts/013_finalize_storage_setup.sql)
+  const MAX_FILE_SIZE_MB = 10;
+  const MAX_FILES = 10; // كان 50 — رقم غير واقعي لاستضافة مجانية، خفّضناه لحد معقول
+  const ALLOWED_FILE_TYPES: Record<string, string> = {
+    "image/jpeg": "JPG", "image/png": "PNG", "image/webp": "WEBP", "image/gif": "GIF", "image/svg+xml": "SVG",
+    "application/pdf": "PDF",
+    "application/msword": "DOC",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "DOCX",
+    "application/vnd.ms-excel": "XLS",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "XLSX",
+    "application/vnd.ms-powerpoint": "PPT",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PPTX",
+    "text/plain": "TXT", "text/csv": "CSV",
+    "application/zip": "ZIP",
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
 
     const newFiles = Array.from(selectedFiles);
-    if (files.length + newFiles.length > 50) {
-      setError("لا يمكن رفع أكثر من 50 ملف");
+
+    if (files.length + newFiles.length > MAX_FILES) {
+      setError(`لا يمكن رفع أكثر من ${MAX_FILES} ملفات`);
       return;
     }
 
-    setFiles([...files, ...newFiles]);
+    const rejected: string[] = [];
+    const accepted: File[] = [];
+
+    for (const file of newFiles) {
+      if (!ALLOWED_FILE_TYPES[file.type]) {
+        rejected.push(`${file.name} (نوع غير مدعوم)`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+        rejected.push(`${file.name} (أكبر من ${MAX_FILE_SIZE_MB}MB)`);
+        continue;
+      }
+      accepted.push(file);
+    }
+
+    if (rejected.length > 0) {
+      setError(`تعذّر إضافة بعض الملفات: ${rejected.join(", ")}`);
+    }
+
+    setFiles([...files, ...accepted]);
   };
 
   const removeFile = (index: number) => {
@@ -715,9 +773,9 @@ function NewProjectContent() {
             <Card>
 
               <CardHeader>
-                <CardTitle>الملفات المرفقة</CardTitle>
+                <CardTitle>الملفات المرفقة (اختياري)</CardTitle>
                 <CardDescription>
-                  يمكنك رفع حتى 50 ملف (صور، مستندات، إلخ)
+                  حتى 10 ملفات، كل ملف أقل من 10MB — صور، PDF، Word، Excel، PowerPoint، أو ZIP
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -730,6 +788,7 @@ function NewProjectContent() {
                     type="file"
                     id="file-upload"
                     multiple
+                    accept=".jpg,.jpeg,.png,.webp,.gif,.svg,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
@@ -966,7 +1025,7 @@ function NewProjectContent() {
                     ) : (
                       <>
                         <CreditCard className="ml-2 h-5 w-5" />
-                        نشر المشروع وفتح بوابة الدفع
+                        الدفع الآن لنشر المشروع
                       </>
                     )}
                   </Button>
