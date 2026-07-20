@@ -1,7 +1,7 @@
 // app/projects/new/page.tsx
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,7 @@ function NewProjectContent() {
   const [deadline, setDeadline] = useState<Date>();
   const [referralCode, setReferralCode] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [referralLoaded, setReferralLoaded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -779,7 +780,16 @@ function NewProjectContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="border-2 border-dashed border-neutral-700 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                <div
+                  className="border-2 border-dashed border-neutral-700 rounded-lg p-6 text-center hover:border-purple-400 transition-colors"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (e.dataTransfer.files?.length) {
+                      handleFileUpload({ target: { files: e.dataTransfer.files } } as any);
+                    }
+                  }}
+                >
                   <Upload className="h-12 w-12 text-neutral-500 mx-auto mb-3" />
                   <p className="text-sm text-neutral-400 mb-3">
                     اسحب وأفلت الملفات أو انقر للرفع
@@ -787,25 +797,29 @@ function NewProjectContent() {
                   <input
                     type="file"
                     id="file-upload"
+                    ref={fileInputRef}
                     multiple
                     accept=".jpg,.jpeg,.png,.webp,.gif,.svg,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
-                  <label htmlFor="file-upload">
-                    <Button type="button" variant="outline" className="hover:bg-purple-500/10">
-                      اختيار الملفات
-                    </Button>
-                  </label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="hover:bg-purple-500/10"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    اختيار الملفات
+                  </Button>
                   <p className="text-xs text-neutral-400 mt-3">
-                    الملفات المدعومة: صور، PDF، Word، Excel، ZIP (بحد أقصى 50 ملف)
+                    الملفات المدعومة: صور، PDF، Word، Excel، ZIP (بحد أقصى 10 ملفات)
                   </p>
                 </div>
 
                 {files.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">
-                      الملفات المختارة ({files.length}/50)
+                      الملفات المختارة ({files.length}/10)
                     </p>
                     <div className="space-y-2">
                       {files.map((file, index) => (
