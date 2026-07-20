@@ -78,6 +78,15 @@ export default function ProjectDetailsPage() {
 
       if (projectError) throw projectError
 
+      // ⚠️ حماية: مشروع لم يُدفع بعد (pending_payment) يجب ألا يظهر
+      // لأي شخص إلا صاحبه — حتى لو عرف رابط الصفحة مباشرة.
+      const isOwner = user && projectData.client_id === user.id
+      if (projectData.status === "pending_payment" && !isOwner) {
+        setError("هذا المشروع غير متاح للعرض حالياً (بانتظار تأكيد الدفع)")
+        setLoading(false)
+        return
+      }
+
       setProject(projectData)
       setClient(projectData.profiles)
 
