@@ -72,8 +72,8 @@ function NewProjectContent() {
     { code: "EUR", label: "يورو", rate: 0.92, floating: true },
   ];
 
-  const CHECKOUT_DOMAIN = "digital.workshub.space";
-  const GUMROAD_PRODUCT_SLUG = "project";
+  const CHECKOUT_DOMAIN = "byrashid.gumroad.com";
+  const GUMROAD_PRODUCT_SLUG = "devweb";
 
   const buildCheckoutUrl = (projectId: string, price: string) =>
     `https://${CHECKOUT_DOMAIN}/l/${GUMROAD_PRODUCT_SLUG}?price=${price}&wanted=true&project_id=${projectId}`;
