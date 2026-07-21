@@ -257,14 +257,19 @@ function NewProjectContent() {
             .from("affiliates")
             .select("id, user_id, referral_code, is_active, total_referrals, total_earnings")
             .eq("referral_code", referralCode.trim())
-            .eq("is_active", true)
-            .single();
+            .maybeSingle();
 
-          if (!marketerError && marketer) {
+          if (marketerError) {
+            console.error("⚠️ خطأ بالتحقق من كود الإحالة:", marketerError.message);
+          } else if (!marketer) {
+            console.warn(`⚠️ كود الإحالة "${referralCode}" غير موجود إطلاقاً بجدول affiliates`);
+          } else if (!marketer.is_active) {
+            console.warn(`⚠️ كود الإحالة "${referralCode}" موجود لكن الحساب غير مفعّل (is_active = false)`);
+          } else {
             validMarketerId = marketer.id;
           }
         } catch (marketerErr: any) {
-          console.log("⚠️ خطأ في التحقق من كود الإحالة:", marketerErr.message);
+          console.error("⚠️ خطأ في التحقق من كود الإحالة:", marketerErr.message);
         }
       }
 
