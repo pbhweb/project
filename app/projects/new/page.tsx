@@ -40,6 +40,7 @@ function NewProjectContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadWarning, setUploadWarning] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
   const [pendingPaymentUrl, setPendingPaymentUrl] = useState<string | null>(null);
@@ -322,6 +323,8 @@ function NewProjectContent() {
 
       const failedUploads: string[] = [];
       const blockedUploads: string[] = [];
+      let anyFileScanned = false;
+      let anyFileSkippedScan = false;
       if (files.length > 0 && files.length <= MAX_FILES) {
         console.log("📤 فحص ورفع الملفات...");
         for (const file of files) {
@@ -330,6 +333,9 @@ function NewProjectContent() {
             scanForm.append("file", file);
             const scanRes = await fetch("/api/scan-file", { method: "POST", body: scanForm });
             const scanResult = await scanRes.json();
+
+            if (scanResult?.scanned) anyFileScanned = true;
+            else anyFileSkippedScan = true;
 
             if (scanResult && scanResult.safe === false) {
               console.error("🚫 ملف مرفوض (فحص أمني):", file.name, scanResult.reason);
@@ -346,7 +352,7 @@ function NewProjectContent() {
             .upload(`projects/${project.id}/${fileName}`, file);
 
           if (!uploadError) {
-            await supabase.from("project_files").insert({
+            const { error: fileRecordError } = await supabase.from("project_files").insert({
               project_id: project.id,
               file_name: file.name,
               file_url: `projects/${project.id}/${fileName}`,
@@ -354,6 +360,11 @@ function NewProjectContent() {
               file_type: file.type,
               uploaded_by: user.id,
             });
+
+            if (fileRecordError) {
+              console.error("❌ فشل تسجيل الملف بقاعدة البيانات:", file.name, fileRecordError.message);
+              failedUploads.push(`${file.name} (${fileRecordError.message})`);
+            }
           } else {
             console.error("❌ فشل رفع الملف:", file.name, uploadError.message);
             failedUploads.push(file.name);
@@ -361,16 +372,22 @@ function NewProjectContent() {
         }
       }
 
+      const uploadIssues: string[] = [];
       if (blockedUploads.length > 0) {
-        setError(
-          `تم رفض ${blockedUploads.length} ملف لأسباب أمنية: ${blockedUploads.join(", ")}`
+        uploadIssues.push(`تم رفض ${blockedUploads.length} ملف لأسباب أمنية: ${blockedUploads.join(", ")}`);
+      }
+      if (failedUploads.length > 0) {
+        uploadIssues.push(
+          `تعذّر حفظ ${failedUploads.length} ملف: ${failedUploads.join(", ")}`
         );
       }
-
-      if (failedUploads.length > 0) {
-        setError(
-          `تم إنشاء المشروع (بانتظار الدفع)، لكن تعذّر رفع ${failedUploads.length} ملف: ${failedUploads.join(", ")}. تأكد من تفعيل bucket "project-files" في Supabase Storage.`
+      if (anyFileSkippedScan && !anyFileScanned) {
+        uploadIssues.push(
+          "تنبيه: فحص الفيروسات غير مفعّل حالياً (لم يُضاف VIRUSTOTAL_API_KEY)، تم رفع الملفات بدون فحص"
         );
+      }
+      if (uploadIssues.length > 0) {
+        setUploadWarning(uploadIssues.join(" — "));
       }
 
       const paymentUrl = buildCheckoutUrl(project.id, budgetMin);
@@ -564,6 +581,12 @@ function NewProjectContent() {
               </div>
             )}
             
+            {uploadWarning && (
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-right">
+                <p className="text-sm text-amber-400">⚠️ {uploadWarning}</p>
+              </div>
+            )}
+
             <div className="pt-4 border-t">
               <p className="text-sm text-neutral-400">
                 ستتم توجيهك إلى صفحة المشروع خلال 8 ثوانٍ...
@@ -576,9 +599,9 @@ function NewProjectContent() {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => router.push('/dashboard/projects')}
+                onClick={() => router.push('/my-projects')}
               >
-                الذهاب إلى لوحة التحكم الآن
+                الذهاب إلى مشاريعي الآن
               </Button>
             </div>
           </CardContent>
