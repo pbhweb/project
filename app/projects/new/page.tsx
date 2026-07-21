@@ -62,7 +62,7 @@ function NewProjectContent() {
   // ✅ لا مزيد من باقات أسعار ثابتة — أي مبلغ حر بحد أدنى MIN_BUDGET دولار.
   // رابط الدفع موحّد على منتج Gumroad واحد ("project") مع تمرير السعر الفعلي
   // ومعرّف المشروع كـ url param حتى يقرأه الويبهوك بعد الدفع.
-  const MIN_BUDGET = 125;
+  const MIN_BUDGET = 150;
 
   // أسعار الصرف: الريال السعودي والدرهم الإماراتي والريال القطري والدينار الكويتي
   // مربوطة رسمياً بالدولار (ثابتة). اليورو عائم وهذا سعر تقريبي.
@@ -76,9 +76,25 @@ function NewProjectContent() {
 
   const CHECKOUT_DOMAIN = "byrashid.gumroad.com";
   const GUMROAD_PRODUCT_SLUG = "devweb";
+  // permalink المنتج نفسه على gumroad.com (يُستخدم فقط برابط الأفلييت a/{id}/{permalink})
+  const GUMROAD_PRODUCT_PERMALINK = "fxzdsg";
 
-  const buildCheckoutUrl = (projectId: string, price: string) =>
-    `https://${CHECKOUT_DOMAIN}/l/${GUMROAD_PRODUCT_SLUG}?price=${price}&wanted=true&project_id=${projectId}`;
+  // ✅ الرابط الافتراضي (بدون تغيير) يُستخدم في كل الحالات التالية:
+  //   - لا يوجد كود/رابط إحالة إطلاقاً
+  //   - يوجد كود إحالة لكنه غير صالح (مسوّق غير موجود / غير مفعّل)
+  //   - يوجد مسوّق صالح لكنه لا يملك gumroad_affiliate_id بعد (لم تُفعَّل عمولته اليدوية)
+  // فقط عند وجود مسوّق صالح ولديه gumroad_affiliate_id نستخدم رابط الأفلييت
+  // الخاص بـ Gumroad حتى تُحتسب له العمولة تلقائياً من طرف Gumroad نفسه.
+  const buildCheckoutUrl = (
+    projectId: string,
+    price: string,
+    gumroadAffiliateId?: string | null
+  ) => {
+    if (gumroadAffiliateId) {
+      return `https://gumroad.com/a/${gumroadAffiliateId}/${GUMROAD_PRODUCT_PERMALINK}?price=${price}&wanted=true&project_id=${projectId}`;
+    }
+    return `https://${CHECKOUT_DOMAIN}/l/${GUMROAD_PRODUCT_SLUG}?price=${price}&wanted=true&project_id=${projectId}`;
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -250,13 +266,15 @@ function NewProjectContent() {
       }
 
       let validMarketerId = null;
+      let marketerGumroadAffiliateId: string | null = null;
       
       if (referralCode) {
         try {
           // ملاحظة: لا يمكن الاستعلام المباشر على جدول affiliates هنا لأن RLS
           // يسمح للمستخدم برؤية صفّه هو فقط (Users can view own affiliate).
           // نستخدم بدلاً من ذلك RPC function بصلاحية SECURITY DEFINER تتجاوز
-          // RLS وترجع فقط id و is_active — راجع scripts/016_check_referral_code_rpc.sql
+          // RLS وترجع id و is_active و gumroad_affiliate_id فقط — راجع
+          // scripts/017_affiliate_gumroad_id.sql
           const { data: marketerRows, error: marketerError } = await supabase
             .rpc("check_referral_code", { code: referralCode.trim() });
 
@@ -270,6 +288,16 @@ function NewProjectContent() {
             console.warn(`⚠️ كود الإحالة "${referralCode}" موجود لكن الحساب غير مفعّل (is_active = false)`);
           } else {
             validMarketerId = marketer.id;
+            // إذا المسوّق ما عنده gumroad_affiliate_id بعد (لسه ما فُعّلت عمولته
+            // اليدوية)، نسجّل الإحالة بجدول referrals للتتبع الداخلي فقط، لكن
+            // رابط الدفع يبقى الرابط الافتراضي — Gumroad ما راح يحتسب له عمولة
+            // تلقائية بدون معرّف affiliate صالح.
+            marketerGumroadAffiliateId = marketer.gumroad_affiliate_id || null;
+            if (!marketerGumroadAffiliateId) {
+              console.warn(
+                `⚠️ كود الإحالة "${referralCode}" صالح، لكن المسوّق لا يملك gumroad_affiliate_id بعد — سيُستخدم رابط الدفع الافتراضي`
+              );
+            }
           }
         } catch (marketerErr: any) {
           console.error("⚠️ خطأ في التحقق من كود الإحالة:", marketerErr.message);
@@ -406,7 +434,7 @@ function NewProjectContent() {
         setUploadWarning(uploadIssues.join(" — "));
       }
 
-      const paymentUrl = buildCheckoutUrl(project.id, budgetMin);
+      const paymentUrl = buildCheckoutUrl(project.id, budgetMin, marketerGumroadAffiliateId);
 
       if (paymentWindow) {
         paymentWindow.location.href = paymentUrl;
