@@ -144,6 +144,13 @@ export default function AffiliateDashboardPage() {
     setTimeout(() => setCopySuccess(null), 2000)
   }
 
+  const copyExistingClientLink = () => {
+    const link = `${window.location.origin}/projects/new?ref=${affiliate.referral_code}`
+    navigator.clipboard.writeText(link)
+    setCopySuccess("تم نسخ رابط العميل المسجّل مسبقاً")
+    setTimeout(() => setCopySuccess(null), 2000)
+  }
+
   const copyReferralCode = () => {
     navigator.clipboard.writeText(affiliate.referral_code)
     setCopySuccess("تم نسخ كود الإحالة")
@@ -160,6 +167,19 @@ export default function AffiliateDashboardPage() {
       })
     } else {
       copyReferralLink()
+    }
+  }
+
+  const shareExistingClientLink = () => {
+    const link = `${window.location.origin}/projects/new?ref=${affiliate.referral_code}`
+    if (navigator.share) {
+      navigator.share({
+        title: "انشر مشروعك عبر كود الإحالة",
+        text: `استخدم كود الإحالة ${affiliate.referral_code} عند نشر مشروعك!`,
+        url: link,
+      })
+    } else {
+      copyExistingClientLink()
     }
   }
 
@@ -368,6 +388,44 @@ export default function AffiliateDashboardPage() {
                       </Button>
                     </div>
                   </div>
+                </div>
+
+                {/* Existing-client Referral Link */}
+                <div className="space-y-3 pt-2 border-t border-neutral-800">
+                  <label className="text-sm font-bold text-neutral-300">
+                    رابط لعميل مسجّل مسبقاً (ينشر مشروع مباشرة بكودك):
+                  </label>
+                  <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                    <Input
+                      value={`${
+                        typeof window !== "undefined" ? window.location.origin : ""
+                      }/projects/new?ref=${affiliate.referral_code}`}
+                      readOnly
+                      className="flex-1 bg-neutral-900 border-2 border-neutral-700 text-sm font-mono"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={copyExistingClientLink}
+                        variant="outline"
+                        size="lg"
+                        className="gap-2 flex-1 border-2 bg-transparent"
+                      >
+                        <Copy className="h-4 w-4" />
+                        نسخ الرابط
+                      </Button>
+                      <Button
+                        onClick={shareExistingClientLink}
+                        size="lg"
+                        className="gap-2 flex-1 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700"
+                      >
+                        <Share2 className="h-4 w-4" />
+                        مشاركة
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-neutral-500">
+                    استخدم هذا الرابط مع أشخاص لديهم حساب بالفعل — يفتح صفحة نشر مشروع مباشرة بكود إحالتك مفعّل تلقائياً.
+                  </p>
                 </div>
 
                 {/* Instructions */}
