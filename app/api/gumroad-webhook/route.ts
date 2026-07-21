@@ -111,6 +111,52 @@ export async function POST(request: NextRequest) {
       status: "completed",
     })
 
+    // ✅ تفعيل عمولة المسوّق (إن وُجدت) فقط الآن بعد تأكيد الدفع فعلياً —
+    // مو وقت إنشاء المشروع. هذا يحل مشكلة عدم إضافة الرصيد/الأرباح وعدم
+    // ظهور الإحالة كمكتملة بسجل الإحالات.
+    const { data: referral } = await supabase
+      .from("referrals")
+      .select("id, affiliate_id, commission_amount, status")
+      .eq("project_id", projectId)
+      .eq("status", "pending")
+      .maybeSingle()
+
+    if (referral) {
+      const { error: referralUpdateError } = await supabase
+        .from("referrals")
+        .update({ status: "completed" })
+        .eq("id", referral.id)
+
+      if (referralUpdateError) {
+        console.error("❌ فشل تحديث حالة الإحالة:", referralUpdateError)
+      }
+
+      const { data: affiliate } = await supabase
+        .from("affiliates")
+        .select("total_referrals, total_earnings")
+        .eq("id", referral.affiliate_id)
+        .maybeSingle()
+
+      if (affiliate) {
+        const { error: affiliateUpdateError } = await supabase
+          .from("affiliates")
+          .update({
+            total_referrals: (affiliate.total_referrals || 0) + 1,
+            total_earnings: parseFloat(
+              ((affiliate.total_earnings || 0) + (referral.commission_amount || 0)).toFixed(2)
+            ),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", referral.affiliate_id)
+
+        if (affiliateUpdateError) {
+          console.error("❌ فشل تحديث إحصائيات المسوّق:", affiliateUpdateError)
+        } else {
+          console.log(`✅ تم تفعيل عمولة المسوّق ${referral.affiliate_id}: +${referral.commission_amount}$`)
+        }
+      }
+    }
+
     console.log(`✅ تم نشر المشروع ${projectId} بعد تأكيد الدفع (sale_id: ${saleId})`)
     return NextResponse.json({ ok: true })
   } catch (err: any) {
