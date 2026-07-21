@@ -529,11 +529,39 @@ export default function ProjectDetailsPage() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              const supabase = createClient()
+                              const { data, error } = await supabase.storage
+                                .from("project-files")
+                                .createSignedUrl(file.file_url, 60)
+                              if (error || !data) {
+                                alert("تعذّر فتح الملف حالياً")
+                                return
+                              }
+                              window.open(data.signedUrl, "_blank")
+                            }}
+                          >
                             <Eye className="h-4 w-4 ml-2" />
                             معاينة
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              const supabase = createClient()
+                              const { data, error } = await supabase.storage
+                                .from("project-files")
+                                .createSignedUrl(file.file_url, 60, { download: file.file_name })
+                              if (error || !data) {
+                                alert("تعذّر تحميل الملف حالياً")
+                                return
+                              }
+                              window.open(data.signedUrl, "_blank")
+                            }}
+                          >
                             <Download className="h-4 w-4 ml-2" />
                             تحميل
                           </Button>
