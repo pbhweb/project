@@ -8,7 +8,7 @@ export default function HomePage() {
     <div className="min-h-screen">
       {/* Hero Section — cinematic full-bleed with glassmorphism card */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4">
-        {/* Backdrop: swap this block for a <video autoPlay muted loop playsInline poster="/hero-poster.jpg"><source src="/hero.mp4" type="video/mp4" /></video>
+        {/* Backdrop: swap this block for a <video autoPlay muted loop playsInline poster="/hero-poster.jpg"><source src="https://cdn.jumpshare.com/preview/ghuWJHooedtHtXUlruqXdLl3vEfPjqYQIJrScQs8lZIVHrdACHjNIVLUR9JhD77vcEVYlFrLGSfS8NRFFbIe5xJZHHVNl5Ri2HSMlfTg4HDZEpQk152qfzO37iwEStvmDCrefaKBe7BB10uKQGHGBG6yjbN-I2pg_cnoHs_AmgI.mp4" type="video/mp4" /></video>
             once a real cinematic clip is available. Until then, an animated gradient + glowing
             connection lines stand in for the "remote teams, connected by data lines" concept. */}
         <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,#0b1c14_0%,#050705_55%,#020302_100%)]" />
