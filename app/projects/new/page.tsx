@@ -299,7 +299,10 @@ function NewProjectContent() {
       if (validMarketerId && project.id) {
         try {
           const commissionAmount = parseFloat(((parseInt(budgetMin) * 10) / 100).toFixed(2));
-          
+
+          // ✅ نسجّل الإحالة بحالة "pending" فقط الآن — العمولة والإحصائيات
+          // (total_referrals / total_earnings) تُحدَّث لاحقاً من app/api/gumroad-webhook/route.ts
+          // فقط بعد تأكيد الدفع فعلياً، مو وقت إنشاء المشروع.
           const { error: referralError } = await supabase
             .from("referrals")
             .insert({
@@ -308,14 +311,13 @@ function NewProjectContent() {
               referral_code: referralCode,
               project_id: project.id,
               commission_amount: commissionAmount,
-              status: "pending_payment",
+              status: "pending",
               created_at: new Date().toISOString()
             });
 
-          if (!referralError) {
-            await updateAffiliateStats(validMarketerId, 0);
+          if (referralError) {
+            console.error("❌ خطأ في تسجيل الإحالة:", referralError.message);
           }
-          
         } catch (referralErr: any) {
           console.error("❌ خطأ في تسجيل الإحالة:", referralErr.message);
         }
