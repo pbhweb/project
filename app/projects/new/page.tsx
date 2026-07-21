@@ -253,11 +253,14 @@ function NewProjectContent() {
       
       if (referralCode) {
         try {
-          const { data: marketer, error: marketerError } = await supabase
-            .from("affiliates")
-            .select("id, user_id, referral_code, is_active, total_referrals, total_earnings")
-            .eq("referral_code", referralCode.trim())
-            .maybeSingle();
+          // ملاحظة: لا يمكن الاستعلام المباشر على جدول affiliates هنا لأن RLS
+          // يسمح للمستخدم برؤية صفّه هو فقط (Users can view own affiliate).
+          // نستخدم بدلاً من ذلك RPC function بصلاحية SECURITY DEFINER تتجاوز
+          // RLS وترجع فقط id و is_active — راجع scripts/016_check_referral_code_rpc.sql
+          const { data: marketerRows, error: marketerError } = await supabase
+            .rpc("check_referral_code", { code: referralCode.trim() });
+
+          const marketer = marketerRows?.[0] ?? null;
 
           if (marketerError) {
             console.error("⚠️ خطأ بالتحقق من كود الإحالة:", marketerError.message);
