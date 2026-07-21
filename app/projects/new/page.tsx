@@ -436,9 +436,24 @@ function NewProjectContent() {
 
       const paymentUrl = buildCheckoutUrl(project.id, budgetMin, marketerGumroadAffiliateId);
 
+      // 🔎 لوق واضح بالـ Console يوريك بالضبط مصدر القرار ورابط الدفع النهائي
+      if (marketerGumroadAffiliateId) {
+        console.log(
+          `✅ تم إيجاد gumroad_affiliate_id="${marketerGumroadAffiliateId}" من Supabase — سيُستخدم رابط الأفلييت`
+        );
+      } else if (referralCode) {
+        console.log(
+          `ℹ️ لا يوجد gumroad_affiliate_id لكود الإحالة "${referralCode}" — سيُستخدم رابط الدفع الافتراضي`
+        );
+      } else {
+        console.log("ℹ️ لا يوجد كود إحالة بهذا الطلب — سيُستخدم رابط الدفع الافتراضي");
+      }
+      console.log("🔗 رابط الدفع النهائي الذي سيُفتح:", paymentUrl);
+
       if (paymentWindow) {
         paymentWindow.location.href = paymentUrl;
         setPaymentWindowOpened(true);
+        console.log("✅ تم فتح نافذة الدفع بنجاح على الرابط أعلاه");
       } else {
         // النافذة حُظرت رغم فتحها المبكر — نستخدم رابطاً يمكن للمستخدم الضغط عليه بدل التوجيه التلقائي
         console.error("❌ تم حظر نافذة الدفع من المتصفح");
