@@ -346,16 +346,22 @@ function NewProjectContent() {
             console.error("⚠️ تعذّر فحص الملف، سيُرفع بدون تأكيد نهائي:", file.name, scanErr);
           }
 
-          const fileName = `${Date.now()}_${file.name}`;
+          // ⚠️ لا نستخدم اسم الملف الأصلي بمسار التخزين — أسماء عربية طويلة أو فيها
+          // رموز/مسافات قد تفشل بصمت مع Supabase Storage. الاسم الأصلي يبقى محفوظاً
+          // بعمود file_name بجدول project_files ويظهر للمستخدم بشكل طبيعي.
+          const originalExt = file.name.includes(".") ? file.name.split(".").pop() : "";
+          const safeName = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}${originalExt ? "." + originalExt : ""}`;
+          const storagePath = `projects/${project.id}/${safeName}`;
+
           const { error: uploadError } = await supabase.storage
             .from("project-files")
-            .upload(`projects/${project.id}/${fileName}`, file);
+            .upload(storagePath, file, { contentType: file.type || undefined });
 
           if (!uploadError) {
             const { error: fileRecordError } = await supabase.from("project_files").insert({
               project_id: project.id,
               file_name: file.name,
-              file_url: `projects/${project.id}/${fileName}`,
+              file_url: storagePath,
               file_size: file.size,
               file_type: file.type,
               uploaded_by: user.id,
@@ -367,7 +373,7 @@ function NewProjectContent() {
             }
           } else {
             console.error("❌ فشل رفع الملف:", file.name, uploadError.message);
-            failedUploads.push(file.name);
+            failedUploads.push(`${file.name} (${uploadError.message})`);
           }
         }
       }
