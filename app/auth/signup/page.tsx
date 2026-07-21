@@ -91,7 +91,7 @@ export default function SignupPage() {
             .from("affiliates")
             .select("id")
             .eq("referral_code", referralCode)
-            .single();
+            .maybeSingle();
 
           if (affiliateData) {
             await supabase.from("referrals").insert({
