@@ -43,7 +43,11 @@ async function reviewWithAI(
       },
       signal: controller.signal,
       body: JSON.stringify({
-        model: "openai/gpt-4o",
+        // 🆕 نموذج مجاني بدل openai/gpt-4o المدفوع (كان يرجع 402 لعدم وجود رصيد).
+        // openrouter/free راوتر تلقائي من OpenRouter نفسه يختار نموذجاً مجانياً
+        // متاحاً حالياً — أكثر ثباتاً من تثبيت اسم نموذج مجاني معيّن قد ينسحب
+        // لاحقاً بدون إشعار. الحد: ~50 طلب/يوم (أو 1000 لو أضفت 10$ رصيد)، 20/دقيقة.
+        model: "openrouter/free",
         messages: [
           {
             role: "system",
