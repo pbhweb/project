@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { createClient as createServerClient } from "@/lib/supabase/server"
 import { createClient as createServiceClient } from "@supabase/supabase-js"
+import { extractTextFromFile } from "@/lib/extract-file-text"
 
 // ⚠️ نفس نمط app/api/gumroad-webhook/route.ts: عميل بصلاحيات كاملة (service_role)
 // لازم فقط للكتابة بالأعمدة الحساسة (deliverable_status/ai_feedback/paid_at...)
@@ -139,9 +140,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "المشروع غير موجود" }, { status: 404 })
     }
 
-    // نص التسليم يعتمد على الملاحظة المكتوبة من المستقل (+ اسم الملف). لا نقرأ
-    // محتوى الملفات الثنائية (pdf/docx/صور) فعلياً — الذكاء الاصطناعي هنا نص فقط.
-    const submissionText = `${note || ""}\n(اسم الملف المرفق: ${file_name})`.trim()
+    // 🆕 نحمّل الملف فعلياً من التخزين ونستخرج نصه الحقيقي (docx/pdf/txt/csv،
+    // وحتى ملفات zip بفتح ما بداخلها) بدل الاكتفاء باسم الملف فقط. إذا فشل
+    // التحميل أو الاستخراج لأي سبب، نتراجع لنفس السلوك القديم (اسم الملف
+    // + الملاحظة) بدل ما نوقف التسليم بالكامل — نفس فلسفة "لا نوقف سير العمل".
+    let extractedFileText = ""
+    try {
+      const { data: fileBlob, error: downloadError } = await supabase.storage
+        .from("project-files")
+        .download(file_url)
+
+      if (downloadError || !fileBlob) {
+        throw new Error(downloadError?.message || "تعذّر تحميل الملف من التخزين")
+      }
+
+      const arrayBuffer = await fileBlob.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      extractedFileText = await extractTextFromFile(buffer, file_name)
+    } catch (extractErr: any) {
+      console.error("⚠️ فشل استخراج نص الملف، سيُكتفى باسم الملف فقط:", extractErr?.message)
+    }
+
+    // نص التسليم: محتوى الملف الفعلي المُستخرج (إن توفّر) + ملاحظة المستقل + اسم الملف
+    const submissionText = `${
+      extractedFileText ? `محتوى الملف المستخرج:\n${extractedFileText}\n\n` : ""
+    }ملاحظة المستقل:\n${note || "(لا توجد ملاحظة)"}\n\n(اسم الملف المرفق: ${file_name})`.trim()
     const requirementText = `${project.title}\n${project.description}`
 
     const aiResult = await reviewWithAI(requirementText, submissionText)
