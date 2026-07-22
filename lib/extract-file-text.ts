@@ -1,6 +1,14 @@
 import mammoth from "mammoth"
 import AdmZip from "adm-zip"
-import { PDFParse } from "pdf-parse"
+// ⚠️ استخدمنا pdf-parse في البداية وواجهنا مشكلتين متتاليتين:
+//   - v2: يعتمد على pdfjs-dist اللي يحتاج @napi-rs/canvas (مكتبة native) —
+//     يسبب انهيار كامل بـ Vercel serverless (ReferenceError: DOMMatrix is not defined)
+//   - v1: خفيف وبدون كانفاس، لكنه يفشل بأخطاء "bad XRef entry" مع أي PDF حديث
+//     يستخدم cross-reference streams (شكل شائع جداً بملفات PDF الحديثة)
+// unpdf مصممة خصيصاً للعمل بأمان ببيئات serverless/edge (تستخدم @napi-rs/canvas
+// فقط كـ peer dependency اختياري لرندرة الصور، مو لاستخراج النص) — اختبرناها
+// فعلياً بنجاح مع ملفات PDF حديثة حقيقية.
+import { getDocumentProxy, extractText as extractPdfText } from "unpdf"
 
 // 🎯 الهدف: نعطي الذكاء الاصطناعي نص المحتوى الفعلي للملف (مو بس اسمه)، حتى
 // يقدر يقارنه فعلياً بمتطلبات المشروع. مدعوم حالياً: txt/csv/json/md (نص خام)،
@@ -33,14 +41,9 @@ async function extractFromSingleFile(buffer: Buffer, fileName: string): Promise<
     }
 
     if (ext === "pdf") {
-      // pdf-parse v2 يصدّر class اسمه PDFParse (مو دالة مباشرة كما بالنسخة القديمة v1)
-      const parser = new PDFParse({ data: buffer })
-      try {
-        const result = await parser.getText()
-        return result.text || ""
-      } finally {
-        await parser.destroy()
-      }
+      const pdf = await getDocumentProxy(new Uint8Array(buffer))
+      const { text } = await extractPdfText(pdf, { mergePages: true })
+      return text || ""
     }
 
     // أنواع معروفة لكن غير مدعومة للاستخراج النصي حالياً
