@@ -25,6 +25,7 @@ import {
   Download,
   Eye,
   ShieldCheck,
+  CreditCard,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -45,6 +46,14 @@ export default function ProjectDetailsPage() {
   const [bidDays, setBidDays] = useState("")
   const [bidProposal, setBidProposal] = useState("")
   const [submittingBid, setSubmittingBid] = useState(false)
+
+  // 🆕 حالة تسليم العمل + مراجعة AI + الدفع للمستقل
+  const [deliverableFile, setDeliverableFile] = useState<File | null>(null)
+  const [deliverableNote, setDeliverableNote] = useState("")
+  const [submittingDeliverable, setSubmittingDeliverable] = useState(false)
+  const [deliverableError, setDeliverableError] = useState<string | null>(null)
+  const [loadingPayLink, setLoadingPayLink] = useState(false)
+  const [downloadingDeliverable, setDownloadingDeliverable] = useState(false)
 
   useEffect(() => {
     loadProjectData()
@@ -91,9 +100,13 @@ export default function ProjectDetailsPage() {
       setClient(projectData.profiles)
 
       // Load bids
+      // ⚠️ لا نطلب reviews(rating) هنا لأنه لا يوجد أي علاقة (foreign key) مباشرة
+      // بين جدول bids وجدول reviews بقاعدة البيانات — PostgREST كان يرجع 400
+      // Bad Request بسبب هذا الـ embed غير الصالح. نجلب التقييمات بشكل منفصل
+      // مربوطة بـ reviewed_user_id بدلاً من ذلك.
       const { data: bidsData } = await supabase
   .from("bids")
-  .select("*, profiles:freelancer_id(id, full_name, avatar_url), reviews(rating)")
+  .select("*, profiles:freelancer_id(id, full_name, avatar_url)")
   .eq("project_id", projectId)
   .order("created_at", { ascending: false })
 
@@ -110,7 +123,34 @@ export default function ProjectDetailsPage() {
         )
       }
 
-      setBids((bidsData || []).map((b: any) => ({ ...b, isVerified: !!verificationMap[b.freelancer_id] })))
+      // نجلب متوسط تقييم كل مستقل بشكل منفصل (reviewed_user_id = freelancer_id)
+      let ratingMap: Record<string, number> = {}
+      if (freelancerIds.length > 0) {
+        const { data: reviewRows } = await supabase
+          .from("reviews")
+          .select("reviewed_user_id, rating")
+          .in("reviewed_user_id", freelancerIds)
+        const grouped: Record<string, number[]> = {}
+        for (const r of reviewRows || []) {
+          const key = (r as any).reviewed_user_id
+          if (!grouped[key]) grouped[key] = []
+          grouped[key].push((r as any).rating)
+        }
+        ratingMap = Object.fromEntries(
+          Object.entries(grouped).map(([id, ratings]) => [
+            id,
+            ratings.reduce((a, b) => a + b, 0) / ratings.length,
+          ])
+        )
+      }
+
+      setBids(
+        (bidsData || []).map((b: any) => ({
+          ...b,
+          isVerified: !!verificationMap[b.freelancer_id],
+          averageRating: ratingMap[b.freelancer_id] || 0,
+        })),
+      )
 
       // Load files
       const { data: filesData } = await supabase
@@ -145,8 +185,8 @@ export default function ProjectDetailsPage() {
       }
 
       const amount = Number.parseFloat(bidAmount)
-      if (amount < 300) {
-        throw new Error("قيمة العرض يجب أن تكون 300$ على الأقل")
+      if (amount < 150) {
+        throw new Error("قيمة العرض يجب أن تكون 150$ على الأقل")
       }
       if (amount < project.budget_min) {
         throw new Error("قيمة العرض أقل من الميزانية الدنيا للمشروع")
@@ -219,6 +259,108 @@ export default function ProjectDetailsPage() {
     }
   }
 
+  const handleSubmitDeliverable = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!deliverableFile || !myAcceptedBid) return
+
+    setSubmittingDeliverable(true)
+    setDeliverableError(null)
+
+    try {
+      const supabase = createClient()
+
+      const originalExt = deliverableFile.name.includes(".") ? deliverableFile.name.split(".").pop() : ""
+      const safeName = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}${originalExt ? "." + originalExt : ""}`
+      // ⚠️ مسار "deliverables/{project_id}/{bid_id}/..." مقصود بالضبط — سياسة
+      // RLS الجديدة على storage.objects (سكربت 021) تتحقق من هذا الشكل تحديداً
+      // لمنع صاحب المشروع من تحميل الملف قبل الدفع.
+      const storagePath = `deliverables/${projectId}/${myAcceptedBid.id}/${safeName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from("project-files")
+        .upload(storagePath, deliverableFile, { contentType: deliverableFile.type || undefined })
+
+      if (uploadError) throw new Error(uploadError.message)
+
+      const res = await fetch("/api/submit-deliverable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: projectId,
+          bid_id: myAcceptedBid.id,
+          file_url: storagePath,
+          file_name: deliverableFile.name,
+          note: deliverableNote,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "فشل إرسال التسليم")
+
+      console.log("📦 نتيجة مراجعة التسليم:", data)
+      if (data.ai_available === false) {
+        console.warn("⚠️ الذكاء الاصطناعي غير متاح حالياً، السبب:", data.ai_error)
+      }
+
+      await loadProjectData()
+      setDeliverableFile(null)
+      setDeliverableNote("")
+    } catch (err: any) {
+      setDeliverableError(err.message || "حدث خطأ أثناء رفع التسليم")
+    } finally {
+      setSubmittingDeliverable(false)
+    }
+  }
+
+  const handleGetPaymentLink = async (bid: any) => {
+    setLoadingPayLink(true)
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.rpc("get_accepted_freelancer_gumroad_id", {
+        p_bid_id: bid.id,
+      })
+
+      if (error) console.error("⚠️ خطأ بجلب gumroad id الخاص بالمستقل:", error.message)
+
+      const gumroadId = data?.[0]?.freelancer_gumroad_affiliate_id || null
+      const url = gumroadId
+        ? `https://gumroad.com/a/${gumroadId}/fxzdsg?price=${bid.amount}&wanted=true&bid_id=${bid.id}`
+        : `https://byrashid.gumroad.com/l/devweb?price=${bid.amount}&wanted=true&bid_id=${bid.id}`
+
+      console.log(
+        gumroadId
+          ? `✅ تم إيجاد gumroad_affiliate_id="${gumroadId}" للمستقل — سيُستخدم رابط الأفلييت`
+          : "ℹ️ المستقل ليس لديه gumroad_affiliate_id بعد — سيُستخدم رابط الدفع الافتراضي",
+      )
+      console.log("🔗 رابط دفع المستقل:", url)
+
+      window.open(url, "_blank")
+    } catch (err: any) {
+      console.error("❌ تعذّر تجهيز رابط الدفع:", err.message)
+    } finally {
+      setLoadingPayLink(false)
+    }
+  }
+
+  const handleDownloadDeliverable = async (bid: any) => {
+    setDownloadingDeliverable(true)
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.storage
+        .from("project-files")
+        .createSignedUrl(bid.deliverable_file_url, 60, { download: bid.deliverable_file_name })
+
+      if (error || !data?.signedUrl) {
+        throw new Error(error?.message || "تعذّر إنشاء رابط التحميل — تأكد من إتمام الدفع أولاً")
+      }
+      window.open(data.signedUrl, "_blank")
+    } catch (err: any) {
+      setError(err.message || "تعذّر تحميل الملف")
+    } finally {
+      setDownloadingDeliverable(false)
+    }
+  }
+
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       open: "bg-green-500/15 text-green-300",
@@ -257,6 +399,11 @@ export default function ProjectDetailsPage() {
     project.status === "open" &&
     userProfile?.role === "freelancer" &&
     !bids.some((bid) => bid.freelancer_id === userProfile?.id)
+
+  const isOwner = project.client_id === userProfile?.id
+  const acceptedBid = bids.find((b) => b.status === "accepted")
+  const myAcceptedBid =
+    userProfile?.role === "freelancer" ? bids.find((b) => b.freelancer_id === userProfile?.id && b.status === "accepted") : null
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -379,7 +526,7 @@ export default function ProjectDetailsPage() {
 
           {/* Tabs */}
           <Tabs defaultValue="bids">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className={`grid w-full ${acceptedBid ? "grid-cols-4" : "grid-cols-3"}`}>
               <TabsTrigger value="bids">
                 <MessageSquare className="h-4 w-4 ml-2" />
                 العروض ({bids.length})
@@ -388,6 +535,12 @@ export default function ProjectDetailsPage() {
                 <FileText className="h-4 w-4 ml-2" />
                 الملفات ({files.length})
               </TabsTrigger>
+              {acceptedBid && (
+                <TabsTrigger value="delivery">
+                  <Download className="h-4 w-4 ml-2" />
+                  التسليم والدفع
+                </TabsTrigger>
+              )}
               <TabsTrigger value="info">
                 <User className="h-4 w-4 ml-2" />
                 معلومات الناشر
@@ -431,7 +584,7 @@ export default function ProjectDetailsPage() {
                                     <svg
                                       key={star}
                                       className={`h-4 w-4 ${
-                                        star <= Math.round(calculateAverageRating(bid.reviews || []))
+                                        star <= Math.round(bid.averageRating || 0)
                                           ? "text-yellow-400 fill-yellow-400"
                                           : "text-neutral-300"
                                       }`}
@@ -443,7 +596,7 @@ export default function ProjectDetailsPage() {
                                   ))}
                                 </div>
                                 <span className="text-sm text-neutral-400">
-                                  {calculateAverageRating(bid.reviews || []).toFixed(1)}
+                                  {(bid.averageRating || 0).toFixed(1)}
                                 </span>
                               </div>
                             </div>
@@ -573,6 +726,134 @@ export default function ProjectDetailsPage() {
               )}
             </TabsContent>
 
+            {acceptedBid && (
+              <TabsContent value="delivery" className="space-y-4">
+                {/* حالة المستقل: رفع التسليم أو عرض حالة تسليم سابق */}
+                {userProfile?.id === acceptedBid.freelancer_id && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>تسليم العمل</CardTitle>
+                      <CardDescription>
+                        ارفع ملف التسليم النهائي. إذا كانت الخدمة استشارة أو موعداً أو
+                        اجتماعاً أونلاين، الرجاء وضع كل التفاصيل داخل ملف مرفق — جميع
+                        خدماتنا تعتمد على تسليم ملف.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {deliverableError && (
+                        <Alert variant="destructive">
+                          <AlertDescription>{deliverableError}</AlertDescription>
+                        </Alert>
+                      )}
+
+                      {!acceptedBid.deliverable_status || acceptedBid.deliverable_status === "needs_revision" ? (
+                        <>
+                          {acceptedBid.deliverable_status === "needs_revision" && (
+                            <Alert className="bg-amber-500/10 border-amber-500/30">
+                              <AlertDescription className="text-amber-300">
+                                <p className="font-medium mb-1">⚠️ يحتاج العمل بعض التصحيحات</p>
+                                <p className="text-sm">
+                                  {acceptedBid.ai_feedback || "الرجاء مراجعة المتطلبات وإعادة الرفع"}
+                                </p>
+                              </AlertDescription>
+                            </Alert>
+                          )}
+                          <form onSubmit={handleSubmitDeliverable} className="space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="deliverableFile">ملف التسليم *</Label>
+                              <Input
+                                id="deliverableFile"
+                                type="file"
+                                required
+                                onChange={(e) => setDeliverableFile(e.target.files?.[0] || null)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="deliverableNote">ملاحظة للعميل (اختياري)</Label>
+                              <Textarea
+                                id="deliverableNote"
+                                value={deliverableNote}
+                                onChange={(e) => setDeliverableNote(e.target.value)}
+                                rows={4}
+                                placeholder="اشرح ما قمت بتسليمه..."
+                              />
+                            </div>
+                            <Button type="submit" disabled={submittingDeliverable || !deliverableFile}>
+                              {submittingDeliverable ? "جاري الرفع والمراجعة..." : "إرسال التسليم"}
+                            </Button>
+                          </form>
+                        </>
+                      ) : (
+                        <Alert className="bg-emerald-500/10 border-emerald-500/30">
+                          <AlertDescription className="text-emerald-300">
+                            ✅ شكراً لك! تم استلام تسليمك بنجاح.
+                            {acceptedBid.paid_at
+                              ? " تم تأكيد الدفع من صاحب المشروع."
+                              : " بانتظار تأكيد الدفع من صاحب المشروع."}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* حالة صاحب المشروع: مراجعة حالة التسليم + الدفع + التحميل بعد الدفع */}
+                {isOwner && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>حالة تسليم المستقل</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {!acceptedBid.deliverable_status ? (
+                        <p className="text-neutral-400">لم يقم المستقل بتسليم العمل بعد.</p>
+                      ) : acceptedBid.deliverable_status === "needs_revision" ? (
+                        <Alert className="bg-amber-500/10 border-amber-500/30">
+                          <AlertDescription className="text-amber-300">
+                            راجع الذكاء الاصطناعي التسليم وطلب من المستقل تصحيحه. بانتظار
+                            إعادة الرفع.
+                          </AlertDescription>
+                        </Alert>
+                      ) : (
+                        <>
+                          <Alert className="bg-emerald-500/10 border-emerald-500/30">
+                            <AlertDescription className="text-emerald-300 space-y-1">
+                              <p className="font-medium">
+                                ✅ {acceptedBid.deliverable_status === "ai_unavailable"
+                                  ? "تم استلام التسليم (المراجعة الآلية غير متاحة حالياً — يُرجى مراجعته بنفسك)"
+                                  : "التسليم مطابق للمتطلبات حسب المراجعة الآلية"}
+                              </p>
+                              {acceptedBid.ai_feedback && (
+                                <p className="text-sm text-emerald-400/90">{acceptedBid.ai_feedback}</p>
+                              )}
+                            </AlertDescription>
+                          </Alert>
+
+                          {acceptedBid.deliverable_note && (
+                            <p className="text-sm text-neutral-300">
+                              <span className="text-neutral-500">ملاحظة المستقل: </span>
+                              {acceptedBid.deliverable_note}
+                            </p>
+                          )}
+
+                          {!acceptedBid.paid_at ? (
+                            <Button onClick={() => handleGetPaymentLink(acceptedBid)} disabled={loadingPayLink}>
+                              <CreditCard className="h-4 w-4 ml-2" />
+                              {loadingPayLink ? "جاري التجهيز..." : `ادفع ${acceptedBid.amount}$ للمستقل`}
+                            </Button>
+                          ) : (
+                            <Button onClick={() => handleDownloadDeliverable(acceptedBid)} disabled={downloadingDeliverable}>
+                              <Download className="h-4 w-4 ml-2" />
+                              {downloadingDeliverable ? "جاري التحضير..." : "تحميل ملف التسليم"}
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+            )}
+
             <TabsContent value="info">
               <Card>
                 <CardHeader>
@@ -666,7 +947,7 @@ export default function ProjectDetailsPage() {
                       value={bidAmount}
                       onChange={(e) => setBidAmount(e.target.value)}
                       required
-                      placeholder="يجب أن تكون 300$ على الأقل"
+                      placeholder="يجب أن تكون 150$ على الأقل"
                     />
                     <p className="text-xs text-neutral-400">الحد الأدنى: ${project.budget_min}</p>
                   </div>
