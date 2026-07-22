@@ -245,11 +245,19 @@ export default function ProjectDetailsPage() {
     setError(null)
     try {
       const supabase = createClient()
-      const { error: acceptError } = await supabase.rpc("accept_bid", {
+      // ⚠️ استدعاء بوسيط واحد فقط (p_bid_id) — راجع scripts/022_fix_accept_bid_conflict.sql
+      // لماذا كان فيه نسخة ثانية بوسيطين تسبب خطأ 400 (enum transaction_type)
+      const { data, error: acceptError } = await supabase.rpc("accept_bid", {
         p_bid_id: bidId,
-        p_project_id: projectId,
       })
       if (acceptError) throw acceptError
+      if (data && data.success === false) {
+        const messages: Record<string, string> = {
+          bid_not_found: "العرض غير موجود",
+          not_project_owner: "لا يمكنك قبول عروض على مشروع لا تملكه",
+        }
+        throw new Error(messages[data.error] || data.error || "فشل قبول العرض")
+      }
       await loadProjectData()
     } catch (err: any) {
       console.error("[v0] Accept bid error:", err)
