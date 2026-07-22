@@ -49,17 +49,77 @@ export async function POST(request: NextRequest) {
 
     // Gumroad يمرّر أي query params أضفتها لرابط الدفع تحت url_params[key]
     const projectId = fields["url_params[project_id]"] || fields["project_id"]
+    const bidId = fields["url_params[bid_id]"] || fields["bid_id"]
     const saleId = fields["sale_id"]
     const isTest = fields["test"] === "true"
     const priceInCents = Number(fields["price"] || 0)
 
-    if (!projectId) {
-      console.error("❌ ويبهوك Gumroad بدون project_id:", fields)
-      return NextResponse.json({ error: "missing project_id" }, { status: 400 })
-    }
-
     if (!saleId) {
       return NextResponse.json({ error: "missing sale_id" }, { status: 400 })
+    }
+
+    // 🆕 حالة دفع صاحب المشروع للمستقل بعد اعتماد التسليم (رابط
+    // gumroad.com/a/{freelancer_gumroad_affiliate_id}/fxzdsg?...&bid_id=...)
+    // هذا مسار مختلف تماماً عن دفع نشر المشروع أدناه.
+    if (bidId) {
+      const { verified, price: verifiedPrice } = await verifySaleWithGumroad(saleId)
+      if (!verified) {
+        console.error("❌ تعذّر التحقق من صحة عملية دفع المستقل:", saleId)
+        return NextResponse.json({ error: "sale not verified" }, { status: 403 })
+      }
+
+      const supabase = getServiceClient()
+      const { data: bid, error: bidFetchError } = await supabase
+        .from("bids")
+        .select("id, project_id, freelancer_id, amount, deliverable_status, paid_at")
+        .eq("id", bidId)
+        .maybeSingle()
+
+      if (bidFetchError || !bid) {
+        console.error("❌ لم يتم العثور على العرض لتأكيد الدفع:", bidId, bidFetchError)
+        return NextResponse.json({ error: "bid not found" }, { status: 404 })
+      }
+
+      if (bid.paid_at) {
+        return NextResponse.json({ ok: true, note: "already paid" })
+      }
+
+      if (bid.deliverable_status !== "approved" && bid.deliverable_status !== "ai_unavailable") {
+        console.error(
+          `❌ محاولة دفع لعرض (${bidId}) لم يُعتمد تسليمه بعد (deliverable_status=${bid.deliverable_status})`,
+        )
+        return NextResponse.json({ error: "deliverable not approved yet" }, { status: 400 })
+      }
+
+      const paidAmount = verifiedPrice ?? priceInCents / 100
+
+      const { error: payUpdateError } = await supabase
+        .from("bids")
+        .update({ paid_at: new Date().toISOString() })
+        .eq("id", bidId)
+
+      if (payUpdateError) {
+        console.error("❌ فشل تسجيل دفع المستقل:", payUpdateError)
+        return NextResponse.json({ error: "update failed" }, { status: 500 })
+      }
+
+      await supabase.from("transactions").insert({
+        user_id: bid.freelancer_id,
+        project_id: bid.project_id,
+        bid_id: bid.id,
+        amount: paidAmount || bid.amount,
+        type: "earning",
+        description: `دفع Gumroad لتسليم معتمد (sale_id: ${saleId}${isTest ? "، تجريبي" : ""})`,
+        status: "completed",
+      })
+
+      console.log(`✅ تم تأكيد دفع المستقل عن العرض ${bidId} (sale_id: ${saleId})`)
+      return NextResponse.json({ ok: true })
+    }
+
+    if (!projectId) {
+      console.error("❌ ويبهوك Gumroad بدون project_id أو bid_id:", fields)
+      return NextResponse.json({ error: "missing project_id" }, { status: 400 })
     }
 
     const { verified, price: verifiedPrice } = await verifySaleWithGumroad(saleId)
