@@ -1,8 +1,6 @@
 import mammoth from "mammoth"
 import AdmZip from "adm-zip"
-// pdf-parse لا يوفر تعريف default نظيف مع بعض إعدادات TS/ESM — نستورده هكذا لضمان التوافق
-// @ts-ignore
-import pdfParse from "pdf-parse"
+import { PDFParse } from "pdf-parse"
 
 // 🎯 الهدف: نعطي الذكاء الاصطناعي نص المحتوى الفعلي للملف (مو بس اسمه)، حتى
 // يقدر يقارنه فعلياً بمتطلبات المشروع. مدعوم حالياً: txt/csv/json/md (نص خام)،
@@ -35,8 +33,14 @@ async function extractFromSingleFile(buffer: Buffer, fileName: string): Promise<
     }
 
     if (ext === "pdf") {
-      const result = await pdfParse(buffer)
-      return result.text || ""
+      // pdf-parse v2 يصدّر class اسمه PDFParse (مو دالة مباشرة كما بالنسخة القديمة v1)
+      const parser = new PDFParse({ data: buffer })
+      try {
+        const result = await parser.getText()
+        return result.text || ""
+      } finally {
+        await parser.destroy()
+      }
     }
 
     // أنواع معروفة لكن غير مدعومة للاستخراج النصي حالياً
