@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import AuthButtons from "./auth-buttons"
+import NotificationBell from "./notification-bell"
 
 export function Navbar() {
   return (
@@ -31,6 +32,7 @@ export function Navbar() {
             </Button>
           </Link>
 
+          <NotificationBell />
           <AuthButtons />
         </nav>
       </div>
