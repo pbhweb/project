@@ -113,6 +113,22 @@ export async function POST(request: NextRequest) {
         status: "completed",
       })
 
+      // 🆕 إشعار المستقل: تم الدفع واستلام العميل للملف، والعمولة (أجره) تودع
+      // تلقائياً في حسابه على Gumroad (نحن لا نحوّل الأموال يدوياً بأي شكل).
+      try {
+        await supabase.rpc("create_notification", {
+          p_user_id: bid.freelancer_id,
+          p_title: "تم الدفع لمشروعك ✅",
+          p_message: `قام صاحب المشروع بالدفع واستلام الملف. تم إيداع ${
+            paidAmount || bid.amount
+          }$ تلقائياً في حسابك على Gumroad — يمكنك طلب السحب بعد وصول رصيدك إلى 100$.`,
+          p_type: "payment_received",
+          p_related_id: bid.project_id,
+        })
+      } catch (notifyErr: any) {
+        console.error("⚠️ فشل إرسال إشعار الدفع للمستقل:", notifyErr?.message)
+      }
+
       console.log(`✅ تم تأكيد دفع المستقل عن العرض ${bidId} (sale_id: ${saleId})`)
       return NextResponse.json({ ok: true })
     }
@@ -213,6 +229,27 @@ export async function POST(request: NextRequest) {
           console.error("❌ فشل تحديث إحصائيات المسوّق:", affiliateUpdateError)
         } else {
           console.log(`✅ تم تفعيل عمولة المسوّق ${referral.affiliate_id}: +${referral.commission_amount}$`)
+
+          // 🆕 إشعار المسوّق: العميل دفع، وعمولته أُودعت تلقائياً في Gumroad
+          try {
+            const { data: affiliateProfile } = await supabase
+              .from("affiliates")
+              .select("user_id")
+              .eq("id", referral.affiliate_id)
+              .maybeSingle()
+
+            if (affiliateProfile?.user_id) {
+              await supabase.rpc("create_notification", {
+                p_user_id: affiliateProfile.user_id,
+                p_title: "عمولة إحالة جديدة 💰",
+                p_message: `لقد قام العميل بالدفع. تم إيداع عمولتك (${referral.commission_amount}$) تلقائياً في حسابك على Gumroad — يمكنك طلب السحب بعد وصول رصيدك إلى 100$.`,
+                p_type: "referral_commission",
+                p_related_id: projectId,
+              })
+            }
+          } catch (notifyErr: any) {
+            console.error("⚠️ فشل إرسال إشعار العمولة للمسوّق:", notifyErr?.message)
+          }
         }
       }
     }
