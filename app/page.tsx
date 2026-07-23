@@ -8,18 +8,20 @@ export default function HomePage() {
     <div className="min-h-screen">
       {/* Hero Section — cinematic full-bleed with glassmorphism card */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4">
-{/* Video Backdrop */}
-<video
-  autoPlay
-  muted
-  loop
-  playsInline
-  poster="/hero-poster.jpg"
-  className="absolute inset-0 w-full h-full object-cover -z-30 pointer-events-none"
->
-  <source src="/hero.mp4" type="video/mp4" />
-</video>            once a real cinematic clip is available. Until then, an animated gradient + glowing
-            connection lines stand in for the "remote teams, connected by data lines" concept. */}
+        
+        {/* Video Background */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/hero-poster.jpg"
+          className="absolute inset-0 w-full h-full object-cover -z-30 pointer-events-none"
+        >
+          <source src="/hero.mp4" type="video/mp4" />
+        </video>
+
+        {/* Fallback Overlays & Gradients */}
         <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,#0b1c14_0%,#050705_55%,#020302_100%)]" />
         <div className="absolute inset-0 -z-20 opacity-70 animate-[hero-drift_18s_ease-in-out_infinite] bg-[radial-gradient(circle_at_75%_65%,rgba(16,185,129,0.28)_0%,transparent_45%)]" />
 
@@ -103,47 +105,6 @@ export default function HomePage() {
             [class*="animate-[hero-"] { animation: none !important; }
           }
         `}</style>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-16 px-4 bg-secondary/30">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">لماذا تختار منصتنا؟</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card>
-              <CardHeader>
-                <DollarSign className="h-12 w-12 text-emerald-400 mb-4" />
-                <CardTitle>نظام عمولة مزدوج</CardTitle>
-                <CardDescription>20% للمستقلين، 10% للمسوقين</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">احصل على عمولة مجزية لكل مشروع تنفذه أو تجلبه للمنصة</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Shield className="h-12 w-12 text-emerald-400 mb-4" />
-                <CardTitle>حماية المعلومات</CardTitle>
-                <CardDescription>أرقام الهواتف مخفية حتى القبول</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">نحمي معلومات اتصالك ونظهرها فقط للأطراف المقبولة</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Users className="h-12 w-12 text-emerald-400 mb-4" />
-                <CardTitle>ثلاثة أنواع من المستخدمين</CardTitle>
-                <CardDescription>أصحاب عمل، مستقلين، مسوقين</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">نظام متكامل يلبي احتياجات جميع الأطراف في سوق العمل الحر</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
       </section>
 
       {/* How It Works */}
