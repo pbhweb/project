@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     const { data: project, error: projectError } = await supabase
       .from("projects")
-      .select("title, description")
+      .select("title, description, client_id")
       .eq("id", project_id)
       .maybeSingle()
 
@@ -202,6 +202,24 @@ export async function POST(request: NextRequest) {
     if (updateError) {
       console.error("❌ فشل تحديث بيانات التسليم:", updateError)
       return NextResponse.json({ error: "فشل حفظ التسليم" }, { status: 500 })
+    }
+
+    // 🆕 إشعار صاحب المشروع بأن التسليم وصل وبانتظار الدفع (بغض النظر عن قرار
+    // الذكاء الاصطناعي — حتى لو ai_unavailable، صاحب المشروع لازم يعرف إنه وصله تسليم)
+    try {
+      const statusMessage =
+        deliverableStatus === "needs_revision"
+          ? "الذكاء الاصطناعي طلب من المستقل تصحيح بعض النقاط قبل اعتماده."
+          : "تم استلام التسليم وهو جاهز — بانتظار دفعك لإتمام العملية."
+      await serviceSupabase.rpc("create_notification", {
+        p_user_id: project.client_id,
+        p_title: "تم تسليم مشروعك",
+        p_message: `سلّم المستقل عملك على مشروع "${project.title}". ${statusMessage}`,
+        p_type: "deliverable_submitted",
+        p_related_id: project_id,
+      })
+    } catch (notifyErr: any) {
+      console.error("⚠️ فشل إرسال إشعار التسليم لصاحب المشروع:", notifyErr?.message)
     }
 
     return NextResponse.json({
