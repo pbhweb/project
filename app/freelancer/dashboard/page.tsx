@@ -267,7 +267,11 @@ export default function FreelancerDashboardPage() {
             ) : (
               <div className="space-y-4">
                 {bids.map((bid) => (
-                  <div key={bid.id} className="border rounded-xl p-6 hover:shadow-md transition-all">
+                  <Link
+                    href={`/projects/${bid.project_id}`}
+                    key={bid.id}
+                    className="block border rounded-xl p-6 hover:shadow-md hover:border-emerald-500/40 transition-all cursor-pointer"
+                  >
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -289,7 +293,7 @@ export default function FreelancerDashboardPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
