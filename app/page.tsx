@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
   ArrowRight, Briefcase, DollarSign, Shield, Users, Bot, 
-  CheckCircle2, Sparkles, RefreshCw, Volume2, VolumeX, Bell, AlertCircle, XCircle 
+  CheckCircle2, Sparkles, RefreshCw, Volume2, VolumeX, AlertCircle 
 } from "lucide-react"
 import Link from "next/link"
 
 export default function HomePage() {
-  // 1. حالة كتم وتفعيل صوت الفيديو
+  // التحكم بصوت الفيديو
   const [isMuted, setIsMuted] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -21,16 +21,16 @@ export default function HomePage() {
     }
   }
 
-  // ضمان تشغيل الفيديو تلقائياً
+  // ضمان تشغيل الفيديو تلقائياً فور تحميل الصفحة
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.play().catch((error) => {
-        console.log("Autoplay was prevented by browser policy:", error)
+        console.log("Autoplay issue:", error)
       })
     }
   }, [])
 
-  // 2. محاكاة فحص AI للملفات والتحويل الآلي للعمولات
+  // محاكاة تقييم الـ AI والتحويل الآلي
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [aiResult, setAiResult] = useState<{ score: number; status: string; payout: string } | null>(null)
 
@@ -48,60 +48,28 @@ export default function HomePage() {
     }, 2500)
   }
 
-  // 3. حالة إشعارات توثيق رخصة العمل الحر
-  // Options: 'unverified' | 'pending' | 'approved' | 'rejected'
-  const [verificationStatus, setVerificationStatus] = useState<'unverified' | 'pending' | 'approved' | 'rejected'>('unverified')
-
   return (
     <div className="min-h-screen bg-black text-white">
       
-      {/* Dynamic Verification Notification Bar */}
-      <div className="bg-neutral-900 border-b border-white/10 px-4 py-3 text-sm">
-        <div className="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-2">
-          
-          {verificationStatus === 'unverified' && (
-            <div className="flex items-center gap-2 text-amber-400">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <span>تنبيه: لم تقم برفع توثيق رخصة العمل الحر بعد. وثّق حسابك الآن للحصول على أولوية قبول العروض!</span>
-            </div>
-          )}
-
-          {verificationStatus === 'pending' && (
-            <div className="flex items-center gap-2 text-blue-400">
-              <Bell className="h-4 w-4 shrink-0 animate-bounce" />
-              <span>تم استلام طلب التحقق من رخصة العمل الحر بنجاح، وجاري مراجعته...</span>
-            </div>
-          )}
-
-          {verificationStatus === 'approved' && (
-            <div className="flex items-center gap-2 text-emerald-400">
-              <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span>تهانينا! تم قبول وتوثيق رخصة العمل الحر الخاصة بك بنجاح.</span>
-            </div>
-          )}
-
-          {verificationStatus === 'rejected' && (
-            <div className="flex items-center gap-2 text-rose-400">
-              <XCircle className="h-4 w-4 shrink-0" />
-              <span>عذراً، تم رفض طلب التوثيق. يُرجى إعادة التأكد من صلاحية رخصة العمل الحر المرفقة.</span>
-            </div>
-          )}
-
-          {/* Controls to test notifications */}
-          <div className="flex items-center gap-1 text-xs text-gray-400">
-            <span>تجربة الأشعار:</span>
-            <button onClick={() => setVerificationStatus('unverified')} className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10">غير موثق</button>
-            <button onClick={() => setVerificationStatus('pending')} className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10">قيد المراجعة</button>
-            <button onClick={() => setVerificationStatus('approved')} className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10">مقبول</button>
-            <button onClick={() => setVerificationStatus('rejected')} className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10">مرفوض</button>
+      {/* شريط الإشعار المباشر للتوثيق (بدون أزرار تجربة) */}
+      <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-3 text-sm">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-amber-400 font-medium">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>تنبيه: لم تقم برفع توثيق رخصة العمل الحر بعد. وثّق حسابك الآن للحصول على أولوية قبول العروض!</span>
           </div>
+          <Link href="/profile">
+            <Button size="sm" variant="outline" className="text-xs border-amber-500/40 text-amber-300 hover:bg-amber-500/20">
+              وثّق الآن
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Hero Section - الفيديو خلفية شفافة مرئية */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4">
         
-        {/* Background Video */}
+        {/* 1. فيديو الخلفية */}
         <video
           ref={videoRef}
           autoPlay
@@ -115,10 +83,10 @@ export default function HomePage() {
           متصفحك لا يدعم تشغيل الفيديو.
         </video>
 
-        {/* Video Sound Control Button */}
+        {/* 2. زر كتم / تشغيل الصوت فائق الاستجابة */}
         <button
           onClick={toggleSound}
-          className="absolute bottom-6 right-6 z-30 p-3 rounded-full bg-black/60 backdrop-blur-md border border-white/20 hover:bg-emerald-500 hover:text-black transition-all text-white shadow-xl cursor-pointer"
+          className="absolute bottom-6 right-6 z-30 p-3 rounded-full bg-black/50 backdrop-blur-md border border-white/20 hover:bg-emerald-500 hover:text-black transition-all text-white shadow-xl cursor-pointer"
           title={isMuted ? "تشغيل الصوت" : "كتم الصوت"}
         >
           {isMuted ? (
@@ -128,16 +96,15 @@ export default function HomePage() {
           )}
         </button>
 
-        {/* Overlays */}
-        <div className="absolute inset-0 -z-20 bg-black/30 backdrop-blur-[2px]" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.6)_100%)] pointer-events-none" />
+        {/* 3. طبقة شفافة خفيفة جداً لإبراز الفيديو */}
+        <div className="absolute inset-0 -z-20 bg-black/20" />
 
-        {/* Glassmorphism Card */}
-        <div className="relative z-10 w-full max-w-2xl rounded-2xl border border-white/15 bg-black/40 backdrop-blur-md px-8 py-14 text-center shadow-2xl sm:px-14">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white text-balance">
+        {/* 4. بطاقة المحتوى الزجاجية بالكامل (تظهر الفيديو من خلفها) */}
+        <div className="relative z-10 w-full max-w-2xl rounded-2xl border border-white/20 bg-black/30 backdrop-blur-sm px-8 py-14 text-center shadow-2xl sm:px-14">
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white text-balance drop-shadow-md">
             تواصل مع نخبة المستقلين حول العالم
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-white/80 max-w-xl mx-auto text-pretty">
+          <p className="mt-6 text-lg md:text-xl text-white/90 max-w-xl mx-auto text-pretty drop-shadow-sm">
             إدارة وتسليم آلي مدعوم بالذكاء الاصطناعي مع تحويل تلقائي للعمولات والأرباح
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -151,7 +118,7 @@ export default function HomePage() {
               </Button>
             </Link>
             <Link href="/projects">
-              <Button size="lg" variant="outline" className="border-white/30 text-white bg-white/5 hover:bg-white/10 backdrop-blur-sm">
+              <Button size="lg" variant="outline" className="border-white/40 text-white bg-black/20 hover:bg-white/20 backdrop-blur-md">
                 استعرض المشاريع
               </Button>
             </Link>
@@ -159,7 +126,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* AI Pre-Delivery Audit Section */}
+      {/* قسم التحليل الآلي للذكاء الاصطناعي */}
       <section className="py-12 px-4 border-y border-emerald-500/20 bg-emerald-950/20">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium mb-4">
@@ -213,7 +180,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* المميزات */}
       <section className="py-16 px-4 bg-secondary/30">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">لماذا تختار منصتنا؟</h2>
@@ -260,7 +227,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Verification Section */}
+      {/* قسم التوثيق */}
       <section className="py-16 px-4 bg-secondary/30">
         <div className="max-w-4xl mx-auto text-center">
           <Shield className="h-12 w-12 text-emerald-600 mx-auto mb-4" />
