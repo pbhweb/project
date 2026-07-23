@@ -1,17 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, Briefcase, DollarSign, Shield, Users, Bot, CheckCircle2, Sparkles, RefreshCw } from "lucide-react"
+import { 
+  ArrowRight, Briefcase, DollarSign, Shield, Users, Bot, 
+  CheckCircle2, Sparkles, RefreshCw, Volume2, VolumeX 
+} from "lucide-react"
 import Link from "next/link"
 
 export default function HomePage() {
+  // حالة التحكم بالصوت والـ Ref المباشر للفيديو
+  const [isMuted, setIsMuted] = useState(true)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // التحرر والتحكم في كتم/تشغيل الصوت
+  const toggleSound = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted
+      setIsMuted(!isMuted)
+    }
+  }
+
+  // ضمان تشغيل الفيديو فور تحميل الصفحة
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch((error) => {
+        console.log("Autoplay prevented by browser:", error)
+      })
+    }
+  }, [])
+
   // حالة محاكاة لنظام تقييم الذكاء الاصطناعي الآلي
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [aiResult, setAiResult] = useState<{ score: number; status: string; payout: string } | null>(null)
 
-  // محاكاة زر التقييم والتحويل الآلي بدون تدخل بشري
   const handleAiAutoAudit = () => {
     setIsEvaluating(true)
     setAiResult(null)
@@ -33,17 +56,33 @@ export default function HomePage() {
         
         {/* Background Video */}
         <video
+          ref={videoRef}
           autoPlay
-          muted
+          muted={isMuted}
           loop
           playsInline
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover -z-30 pointer-events-none"
         >
           <source src="/hero.mp4" type="video/mp4" />
+          متصفحك لا يدعم تشغيل الفيديو.
         </video>
 
+        {/* Floating Sound Toggle Button */}
+        <button
+          onClick={toggleSound}
+          className="absolute bottom-6 right-6 z-20 p-3 rounded-full bg-black/60 backdrop-blur-md border border-white/20 hover:bg-black/80 transition-all text-white shadow-lg cursor-pointer"
+          title={isMuted ? "تشغيل الصوت" : "كتم الصوت"}
+        >
+          {isMuted ? (
+            <VolumeX className="h-5 w-5 text-gray-300" />
+          ) : (
+            <Volume2 className="h-5 w-5 text-emerald-400 animate-pulse" />
+          )}
+        </button>
+
         {/* Fallback Overlays & Gradients */}
-        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,#0b1c14_0%,#050705_55%,#020302_100%)]" />
+        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,#0b1c14_0%,#050705_55%,#020302_100%)] opacity-80" />
         <div className="absolute inset-0 -z-20 opacity-70 animate-[hero-drift_18s_ease-in-out_infinite] bg-[radial-gradient(circle_at_75%_65%,rgba(16,185,129,0.28)_0%,transparent_45%)]" />
 
         <svg
