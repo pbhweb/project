@@ -23,12 +23,24 @@ export default function HomePage() {
 
   // ضمان تشغيل الفيديو تلقائياً فور تحميل الصفحة
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch((error) => {
-        console.log("Autoplay issue:", error)
-      })
+    const video = videoRef.current;
+    if (video) {
+      // محاولة التشغيل مع تجاهل الأخطاء
+      const playPromise = video.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          console.log("Video started playing");
+        }).catch(error => {
+          console.log("Autoplay prevented:", error);
+          // محاولة إعادة التشغيل بعد تفاعل المستخدم
+          document.addEventListener('click', () => {
+            video.play();
+          }, { once: true });
+        });
+      }
     }
-  }, [])
+  }, []);
 
   // محاكاة تقييم الـ AI والتحويل الآلي
   const [isEvaluating, setIsEvaluating] = useState(false)
@@ -51,37 +63,34 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-black text-white">
       
-      {/* شريط الإشعار المباشر للتوثيق (بدون أزرار تجربة) */}
-      <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-3 text-sm">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-amber-400 font-medium">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>تنبيه: لم تقم برفع توثيق رخصة العمل الحر بعد. وثّق حسابك الآن للحصول على أولوية قبول العروض!</span>
-          </div>
-          <Link href="/profile">
-            <Button size="sm" variant="outline" className="text-xs border-amber-500/40 text-amber-300 hover:bg-amber-500/20">
-              وثّق الآن
-            </Button>
-          </Link>
-        </div>
-      </div>
-
       {/* Hero Section - الفيديو خلفية شفافة مرئية */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4">
         
-        {/* 1. فيديو الخلفية */}
-        <video
-          ref={videoRef}
-          autoPlay
-          muted={isMuted}
-          loop
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover -z-30 pointer-events-none"
-        >
-          <source src="/hero.mp4" type="video/mp4" />
-          متصفحك لا يدعم تشغيل الفيديو.
-        </video>
+       <div className="absolute inset-0 z-0">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted={isMuted}
+            loop
+            playsInline
+            preload="auto"
+            className="w-full h-full object-cover"
+            poster="/video-poster.jpg" // صورة بديلة أثناء التحميل
+          >
+            <source src="/hero.mp4" type="video/mp4" />
+            {/* إضافة بديل للفيديو إذا لم يتم تحميله */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/90 flex items-center justify-center">
+              <div className="text-center">
+                <Briefcase className="h-16 w-16 mx-auto text-emerald-400 mb-4" />
+                <p className="text-xl">جاري تحميل الفيديو...</p>
+              </div>
+            </div>
+          </video>
+        </div>
+
+
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-10" />
+
 
         {/* 2. زر كتم / تشغيل الصوت فائق الاستجابة */}
         <button
