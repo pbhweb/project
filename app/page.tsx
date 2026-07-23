@@ -37,7 +37,6 @@ export default function HomePage() {
           muted
           loop
           playsInline
-          poster="/hero-poster.jpg"
           className="absolute inset-0 w-full h-full object-cover -z-30 pointer-events-none"
         >
           <source src="/hero.mp4" type="video/mp4" />
