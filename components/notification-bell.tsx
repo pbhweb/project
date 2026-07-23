@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -28,6 +29,7 @@ export default function NotificationBell() {
   const [notifications, setNotifications] = useState<NotificationRow[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const supabase = createClient()
+  const router = useRouter()
 
   useEffect(() => {
     let channel: ReturnType<typeof supabase.channel> | null = null
@@ -95,6 +97,17 @@ export default function NotificationBell() {
     await supabase.from("notifications").update({ is_read: true }).eq("user_id", userId).eq("is_read", false)
   }
 
+  // 🆕 الضغط على أي إشعار يوديك مباشرة للمشروع اللي يخصّه (related_id يحمل
+  // project_id بكل أنواع الإشعارات الحالية: عرض جديد، قبول عرض، تسليم، دفع، عمولة)
+  const handleNotificationClick = async (n: NotificationRow) => {
+    if (!n.is_read) {
+      await markAsRead(n.id)
+    }
+    if (n.related_id) {
+      router.push(`/projects/${n.related_id}`)
+    }
+  }
+
   if (!userId) return null
 
   return (
@@ -125,7 +138,7 @@ export default function NotificationBell() {
             notifications.map((n) => (
               <button
                 key={n.id}
-                onClick={() => !n.is_read && markAsRead(n.id)}
+                onClick={() => handleNotificationClick(n)}
                 className={`w-full text-right px-3 py-2.5 border-b border-white/5 hover:bg-white/5 transition-colors ${
                   !n.is_read ? "bg-emerald-500/5" : ""
                 }`}
