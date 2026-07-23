@@ -11,16 +11,16 @@ export default function HomePage() {
         
         {/* Video Background */}
         <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/hero-poster.jpg"
-          className="absolute inset-0 w-full h-full object-cover -z-30 pointer-events-none"
-        >
-          <source src="/hero.mp4" type="video/mp4" />
-        </video>
-
+  autoPlay
+  muted
+  loop
+  playsInline
+  preload="auto"
+  poster="/hero-poster.jpg"
+  className="absolute inset-0 w-full h-full object-cover -z-30 pointer-events-none"
+>
+  <source src="/hero.mp4" type="video/mp4" />
+</video>
         {/* Fallback Overlays & Gradients */}
         <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,#0b1c14_0%,#050705_55%,#020302_100%)]" />
         <div className="absolute inset-0 -z-20 opacity-70 animate-[hero-drift_18s_ease-in-out_infinite] bg-[radial-gradient(circle_at_75%_65%,rgba(16,185,129,0.28)_0%,transparent_45%)]" />
