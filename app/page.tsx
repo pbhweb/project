@@ -5,16 +5,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
   ArrowRight, Briefcase, DollarSign, Shield, Users, Bot, 
-  CheckCircle2, Sparkles, RefreshCw, Volume2, VolumeX 
+  CheckCircle2, Sparkles, RefreshCw, Volume2, VolumeX, Bell, AlertCircle, XCircle 
 } from "lucide-react"
 import Link from "next/link"
 
 export default function HomePage() {
-  // حالة التحكم بالصوت والـ Ref المباشر للفيديو
+  // 1. حالة كتم وتفعيل صوت الفيديو
   const [isMuted, setIsMuted] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  // التحرر والتحكم في كتم/تشغيل الصوت
   const toggleSound = () => {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted
@@ -22,16 +21,16 @@ export default function HomePage() {
     }
   }
 
-  // ضمان تشغيل الفيديو فور تحميل الصفحة
+  // ضمان تشغيل الفيديو تلقائياً
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.play().catch((error) => {
-        console.log("Autoplay prevented by browser:", error)
+        console.log("Autoplay was prevented by browser policy:", error)
       })
     }
   }, [])
 
-  // حالة محاكاة لنظام تقييم الذكاء الاصطناعي الآلي
+  // 2. محاكاة فحص AI للملفات والتحويل الآلي للعمولات
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [aiResult, setAiResult] = useState<{ score: number; status: string; payout: string } | null>(null)
 
@@ -43,15 +42,63 @@ export default function HomePage() {
       setIsEvaluating(false)
       setAiResult({
         score: 98,
-        status: "مكتمِل ومُطابق للشروط 100%",
+        status: "مكتمِل ومُطابق لشروط العمل 100%",
         payout: "تم تحويل 20% عمولة المستقل و 10% عمولة المسوق آلياً ⚡",
       })
-    }, 2000)
+    }, 2500)
   }
+
+  // 3. حالة إشعارات توثيق رخصة العمل الحر
+  // Options: 'unverified' | 'pending' | 'approved' | 'rejected'
+  const [verificationStatus, setVerificationStatus] = useState<'unverified' | 'pending' | 'approved' | 'rejected'>('unverified')
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Hero Section — cinematic full-bleed with glassmorphism card */}
+      
+      {/* Dynamic Verification Notification Bar */}
+      <div className="bg-neutral-900 border-b border-white/10 px-4 py-3 text-sm">
+        <div className="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-2">
+          
+          {verificationStatus === 'unverified' && (
+            <div className="flex items-center gap-2 text-amber-400">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>تنبيه: لم تقم برفع توثيق رخصة العمل الحر بعد. وثّق حسابك الآن للحصول على أولوية قبول العروض!</span>
+            </div>
+          )}
+
+          {verificationStatus === 'pending' && (
+            <div className="flex items-center gap-2 text-blue-400">
+              <Bell className="h-4 w-4 shrink-0 animate-bounce" />
+              <span>تم استلام طلب التحقق من رخصة العمل الحر بنجاح، وجاري مراجعته...</span>
+            </div>
+          )}
+
+          {verificationStatus === 'approved' && (
+            <div className="flex items-center gap-2 text-emerald-400">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>تهانينا! تم قبول وتوثيق رخصة العمل الحر الخاصة بك بنجاح.</span>
+            </div>
+          )}
+
+          {verificationStatus === 'rejected' && (
+            <div className="flex items-center gap-2 text-rose-400">
+              <XCircle className="h-4 w-4 shrink-0" />
+              <span>عذراً، تم رفض طلب التوثيق. يُرجى إعادة التأكد من صلاحية رخصة العمل الحر المرفقة.</span>
+            </div>
+          )}
+
+          {/* Controls to test notifications */}
+          <div className="flex items-center gap-1 text-xs text-gray-400">
+            <span>تجربة الأشعار:</span>
+            <button onClick={() => setVerificationStatus('unverified')} className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10">غير موثق</button>
+            <button onClick={() => setVerificationStatus('pending')} className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10">قيد المراجعة</button>
+            <button onClick={() => setVerificationStatus('approved')} className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10">مقبول</button>
+            <button onClick={() => setVerificationStatus('rejected')} className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10">مرفوض</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero Section */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4">
         
         {/* Background Video */}
@@ -68,10 +115,10 @@ export default function HomePage() {
           متصفحك لا يدعم تشغيل الفيديو.
         </video>
 
-        {/* Floating Sound Toggle Button */}
+        {/* Video Sound Control Button */}
         <button
           onClick={toggleSound}
-          className="absolute bottom-6 right-6 z-20 p-3 rounded-full bg-black/60 backdrop-blur-md border border-white/20 hover:bg-black/80 transition-all text-white shadow-lg cursor-pointer"
+          className="absolute bottom-6 right-6 z-30 p-3 rounded-full bg-black/60 backdrop-blur-md border border-white/20 hover:bg-emerald-500 hover:text-black transition-all text-white shadow-xl cursor-pointer"
           title={isMuted ? "تشغيل الصوت" : "كتم الصوت"}
         >
           {isMuted ? (
@@ -81,54 +128,16 @@ export default function HomePage() {
           )}
         </button>
 
-        {/* Fallback Overlays & Gradients */}
-        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,#0b1c14_0%,#050705_55%,#020302_100%)] opacity-80" />
-        <div className="absolute inset-0 -z-20 opacity-70 animate-[hero-drift_18s_ease-in-out_infinite] bg-[radial-gradient(circle_at_75%_65%,rgba(16,185,129,0.28)_0%,transparent_45%)]" />
+        {/* Overlays */}
+        <div className="absolute inset-0 -z-20 bg-black/30 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.6)_100%)] pointer-events-none" />
 
-        <svg
-          className="absolute inset-0 -z-10 h-full w-full opacity-60"
-          viewBox="0 0 1200 800"
-          preserveAspectRatio="xMidYMid slice"
-          aria-hidden="true"
-        >
-          <defs>
-            <linearGradient id="dataLine" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#34d399" stopOpacity="0" />
-              <stop offset="50%" stopColor="#34d399" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {[
-            "M120,620 C320,520 420,560 620,400 S920,220 1080,180",
-            "M60,180 C260,240 380,180 560,300 S860,540 1140,560",
-            "M180,760 C420,680 520,500 760,460 S1020,360 1160,300",
-          ].map((d, i) => (
-            <path
-              key={d}
-              d={d}
-              fill="none"
-              stroke="url(#dataLine)"
-              strokeWidth="1.5"
-              strokeDasharray="6 10"
-              className="animate-[hero-flow_6s_linear_infinite]"
-              style={{ animationDelay: `${i * 0.8}s` }}
-            />
-          ))}
-          {[
-            [120, 620], [620, 400], [1080, 180], [60, 180], [560, 300], [1140, 560], [760, 460], [1160, 300],
-          ].map(([cx, cy], i) => (
-            <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="4" fill="#6ee7b7" className="animate-[hero-pulse_3s_ease-in-out_infinite]" style={{ animationDelay: `${i * 0.3}s` }} />
-          ))}
-        </svg>
-
-        <div className="absolute inset-0 -z-10 bg-black/35" />
-
-        {/* Glassmorphism card */}
-        <div className="relative w-full max-w-2xl rounded-2xl border border-emerald-500/20 bg-black/40 backdrop-blur-xl px-8 py-14 text-center shadow-2xl shadow-black/60 sm:px-14">
+        {/* Glassmorphism Card */}
+        <div className="relative z-10 w-full max-w-2xl rounded-2xl border border-white/15 bg-black/40 backdrop-blur-md px-8 py-14 text-center shadow-2xl sm:px-14">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white text-balance">
             تواصل مع نخبة المستقلين حول العالم
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-white/70 max-w-xl mx-auto text-pretty">
+          <p className="mt-6 text-lg md:text-xl text-white/80 max-w-xl mx-auto text-pretty">
             إدارة وتسليم آلي مدعوم بالذكاء الاصطناعي مع تحويل تلقائي للعمولات والأرباح
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -142,47 +151,29 @@ export default function HomePage() {
               </Button>
             </Link>
             <Link href="/projects">
-              <Button size="lg" variant="outline" className="border-white/30 text-white bg-white/5 hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white/30 text-white bg-white/5 hover:bg-white/10 backdrop-blur-sm">
                 استعرض المشاريع
               </Button>
             </Link>
           </div>
         </div>
-
-        <style>{`
-          @keyframes hero-drift {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-3%, 2%) scale(1.08); }
-          }
-          @keyframes hero-flow {
-            to { stroke-dashoffset: -160; }
-          }
-          @keyframes hero-pulse {
-            0%, 100% { opacity: 0.3; r: 3; }
-            50% { opacity: 1; r: 5; }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            [class*="animate-[hero-"] { animation: none !important; }
-          }
-        `}</style>
       </section>
 
-      {/* AI Automated Review Feature Banner */}
+      {/* AI Pre-Delivery Audit Section */}
       <section className="py-12 px-4 border-y border-emerald-500/20 bg-emerald-950/20">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium mb-4">
-            <Sparkles className="h-3.5 w-3.5" /> تقييم وحساب آلي بالذكاء الاصطناعي
+            <Sparkles className="h-3.5 w-3.5" /> مراجعة AI قبل التسليم + تحويل آلي
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">تدقيق آلي وتسليم فور المراجعة</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">تحليل الذكاء الاصطناعي وإيداع العمولات الفوري</h2>
           <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base mb-6">
-            يقوم النظام بفحص مخرجات المشروع آلياً، تقييم جودة عمل المستقل، وإحالة العمولات مباشرة دون أي تدخّل يدوي.
+            قبل تسليم العمل للعميل، يفحص الـ AI ملفات المستقل تلقائياً للتأكد من الشروط، ثم يُحول المستحقات فورياً.
           </p>
 
-          {/* Interactive AI Demo Box */}
           <div className="max-w-md mx-auto p-6 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md">
             <div className="flex items-center justify-between mb-4 text-xs text-emerald-400 font-mono">
-              <span>STATUS: AI_AUTO_AUDIT</span>
-              <span>ENGINE: GPT-4o</span>
+              <span>AI_PRE_DELIVERY_AUDIT</span>
+              <span>AUTOMATED_PAYOUT</span>
             </div>
             {!aiResult ? (
               <Button
@@ -192,18 +183,18 @@ export default function HomePage() {
               >
                 {isEvaluating ? (
                   <>
-                    <RefreshCw className="h-4 w-4 animate-spin" /> جاري التدقيق والتحويل الآلي...
+                    <RefreshCw className="h-4 w-4 animate-spin" /> جاري تحليل الملفات وصرف العمولات...
                   </>
                 ) : (
                   <>
-                    <Bot className="h-4 w-4" /> اختبر محاكاة التدقيق الفوري
+                    <Bot className="h-4 w-4" /> محاكاة رفع العمل وتحليله بالـ AI
                   </>
                 )}
               </Button>
             ) : (
               <div className="text-right space-y-3 animate-in fade-in zoom-in duration-300">
                 <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                  <span className="text-sm text-gray-400">تقييم الجودة الآلي:</span>
+                  <span className="text-sm text-gray-400">نسبة تطابق المخرجات:</span>
                   <span className="text-emerald-400 font-bold text-lg">{aiResult.score}%</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-emerald-300">
@@ -230,12 +221,12 @@ export default function HomePage() {
             <Card className="bg-black/40 border-white/10">
               <CardHeader>
                 <DollarSign className="h-12 w-12 text-emerald-400 mb-4" />
-                <CardTitle>نظام عمولة مزدوج آلي</CardTitle>
+                <CardTitle>إيداع آلي وفوري</CardTitle>
                 <CardDescription>20% للمستقلين، 10% للمسوقين</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  تُحتسب العمولات وتُحوّل تلقائياً بمجرد اعتماد المخرجات وتأكيد جودتها عبر الذكاء الاصطناعي.
+                  تُحول المبالغ مباشرة إلى المحافظ المخصصة فور اجتياز العمل لمراجعة الذكاء الاصطناعي.
                 </p>
               </CardContent>
             </Card>
@@ -243,12 +234,12 @@ export default function HomePage() {
             <Card className="bg-black/40 border-white/10">
               <CardHeader>
                 <Shield className="h-12 w-12 text-emerald-400 mb-4" />
-                <CardTitle>حماية وخصوصية</CardTitle>
-                <CardDescription>إخفاء بيانات الاتصال المباشر</CardDescription>
+                <CardTitle>توثيق رخص العمل الحر</CardTitle>
+                <CardDescription>إشارات توثيق موثوقة</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  نحمي معلوماتك ولا نكشفها إلا للأطراف المقبولة لضمان أمان المعاملات.
+                  نظام إشعارات ذكي يدير حالات تقديم، قبول، ورفض وثائق العمل الحر للمستقلين.
                 </p>
               </CardContent>
             </Card>
@@ -265,46 +256,6 @@ export default function HomePage() {
                 </p>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">كيف تعمل العملية الآلية؟</h2>
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
-                <span className="text-2xl font-bold text-emerald-400">1</span>
-              </div>
-              <h3 className="font-semibold mb-2">انشر مشروعك</h3>
-              <p className="text-sm text-muted-foreground">أضف تفاصيل مشروعك بحد أدنى 150$</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
-                <span className="text-2xl font-bold text-emerald-400">2</span>
-              </div>
-              <h3 className="font-semibold mb-2">استلم المخرجات</h3>
-              <p className="text-sm text-muted-foreground">يحصل المستقلون على 20% عمولة</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
-                <span className="text-2xl font-bold text-emerald-400">3</span>
-              </div>
-              <h3 className="font-semibold mb-2">تقييم الـ AI الآلي</h3>
-              <p className="text-sm text-muted-foreground">يفحص الذكاء الاصطناعي جودة العمل</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-500/20">
-                <span className="text-2xl font-bold text-orange-400">4</span>
-              </div>
-              <h3 className="font-semibold mb-2">صرف آلي للعمولات</h3>
-              <p className="text-sm text-muted-foreground">المسوقون يحصلون على 10% عمولة آلياً</p>
-            </div>
           </div>
         </div>
       </section>
@@ -354,6 +305,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
     </div>
   )
 }
