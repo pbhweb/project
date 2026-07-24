@@ -344,7 +344,7 @@ export default function AffiliateDashboardPage() {
                 </AlertDescription>
               </Alert>
             ) : (
-              <Alert variant="destructive" className="mb-8 border-2">
+              <Alert className="mb-8 border-2 border-red-500/40 bg-red-950/30 text-red-300">
                 <AlertDescription className="space-y-3">
                   <p className="font-bold">
                     ⚠️ حسابك غير قادر حالياً على استلام العمولات تلقائياً
