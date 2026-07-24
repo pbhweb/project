@@ -210,7 +210,7 @@ export default function AffiliateDashboardPage() {
         )}
 
         {error && (
-          <Alert variant="destructive" className="mb-6 bg-red-100 border-red-300 text-red-900">
+          <Alert className="mb-8 border-2 bg-red-100 border-red-300 text-red-900">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -318,7 +318,7 @@ export default function AffiliateDashboardPage() {
                     </div>
                     <div className="w-10 h-10 bg-orange-500/15 rounded-full flex items-center justify-center">
                       <div
-                        className={`w-3 h-3 rounded-full ${affiliate.is_active ? "bg-green-500" : "bg-red-300"}`}
+                        className={`w-3 h-3 rounded-full ${affiliate.is_active ? "bg-green-500" : "bg-red-500"}`}
                       ></div>
                     </div>
                   </div>
