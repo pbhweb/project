@@ -344,38 +344,38 @@ export default function AffiliateDashboardPage() {
                 </AlertDescription>
               </Alert>
             ) : (
-              <Alert className="mb-8 border-2 border-red-500 bg-red-500/10 text-white">
-  <AlertDescription className="space-y-3">
+              <Alert className="mb-8 border-2 border-red-500 bg-red-500/10 text-red-400">
+  <AlertDescription className="space-y-3 !text-red-400">
     <p className="font-bold text-red-400 text-lg flex items-center gap-2">
       ⚠️ حسابك غير قادر حالياً على استلام العمولات تلقائياً
     </p>
-    <p className="text-sm text-neutral-200 leading-relaxed">
+    <p className="text-sm !text-red-300 leading-relaxed">
       الدفع يتم من طرف ثالث (Gumroad) بشكل آلي بالكامل — نحن لا نقوم بتحويل
       العمولات يدوياً. إذا كانت لديك عمولات مستحقة وخاصية الاستلام التلقائي غير
       مفعّلة، الرجاء التواصل معنا. إذا كنت من دول محظورة تماماً من استخدام هذه المنصة لا تفعل خاصية استلام عمولة تلقائية مثل سوريا والسودان.
     </p>
-    <p className="text-sm font-semibold text-red-400">لتفعيل نظام العمولات التلقائية:</p>
-    <ul className="list-decimal list-inside text-sm space-y-1 text-neutral-200">
+    <p className="text-sm font-semibold !text-red-400">لتفعيل نظام العمولات التلقائية:</p>
+    <ul className="list-decimal list-inside text-sm space-y-1 !text-red-300">
       <li>
         سجّل حساباً على{" "}
         <a
           href="https://gumroad.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline font-bold text-white hover:text-red-400"
+          className="underline font-bold !text-red-200 hover:!text-white"
         >
           gumroad.com
         </a>
       </li>
       <li>
         تواصل معنا على{" "}
-        <a href="mailto:affiliate@workshub.space" className="underline font-bold text-white hover:text-red-400">
+        <a href="mailto:affiliate@workshub.space" className="underline font-bold !text-red-200 hover:!text-white">
           affiliate@workshub.space
         </a>{" "}
         لربط حسابك وتفعيل استلام العمولات تلقائياً
       </li>
     </ul>
-    <p className="text-sm text-neutral-200">
+    <p className="text-sm !text-red-300">
       بعد التفعيل، تتم معالجة المدفوعات واستلام عمولاتك بشكل آلي بالكامل دون أي
       تدخل يدوي منّا.
     </p>
