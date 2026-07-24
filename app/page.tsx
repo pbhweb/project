@@ -9,6 +9,31 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+// بيانات آراء المستخدمين (تُعرض كبطاقات توثيق تعكس هوية المنصة)
+const testimonials = [
+  {
+    name: "عادل",
+    role: "مطور ويب مستقل",
+    image: "/Adel.jpg",
+    quote:
+      "اشتغلت في أكثر من منصة عمل حر، وأكثر شيء كان يتعبني هو انتظار الدفعات. أخلص شغلي وأجلس أنتظر لين يتم اعتمادها. لكن مع Workshub اختلف الوضع. كل شيء مؤتمت، وإذا اكتملت شروط العملية ينزل المبلغ بشكل تلقائي بدون ما ألاحق أحد أو أرسل تذاكر دعم. بصراحة وفرت وقت وجهد، وصرت أركز على شغلي وزيادة دخلي بدل متابعة المستحقات.",
+  },
+  {
+    name: "رنا",
+    role: "مصممة جرافيك",
+    image: "/Rana.jpg",
+    quote:
+      "كنت مترددة أشتغل أونلاين بسبب اللي أسمعه عن تأخير الدفعات والمشاكل بين العميل والمستقل. لكن بعد ما طلعت رخصة عمل وصارت عندي شارة موثوق، لاحظت إن العملاء صاروا يتعاملون معي بثقة أكبر، وصار اتخاذ قرار الشراء أسهل بالنسبة لهم. ومع Workshub كل شيء صار مؤتمت، من الطلب إلى الدفع، وأنا كل تركيزي صار على تقديم شغل احترافي.",
+  },
+  {
+    name: "محمد",
+    role: "كاتب محتوى",
+    image: "/mohamed.jpg",
+    quote:
+      "بصراحة كنت أعتقد أصعب شيء هو تنفيذ الشغل، لكن اكتشفت إن الأصعب هو الحصول على العميل. في Workshub ما احتجت أقضي ساعات أرسل عروض وأنافس على كل مشروع. العميل يوصلني جاهز، وأنا أركز على تقديم شغل ممتاز بدل مطاردة الفرص. هذا وفر علي وقت كبير، وصرت أقدر أستقبل مشاريع أكثر وأهتم بجودة شغلي بدل ما أقضي يومي أدور على العميل الجاي.",
+  },
+]
+
 export default function HomePage() {
   // التحكم بصوت الفيديو
   const [isMuted, setIsMuted] = useState(true)
@@ -59,6 +84,31 @@ export default function HomePage() {
       })
     }, 2500)
   }
+
+  // كشف ظهور بطاقات آراء المستخدمين عند التمرير لتشغيل الأنيميشن بشكل متتابع
+  const [visibleTestimonials, setVisibleTestimonials] = useState<Set<number>>(new Set())
+  const testimonialRefs = useRef<(HTMLDivElement | null)[]>([])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = Number(entry.target.getAttribute("data-index"))
+            setVisibleTestimonials((prev) => {
+              const next = new Set(prev)
+              next.add(idx)
+              return next
+            })
+          }
+        })
+      },
+      { threshold: 0.2 }
+    )
+
+    testimonialRefs.current.forEach((el) => el && observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -251,6 +301,66 @@ export default function HomePage() {
               وثّق حسابك الآن
             </Button>
           </Link>
+        </div>
+      </section>
+
+      {/* آراء مستقلين موثّقين - بطاقات على شكل "شارة توثيق" تربط مباشرة بقسم التوثيق أعلاه */}
+      <section className="py-20 px-4 bg-black">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium mb-4">
+              <CheckCircle2 className="h-3.5 w-3.5" /> تجارب موثّقة من مستقلين حقيقيين
+            </div>
+            <h2 className="text-3xl font-bold">قصص نجاح على منصتنا</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((t, idx) => {
+              const isVisible = visibleTestimonials.has(idx)
+              return (
+                <div
+                  key={t.name}
+                  ref={(el) => { testimonialRefs.current[idx] = el }}
+                  data-index={idx}
+                  style={{ transitionDelay: isVisible ? `${idx * 150}ms` : "0ms" }}
+                  className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md p-8 text-center transition-all duration-700 ease-out hover:border-emerald-500/40 ${
+                    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+                  }`}
+                >
+                  {/* خط مسح ضوئي يتحرك عند التحويم، تلميح بصري لفكرة "التوثيق والفحص" */}
+                  <div className="pointer-events-none absolute inset-x-0 -top-full h-1/2 bg-gradient-to-b from-emerald-400/20 to-transparent transition-transform duration-700 ease-out group-hover:translate-y-full" />
+
+                  <div className="relative inline-block mb-5">
+                    <img
+                      src={t.image}
+                      alt={t.name}
+                      className="h-20 w-20 rounded-full object-cover border-2 border-emerald-500/50 mx-auto"
+                    />
+                    <span className="absolute -bottom-1 -left-1 flex items-center justify-center h-6 w-6 rounded-full bg-emerald-500 border-2 border-black">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-black" />
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-lg">{t.name}</h3>
+                  <p className="text-emerald-400 text-xs font-mono mb-4">{t.role}</p>
+
+                  <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
+                    {t.quote}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* شريط الثقة - رؤية السعودية 2030 */}
+      <section className="py-8 px-4 border-t border-white/10 bg-black">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+          <img src="/vision2030.png" alt="رؤية السعودية 2030" className="h-10 w-auto opacity-80" />
+          <p className="text-xs sm:text-sm text-white/50">
+            منصة داعمة لريادة الأعمال والعمل الحر تماشياً مع مستهدفات رؤية السعودية 2030
+          </p>
         </div>
       </section>
 
