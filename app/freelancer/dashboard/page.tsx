@@ -142,41 +142,44 @@ export default function FreelancerDashboardPage() {
             </AlertDescription>
           </Alert>
         ) : (
-          <Alert variant="destructive" className="mb-6 border-2">
-            <AlertDescription className="space-y-3">
-              <p className="font-bold">⚠️ حسابك غير قادر حالياً على استلام العمولات تلقائياً</p>
-              <p className="text-sm">
-                الدفع يتم من طرف ثالث (Gumroad) بشكل آلي بالكامل — نحن لا نقوم بتحويل العمولات
-                يدوياً. إذا كانت لديك عمولات مستحقة وخاصية الاستلام التلقائي غير مفعّلة، سيتم
-                تصفير العمولات المستحقة.
-              </p>
-              <p className="text-sm font-medium">لتفعيل نظام العمولات التلقائية:</p>
-              <ul className="list-decimal list-inside text-sm space-y-1">
-                <li>
-                  سجّل حساباً على{" "}
-                  <a
-                    href="https://gumroad.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline font-medium"
-                  >
-                    gumroad.com
-                  </a>
-                </li>
-                <li>
-                  تواصل معنا على{" "}
-                  <a href="mailto:freelancer@workshub.space" className="underline font-medium">
-                    freelancer@workshub.space
-                  </a>{" "}
-                  لربط حسابك وتفعيل استلام العمولات تلقائياً
-                </li>
-              </ul>
-              <p className="text-sm">
-                بعد التفعيل، تتم معالجة المدفوعات واستلام أرباحك بشكل آلي بالكامل دون أي تدخل
-                يدوي منّا.
-              </p>
-            </AlertDescription>
-          </Alert>
+          <Alert className="mb-8 border-2 border-neutral-700 bg-neutral-900/50">
+  <AlertDescription className="space-y-3">
+    <p className="font-bold text-white">
+      ⚠️ حسابك غير قادر حالياً على استلام العمولات تلقائياً
+    </p>
+    <p className="text-sm text-neutral-300">
+      الدفع يتم من طرف ثالث (Gumroad) بشكل آلي بالكامل  بتحويل العمولات
+      يدوياً. إذا كانت لديك عمولات مستحقة وخاصية الاستلام التلقائي غير مفعّلة، إذا كانت لديك عمولات مستحقة وخاصية الاستلام التلقائي غير
+      مفعّلة، الرجاء التواصل معنا . اذا كنت من دول محظوره تماما استخدام هذا منصه لا تفعل خاصية استلام عمولة تلقائيه مثل سوريا وسودان  
+
+    </p>
+    <p className="text-sm font-medium text-white">لتفعيل نظام العمولات التلقائية:</p>
+    <ul className="list-decimal list-inside text-sm space-y-1 text-neutral-300">
+      <li>
+        سجّل حساباً على{" "}
+        <a
+          href="https://gumroad.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline font-medium text-white hover:text-neutral-200"
+        >
+          gumroad.com
+        </a>
+      </li>
+      <li>
+        تواصل معنا على{" "}
+        <a href="mailto:freelancer@workshub.space" className="underline font-medium text-white hover:text-neutral-200">
+          freelancer@workshub.space
+        </a>{" "}
+        لربط حسابك وتفعيل استلام العمولات تلقائياً
+      </li>
+    </ul>
+    <p className="text-sm text-neutral-300">
+      بعد التفعيل، تتم معالجة المدفوعات واستلام أرباحك بشكل آلي بالكامل دون أي تدخل
+      يدوي منّا.
+    </p>
+  </AlertDescription>
+</Alert>
         )}
 
         {/* Stats Cards */}
