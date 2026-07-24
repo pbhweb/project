@@ -344,43 +344,43 @@ export default function AffiliateDashboardPage() {
                 </AlertDescription>
               </Alert>
             ) : (
-              <Alert className="mb-8 border-2 border-red-500/40 bg-red-950/30 text-red-300">
-                <AlertDescription className="space-y-3">
-                  <p className="font-bold">
-                    ⚠️ حسابك غير قادر حالياً على استلام العمولات تلقائياً
-                  </p>
-                  <p className="text-sm">
-                    الدفع يتم من طرف ثالث (Gumroad) بشكل آلي بالكامل — نحن لا نقوم بتحويل
-                    العمولات يدوياً. إذا كانت لديك عمولات مستحقة وخاصية الاستلام التلقائي غير
-                    مفعّلة، الرجاء التواصل معنا . اذا كنت من دول محظوره تماما استخدام هذا منصه لا تفعل خاصية استلام عمولة تلقائيه مثل سوريا وسودان 
-                  </p>
-                  <p className="text-sm font-medium">لتفعيل نظام العمولات التلقائية:</p>
-                  <ul className="list-decimal list-inside text-sm space-y-1">
-                    <li>
-                      سجّل حساباً على{" "}
-                      <a
-                        href="https://gumroad.com/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline font-medium"
-                      >
-                        gumroad.com
-                      </a>
-                    </li>
-                    <li>
-                      تواصل معنا على{" "}
-                      <a href="mailto:affiliate@workshub.space" className="underline font-medium">
-                        affiliate@workshub.space
-                      </a>{" "}
-                      لربط حسابك وتفعيل استلام العمولات تلقائياً
-                    </li>
-                  </ul>
-                  <p className="text-sm">
-                    بعد التفعيل، تتم معالجة المدفوعات واستلام عمولاتك بشكل آلي بالكامل دون أي
-                    تدخل يدوي منّا.
-                  </p>
-                </AlertDescription>
-              </Alert>
+              <Alert className="mb-8 border-2 border-red-500/50 bg-red-950/20 text-red-200">
+  <AlertDescription className="space-y-3">
+    <p className="font-bold text-red-400 text-base">
+      ⚠️ حسابك غير قادر حالياً على استلام العمولات تلقائياً
+    </p>
+    <p className="text-sm text-red-200/90 leading-relaxed">
+      الدفع يتم من طرف ثالث (Gumroad) بشكل آلي بالكامل — نحن لا نقوم بتحويل
+      العمولات يدوياً. إذا كانت لديك عمولات مستحقة وخاصية الاستلام التلقائي غير
+      مفعّلة، الرجاء التواصل معنا. إذا كنت من دول محظورة تماماً من استخدام هذه المنصة لا تفعل خاصية استلام عمولة تلقائية مثل سوريا والسودان.
+    </p>
+    <p className="text-sm font-semibold text-red-300">لتفعيل نظام العمولات التلقائية:</p>
+    <ul className="list-decimal list-inside text-sm space-y-1 text-red-200/90">
+      <li>
+        سجّل حساباً على{" "}
+        <a
+          href="https://gumroad.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline font-bold text-red-300 hover:text-red-100"
+        >
+          gumroad.com
+        </a>
+      </li>
+      <li>
+        تواصل معنا على{" "}
+        <a href="mailto:affiliate@workshub.space" className="underline font-bold text-red-300 hover:text-red-100">
+          affiliate@workshub.space
+        </a>{" "}
+        لربط حسابك وتفعيل استلام العمولات تلقائياً
+      </li>
+    </ul>
+    <p className="text-sm text-red-200/90">
+      بعد التفعيل، تتم معالجة المدفوعات واستلام عمولاتك بشكل آلي بالكامل دون أي
+      تدخل يدوي منّا.
+    </p>
+  </AlertDescription>
+</Alert>
             )}
 
             <Card className="mb-8 border-2 border-emerald-500/20 shadow-lg">
