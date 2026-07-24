@@ -318,7 +318,7 @@ export default function AffiliateDashboardPage() {
                     </div>
                     <div className="w-10 h-10 bg-orange-500/15 rounded-full flex items-center justify-center">
                       <div
-                        className={`w-3 h-3 rounded-full ${affiliate.is_active ? "bg-green-500" : "bg-red-500"}`}
+                        className={`w-3 h-3 rounded-full ${affiliate.is_active ? "bg-green-500" : "bg-red-300"}`}
                       ></div>
                     </div>
                   </div>
@@ -352,7 +352,7 @@ export default function AffiliateDashboardPage() {
                   <p className="text-sm">
                     الدفع يتم من طرف ثالث (Gumroad) بشكل آلي بالكامل — نحن لا نقوم بتحويل
                     العمولات يدوياً. إذا كانت لديك عمولات مستحقة وخاصية الاستلام التلقائي غير
-                    مفعّلة، سيتم تصفير العمولات المستحقة.
+                    مفعّلة، الرجاء التواصل معنا . اذا كنت من دول محظوره تماما استخدام هذا منصه لا تفعل خاصية استلام عمولة تلقائيه مثل سوريا وسودان 
                   </p>
                   <p className="text-sm font-medium">لتفعيل نظام العمولات التلقائية:</p>
                   <ul className="list-decimal list-inside text-sm space-y-1">
