@@ -210,7 +210,7 @@ export default function AffiliateDashboardPage() {
         )}
 
         {error && (
-          <Alert variant="destructive" className="mb-6">
+          <Alert variant="destructive" className="mb-6 bg-red-100 border-red-300 text-red-900">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
